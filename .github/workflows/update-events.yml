@@ -1,0 +1,27 @@
+name: Update fight card and results
+on:
+  schedule:
+    - cron: "*/30 * * * 5,6,0,1"
+    - cron: "0 */6 * * 2,3,4"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: update-events
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build events.json
+        run: node scripts/update-events.mjs
+      - name: Commit if changed
+        run: |
+          git config user.name "fight-card-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add events.json
+          if git diff --cached --quiet; then echo "no changes"; else git commit -m "Update fight card and results"; git push; fi

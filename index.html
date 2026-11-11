@@ -384,13 +384,13 @@ let sx=0,sy=0;grid.addEventListener("touchstart",e=>{const t=e.touches[0];sx=t.c
 grid.addEventListener("touchend",e=>{const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.6)swc(dx<0?1:-1)},{passive:true});
 const rvo=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle("in",e.isIntersecting)),{rootMargin:"25% 0px 25% 0px"});
 document.querySelectorAll(".rv").forEach(x=>rvo.observe(x));
-const EV={id:"ufc334",name:"UFC 334",when:"Sat, Nov 14 · Madison Square Garden, New York",lock:Date.parse("2026-11-15T02:00:00Z"),fights:[
+let EV={id:"ufc334",name:"UFC 334",when:"Sat, Nov 14 · Madison Square Garden, New York",lock:Date.parse("2026-11-15T02:00:00Z"),fights:[
 {id:"f1",a:"Ciryl Gane",b:"Josh Hokit",ta:"CHAMP",tb:"#5",cls:"Heavyweight",tag:"Title fight · Main event",main:1,rounds:5},
 {id:"f2",a:"Kayla Harrison",b:"Amanda Nunes",ta:"CHAMP",tb:"LEGEND",cls:"Women's Bantamweight",tag:"Title fight · Co-main",rounds:5},
 {id:"f3",a:"Caio Borralho",b:"Yousri Belgaroui",ta:"#6",tb:"UNRANKED",cls:"Middleweight",tag:"Main card",rounds:3},
 {id:"f4",a:"Uroš Medić",b:"Kevin Holland",ta:"#9",tb:"#14",cls:"Welterweight",tag:"Main card",rounds:3},
 {id:"f5",a:"Bilal Hasan",b:"Luis Gurule",ta:"PROSPECT",tb:"UNRANKED",cls:"Flyweight",tag:"Main card",rounds:3}]};
-const LAST={name:"UFC Fight Night: Cortes Acosta vs Walker",when:"Sat, Nov 7 · Meta APEX, Las Vegas",fights:[
+let LAST={name:"UFC Fight Night: Cortes Acosta vs Walker",when:"Sat, Nov 7 · Meta APEX, Las Vegas",fights:[
 ["Johnny Walker","Waldo Cortes-Acosta","Heavyweight","KO/TKO","R3 2:27",1,1],
 ["Tatiana Suarez","Virna Jandiroba","Women's Strawweight","DEC","Unanimous",0,1],
 ["Elijah Smith","Davey Grant","Bantamweight","KO/TKO","R1 1:00",0,1],
@@ -408,7 +408,7 @@ const LAST={name:"UFC Fight Night: Cortes Acosta vs Walker",when:"Sat, Nov 7 · 
 function renLast(){const el=document.getElementById("lw");if(!el)return;
  const av=(n,m,win)=>{const s=photo(n);return `<span class="av ${win?"win":"lose"}"><i style="${s?`background-image:url(${s})`:""}">${s?"":ini(n)}</i><span class="mt">${win?`<span class="tag mini lwt">${esc(m)}</span>`:""}</span></span>`};
  el.innerHTML=`<div class="fm" style="margin:0 0 10px">${esc(LAST.name)} · ${esc(LAST.when)}</div>`+LAST.fights.filter(f=>f[6]).map(f=>{const r=(String(f[4]).match(/^R(\d)/)||[])[1],m=f[3]+(r?" · R"+r:"");return `<div class="fight lwf ${f[5]?"main":""}"><div class="fm">${esc(f[2]||"Main card")}${f[5]?" · Main event":""}</div><div class="vs"><div class="lwwin">${av(f[0],m,1)}<span>${esc(f[0])}</span></div><em>VS</em><div class="lwlose">${av(f[1],"",0)}<span>${esc(f[1])}</span></div></div></div>`}).join("")}
-let DB=null,U=null,ME=null,OWNER=false,PICKS={},RES={},NAMES={},READY=false,sel={},CF=null;
+let DB=null,U=null,ME=null,OWNER=false,PICKS={},RES={},AUTO={},MAINF={},NAMES={},READY=false,sel={},CF=null;
 
 /* ===== Supabase mode (used when the page is NOT opened inside claude.ai) ===== */
 const SUPA_URL="https://hauxmxemyvgbgkbholln.supabase.co",SUPA_KEY="sb_publishable_doIqm34FPpJah1gWDeQWvQ_O54mnuip";
@@ -442,21 +442,24 @@ async function sbInit(){
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const ini=n=>n.split(" ").map(x=>x[0]).slice(0,2).join("");
 const photo=n=>{for(const k in D){const f=D[k].find(x=>x.n===n);if(f&&f.pic)return f.pic}return ""};
-const pts=(p,r,main)=>{if(!p||!r||p.w!==r.w)return 0;const v=p.m===r.m?200:100;return main?v*2:v};
+const nm=s=>s==="TKO/KO"?"KO/TKO":s;
+const res=id=>RES[id]||AUTO[id]||null;
+const mainOf=id=>id in MAINF?MAINF[id]:(AUTO[id]&&AUTO[id].main);
+const pts=(p,r,main)=>{if(!p||!r||p.w!==r.w)return 0;const v=r.m&&nm(p.m)===nm(r.m)?200:100;return main?v*2:v};
 const locked=()=>Date.now()>=EV.lock;
-const coins=id=>{const f=(PICKS[id]||{}).fights||{};return EV.fights.reduce((s,x)=>s+pts(f[x.id],RES[x.id],x.main),0)};
+const coins=id=>{const f=(PICKS[id]||{}).fights||{};return Object.keys(f).reduce((s,k)=>s+pts(f[k],res(k),mainOf(k)),0)};
 function board(){return Object.keys(PICKS).map(id=>({id,c:coins(id),n:Object.keys((PICKS[id]||{}).fights||{}).length})).sort((a,b)=>b.c-a.c||b.n-a.n)}
 function ren(){
  const A=document.getElementById("acct"),B=board(),rank=B.findIndex(x=>x.id===ME)+1,mine=(PICKS[ME]||{}).fights||{};
  A.innerHTML=!READY?'<div class="box">Connecting…</div>':ME&&DB?`<div class="box"><h3>${esc(NAMES[ME]||"You")}</h3><small style="color:var(--mut)">${SB?"Logged in":"Logged in with your Claude account"}${OWNER?" · owner":""}${SB?` · <a href="#" onclick="sbOut();return false" style="color:inherit">Log out</a> · <a href="#" onclick="sbDel();return false" style="color:inherit">Delete account</a>`:""}</small><div class="stats"><div><b>${coins(ME)}</b><small>Coins</small></div><div><b>${Object.keys(mine).length}</b><small>Picks</small></div><div><b>${rank||"–"}</b><small>Rank</small></div></div></div>`:`<div class="box lg"><div class="lgh"><span class="lgi" aria-hidden="true">🥊</span><div><h3>Join the game</h3><small>Pick winners, earn coins, climb the scoreboard</small></div></div>${loginHtml()}</div>`;
- document.getElementById("evt").innerHTML=`<div class="fm" style="margin:0 0 10px">${EV.name} · ${EV.when}${locked()?" · picks closed":""}</div>`+EV.fights.map((f,i)=>{const p=mine[f.id],r=RES[f.id];let st=p?`Your pick: <b>${p.w}</b> · ${p.m}${p.r?" · R"+p.r:""}`:(locked()?"Picks closed":"Tap to pick the winner");if(r)st+=` · Result: ${r.w} (${r.m}${r.r?" R"+r.r:""}) · <b class="pt">+${pts(p,r,f.main)}</b>`;
+ document.getElementById("evt").innerHTML=`<div class="fm" style="margin:0 0 10px">${EV.name} · ${EV.when}${EV.src?` · Main card ${new Date(EV.lock).toLocaleString(undefined,{weekday:"short",hour:"2-digit",minute:"2-digit"})} your time (${EV.src==="ufc.com"?"official, ufc.com":"estimate"})`:""}${locked()?" · picks closed":""}</div>`+EV.fights.map((f,i)=>{const p=mine[f.id],r=res(f.id);let st=p?`Your pick: <b>${p.w}</b> · ${p.m}${p.r?" · R"+p.r:""}`:(locked()?"Picks closed":"Tap to pick the winner");if(r)st+=` · Result: ${r.w} (${r.m}${r.r?" R"+r.r:""}) · <b class="pt">+${pts(p,r,f.main)}</b>`;
   const av=(n,t)=>{const s=photo(n);return `<span class="av"><i style="${s?`background-image:url(${s})`:""}">${s?"":ini(n)}</i><span class="mt">${t?`<span class="tag mini ${tc(t)}">${t}</span>`:""}${(EXTRA[n]||[]).map(x=>`<span class="tag mini ${tc(x)}">${x}</span>`).join("")}</span></span>`};
   return `<button class="fight ${f.main?"main":""}" onclick="openPick(${i})"><div class="fm">${f.cls} · ${f.tag}${f.main?" · 2x coins":""}</div><div class="vs"><div>${av(f.a,f.ta)}<span>${f.a}</span></div><em>VS</em><div>${av(f.b,f.tb)}<span>${f.b}</span></div></div><div class="st">${st}</div></button>`}).join("");
  document.getElementById("lb").innerHTML=`<div class="box">${B.length?B.map((x,i)=>`<div class="lb ${x.id===ME?"me":""}"><span class="n">${i+1}</span><span class="nm">${esc(NAMES[x.id]||"Fight fan")}${x.id===ME?" (you)":""}<br><small style="color:var(--mut)">${x.n} pick${x.n===1?"":"s"}</small></span><span class="c">${x.c} 🪙</span></div>`).join(""):"No picks yet. Be the first to pick a winner."}<div class="st" style="margin-top:10px">Winner right: 100 coins · winner and method right: 200 · main event pays double.</div></div>`}
 const findF=n=>{for(const k in D){const i=D[k].findIndex(x=>x.n===n);if(i>=0)return[k,i]}return null};
 function openFighter(n){const r=findF(n);if(!r)return;if(cur!==r[0])show(r[0]);open_(r[1])}
 const prof=n=>findF(n)?`<button class="pl" onclick="openFighter(decodeURIComponent('${encodeURIComponent(n)}'))">View profile</button>`:'<span class="pl off">No profile yet</span>';
-function openPick(i){CF=EV.fights[i];const m=((PICKS[ME]||{}).fights||{})[CF.id]||{};sel={w:m.w||"",m:m.m||"",r:m.r||0};drawPk();document.getElementById("pk").showModal()}
+function openPick(i){CF=EV.fights[i];const m=((PICKS[ME]||{}).fights||{})[CF.id]||{};sel={w:m.w||"",m:nm(m.m||""),r:m.r||0};drawPk();document.getElementById("pk").showModal()}
 function setW(k){sel.w=[CF.a,CF.b][k];drawPk()}function setM(m){sel.m=m;if(m==="DEC")sel.r=0;drawPk()}function setR(r){sel.r=r;drawPk()}
 const WK={},wkLoad=()=>{try{Object.assign(WK,JSON.parse(localStorage.getItem("ufcwk")||"{}"))}catch(e){}};wkLoad();
 function fightStart(f){const i=EV.fights.indexOf(f),r=EV.fights.length-1-i;return EV.lock+r*35*60000}
@@ -474,12 +477,19 @@ function clockAlarm(){const f=CF,first=EV.fights.indexOf(f)===EV.fights.length-1
 function setSide(k,m){const n=[CF.a,CF.b][k];if(sel.w!==n){sel.w=n;sel.m="";sel.r=0}if(m){sel.m=m;if(m==="DEC")sel.r=0}drawPk()}
 function drawPk(){const f=CF,ok=sel.w&&sel.m&&(sel.m==="DEC"||sel.r),can=ME&&DB&&!locked(),ch=(l,on,fn)=>`<button class="ch sm ${on?"on":""}" onclick="${fn}">${l}</button>`;
  const side=(n,t,k)=>{const on=sel.w===n,s=photo(n),tg=[t].concat(EXTRA[n]||[]).filter(Boolean).map(x=>`<span class="tag mini ${tc(x)}">${esc(x)}</span>`).join("");
-  return `<div class="sd ${on?"on":sel.w?"off":""}" style="--ph:${s?`url(${s})`:"none"}">${s?"":`<div class="sdi">${esc(ini(n))}</div>`}<button class="sdp" onclick="setSide(${k})" aria-label="Pick ${esc(n)}"><span class="sdt">${tg}</span><span class="sdn">${esc(n)}</span><span class="sdy">${on?"✓ Your pick":"Tap to pick"}</span></button>${prof(n)}<div class="sdl">How?</div><div class="chs">${["DEC","TKO/KO","SUB"].map(m=>ch(m,on&&sel.m===m,`setSide(${k},'${m}')`)).join("")}</div>${on&&sel.m&&sel.m!=="DEC"?`<div class="sdl">Round</div><div class="chs">${Array.from({length:f.rounds},(_,i)=>ch("R"+(i+1),sel.r===i+1,`setR(${i+1})`)).join("")}</div>`:""}</div>`};
+  return `<div class="sd ${on?"on":sel.w?"off":""}" style="--ph:${s?`url(${s})`:"none"}">${s?"":`<div class="sdi">${esc(ini(n))}</div>`}<button class="sdp" onclick="setSide(${k})" aria-label="Pick ${esc(n)}"><span class="sdt">${tg}</span><span class="sdn">${esc(n)}</span><span class="sdy">${on?"✓ Your pick":"Tap to pick"}</span></button>${prof(n)}<div class="sdl">How?</div><div class="chs">${["DEC","KO/TKO","SUB"].map(m=>ch(m,on&&sel.m===m,`setSide(${k},'${m}')`)).join("")}</div>${on&&sel.m&&sel.m!=="DEC"?`<div class="sdl">Round</div><div class="chs">${Array.from({length:f.rounds},(_,i)=>ch("R"+(i+1),sel.r===i+1,`setR(${i+1})`)).join("")}</div>`:""}</div>`};
  document.getElementById("pkb").innerHTML=`<div class="pkh"><h2>${esc(f.a)} vs ${esc(f.b)}</h2><small>${esc(f.cls)} · ${esc(f.tag)}${f.main?" · 2x coins":""}</small></div><div class="spl">${side(f.a,f.ta,0)}${side(f.b,f.tb,1)}</div><div class="pkf"><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" ${ok&&can?"":"disabled"} onclick="savePick()">Lock in my pick</button>${OWNER&&DB?`<button class="btn" style="background:#333" ${ok?"":"disabled"} onclick="saveRes()">Save as official result</button>`:""}<button class="btn wk" onclick="wakeUp()">⏰ Wake me up</button></div><details class="wkh"><summary>How "Wake me up" works</summary><p><b>iPhone:</b> sets a real Clock alarm that rings even on silent. One-time setup:</p><ol><li>Open the <b>Shortcuts</b> app, tap <b>+</b> and name the shortcut exactly <b>UFC Alarm</b>.</li><li>Add the action <b>Get Dates from Input</b>.</li><li>Add the action <b>Create Alarm</b>, set its time to the <b>Dates</b> result from the step above, and turn its label on.</li><li>Done. You get one alarm: on time for the first main-card fight, and 20 minutes before the estimated start for every other fight.</li></ol><p><b>Android and other phones:</b> downloads a calendar file with one alarm, timed the same way. Open it to add it to your calendar.</p><p>Start times are estimates. Edit the alarm if the schedule changes.</p></details><div class="st">${!ME?"Log in to save picks.":locked()?"Picks are closed for this event.":"Pick a side, then how it ends. Round is saved but doesn't score coins yet."}</div></div>`}
 async function savePick(){try{const fights=Object.assign({},(PICKS[ME]||{}).fights||{},{[CF.id]:{w:sel.w,m:sel.m,r:sel.r}});await DB.doc("picks/"+ME).set({fights,t:Date.now()});PICKS[ME]={fights};ren();document.getElementById("pk").close()}catch(e){document.querySelector("#pkb .st").textContent="Couldn't save your pick. You may need contributor access to this page."}}
 async function saveRes(){try{const fights=Object.assign({},RES,{[CF.id]:{w:sel.w,m:sel.m,r:sel.r}});await DB.doc("results/"+EV.id).set({fights});RES=fights;ren();document.getElementById("pk").close()}catch(e){}}
 async function names(){try{const ids=Object.keys(PICKS).concat(ME?[ME]:[]);if(!U||!ids.length)return;const ps=await U.profiles(ids);ids.forEach(id=>{NAMES[id]=String((ps[id]&&ps[id].name)||NAMES[id]||"").slice(0,24)});ren()}catch(e){}}
-(async()=>{try{if(!window.claude){await sbInit()}else{U=await claude.use("user");DB=await claude.use("db");if(U){ME=await U.id();OWNER=await U.isOwner()}}if(DB&&ME){DB.collection("picks").onSnapshot(s=>{PICKS={};s.docs.forEach(d=>PICKS[d.id]=d.data());ren();names()},()=>{});DB.doc("results/"+EV.id).onSnapshot(s=>{RES=s.exists?((s.data()||{}).fights||{}):{};ren()},()=>{})}}catch(e){}READY=true;ren();names()})();
+
+const tagOf=n=>{const r=findF(n);if(r)return D[r[0]][r[1]].tag;const k=s=>String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();for(const c in D){const f=D[c].find(x=>k(x.n)===k(n));if(f)return f.tag}return""};
+async function loadEvents(){try{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),4000);const r=await fetch("events.json",{cache:"no-store",signal:ac.signal});clearTimeout(t);if(!r.ok)return;const j=await r.json();
+ if(j.next&&j.next.fights&&j.next.fights.length>=3){EV={id:j.next.id,name:j.next.name,when:j.next.when,lock:j.next.lock,src:j.next.source,fights:j.next.fights.map(f=>Object.assign({},f,{ta:tagOf(f.a),tb:tagOf(f.b)}))}}
+ if(j.last&&j.last.fights&&j.last.fights.length){LAST={name:j.last.name,when:j.last.when,fights:j.last.fights.map(f=>[f.w,f.l,f.cls,f.method,f.detail,f.main?1:0,f.card?1:0])}}
+ AUTO=j.history||{};}catch(e){}
+ MAINF={};EV.fights.forEach(f=>MAINF[f.id]=f.main?1:0);renLast()}
+(async()=>{await loadEvents();try{if(!window.claude){await sbInit()}else{U=await claude.use("user");DB=await claude.use("db");if(U){ME=await U.id();OWNER=await U.isOwner()}}if(DB&&ME){DB.collection("picks").onSnapshot(s=>{PICKS={};s.docs.forEach(d=>PICKS[d.id]=d.data());ren();names()},()=>{});DB.doc("results/"+EV.id).onSnapshot(s=>{RES=s.exists?((s.data()||{}).fights||{}):{};ren()},()=>{})}}catch(e){}READY=true;ren();names()})();
 setTimeout(()=>{READY=true;ren()},10000);ren();renLast();
 show("Flyweight");UI=true;
 </script></body></html>
