@@ -1,0 +1,14 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Contact | UFC Fighter Roster</title><link rel="stylesheet" href="legal.css"></head><body><header><a href="index.html">← UFC FIGHTER ROSTER</a></header><main><h1>Contact</h1>
+<p>Questions, feedback, privacy requests or copyright/takedown notices: send us a message below. Include your email if you want a reply.</p>
+<form class="box" id="f"><label>Your email (optional)<input id="e" type="email" maxlength="200" autocomplete="email"></label>
+<label>Topic<select id="t" style="width:100%;padding:11px;border:2px solid var(--dg);border-radius:10px;font:inherit;margin:6px 0"><option>General</option><option>Privacy request</option><option>Copyright / takedown</option><option>Bug report</option></select></label>
+<label>Message<textarea id="m" rows="6" maxlength="2000" required></textarea></label>
+<input class="hp" id="h" tabindex="-1" autocomplete="off" aria-hidden="true">
+<button type="submit">Send message</button><p id="r" class="mut"></p></form>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
+<script>
+const sb=supabase.createClient("https://hauxmxemyvgbgkbholln.supabase.co","sb_publishable_doIqm34FPpJah1gWDeQWvQ_O54mnuip");
+f.onsubmit=async ev=>{ev.preventDefault();if(h.value)return;const last=+localStorage.getItem("cl")||0;if(Date.now()-last<60000){r.textContent="Please wait a minute before sending another message.";return}
+const{error}=await sb.from("contact_messages").insert({email:e.value.trim()||null,topic:t.value,message:m.value.trim()});
+if(error){r.textContent="Could not send. Please try again later.";return}localStorage.setItem("cl",Date.now());f.reset();r.textContent="Thanks! Your message was sent."};
+</script></main></body></html>

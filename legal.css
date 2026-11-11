@@ -1,0 +1,15 @@
+:root{--bg:#e4ede7;--tx:#0d2a1c;--mut:#4a6354;--dg:#073b24;--dg2:#0d5a37;--gold:#d4a017}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.65 Arial,sans-serif}
+header{background:var(--dg);border-bottom:3px solid var(--gold);padding:14px 16px}
+header a{color:var(--gold);font-weight:700;text-decoration:none;letter-spacing:1px}
+main{max-width:760px;margin:0 auto;padding:28px 16px 60px}
+h1{font:34px Impact,Arial,sans-serif;letter-spacing:2px;text-transform:uppercase;color:var(--dg);margin:0 0 4px}
+h1::after{content:"";display:block;width:70px;height:4px;margin-top:8px;border-radius:4px;background:linear-gradient(90deg,var(--dg),var(--gold))}
+h2{color:var(--dg);font-size:19px;margin:28px 0 6px;border-left:5px solid var(--dg);padding-left:10px}
+p,li{color:var(--tx)}small,.mut{color:var(--mut)}
+a{color:var(--dg2)}
+.box{background:#fbfdfb;border:1px solid #e5cf8f;border-top:4px solid var(--dg);border-radius:12px;padding:16px;margin:16px 0}
+input,textarea{width:100%;padding:11px;border:2px solid var(--dg);border-radius:10px;font:inherit;margin:6px 0;background:#fff}
+button{background:linear-gradient(90deg,var(--dg),var(--dg2));color:#fff;border:1px solid #d4a01788;border-radius:10px;padding:11px 20px;font:700 15px Arial;cursor:pointer}
+.hp{position:absolute;left:-9999px}
