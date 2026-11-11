@@ -316,7 +316,7 @@ q.addEventListener("input",render);
 dlg.addEventListener("click",e=>{if(e.target===dlg)closeDlg()});
 addEventListener("keydown",e=>{if(!dlg.open||zm.open)return;if(e.key==="ArrowRight")step(1);if(e.key==="ArrowLeft")step(-1)});
 
-const NF=114,FW=1920,FH=1080,CAP=14;
+const NF=145,FW=1920,FH=1080,CAP=14;
 const cvs=document.getElementById("c1"),cx=cvs.getContext("2d");cx.imageSmoothingQuality="high";
 let pos=0,dirty=true;
 const FB=new Array(NF).fill(null),BM=new Map(),PD=new Set();
