@@ -22,7 +22,8 @@ button{width:100%;padding:12px;border:0;border-radius:10px;background:#1f9d5a;co
 .e{color:#ff8a8a;font-size:13px;margin-bottom:10px}a{color:#9db8a8;font-size:12px}</style></head><body>
 <form method="POST" action="/__login"><h1>Private site</h1><p>Enter the password to continue.</p>${msg ? `<div class="e">${msg}</div>` : ""}
 <input type="password" name="pw" placeholder="Password" autocomplete="current-password" autofocus required><button>Enter</button>
-<p style="margin-top:14px"><a href="/terms.html">Terms</a> · <a href="/privacy.html">Privacy</a> · <a href="/copyright.html">Copyright</a> · <a href="/contact.html">Contact</a></p></form></body></html>`,
+<p style="margin-top:14px">Don't have the password? Ask Aviv</p>
+<p style="margin-top:6px"><a href="/terms.html">Terms</a> · <a href="/privacy.html">Privacy</a> · <a href="/copyright.html">Copyright</a> · <a href="/contact.html">Contact</a></p></form></body></html>`,
     { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" } }
   );
 
