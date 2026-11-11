@@ -234,6 +234,28 @@ dialog{background:var(--panel)}
 .ch.sm{padding:7px 11px;font-size:13px}
 .sd .ch{background:#ffffff1f;border-color:#ffffff44;color:#fff}.sd .ch.on{background:linear-gradient(90deg,#f7d56a,#d4a017);color:#14210a;border-color:#fff3b0}
 .pkf{padding:14px 18px 18px}
+/* login box */
+.box.lg{padding:0;overflow:hidden;border-top:4px solid var(--gold)}
+.lgh{display:flex;align-items:center;gap:14px;padding:18px;background:linear-gradient(135deg,#0b4d30,#073b24);color:#fff}
+.lgh h3{margin:0;color:#fff;border:0;padding:0;font:24px Impact,Arial,sans-serif;letter-spacing:1.5px;text-transform:uppercase}
+.lgh small{color:#cfe5d8;font-size:13px}
+.lgi{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#f7d56a,#d4a017);font-size:24px;flex:none}
+.lgp{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px 18px 0}
+.lgp span{display:flex;flex-direction:column;align-items:center;text-align:center;padding:8px 4px;border-radius:10px;background:#e3efe7;border:1px solid #b9d3c3;font:700 14px Arial;color:var(--dg)}
+.lgp small{font:11px Arial;color:var(--mut);font-weight:400}
+.lgf{display:grid;gap:12px;padding:16px 18px 20px}
+.lgt{display:grid;grid-template-columns:1fr 1fr;background:#e3efe7;border-radius:999px;padding:4px;gap:4px}
+.lgt button{all:unset;text-align:center;padding:9px 6px;border-radius:999px;font:700 14px Arial;color:var(--mut);cursor:pointer;transition:.2s}
+.lgt button.on{background:var(--dg);color:var(--gold);box-shadow:0 4px 12px #073b2455}
+.lgf label{display:grid;gap:5px;font:700 12px Arial;letter-spacing:.8px;text-transform:uppercase;color:var(--dg)}
+.lgf input{width:100%;padding:12px 13px;border:2px solid #b9d3c3;border-radius:12px;background:#fff;font:16px Arial;color:var(--tx);text-transform:none;letter-spacing:0;transition:.2s}
+.lgf input:focus{outline:0;border-color:var(--dg);box-shadow:0 0 0 4px #0d5a3722}
+.lgw{position:relative;display:block}.lgw input{padding-right:64px}
+.lgs{all:unset;position:absolute;right:6px;top:50%;transform:translateY(-50%);padding:7px 10px;font:700 12px Arial;color:var(--dg2);cursor:pointer;text-transform:none;letter-spacing:0}
+.lgf[data-m="in"] .lgn{display:none}
+.lgb{width:100%;padding:14px;font-size:16px;margin-top:2px}
+.lgc{font:12px/1.5 Arial;color:var(--mut)}.lgc a{color:var(--dg2);font-weight:700}.lgf[data-m="in"] .lgc{display:none}
+.lgf .st{margin:0;min-height:18px;color:#b3261e;font-weight:700}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style></head><body>
 <div id="prog"></div>
@@ -365,7 +387,9 @@ let DB=null,U=null,ME=null,OWNER=false,PICKS={},RES={},NAMES={},READY=false,sel=
 const SUPA_URL="https://hauxmxemyvgbgkbholln.supabase.co",SUPA_KEY="sb_publishable_doIqm34FPpJah1gWDeQWvQ_O54mnuip";
 let SB=null,SBMSG="";
 const ORIGBOX='Open this page while signed in to claude.ai to log in, pick winners and earn coins.';
-function loginHtml(){if(!SB)return ORIGBOX;return `<form onsubmit="sbIn(event)" style="display:grid;gap:9px;margin-top:10px"><input id="le" type="email" placeholder="Email" required autocomplete="email" style="padding:11px;border:2px solid var(--dg);border-radius:10px;font:inherit"><input id="lp" type="password" placeholder="Password (6+ characters)" required minlength="6" autocomplete="current-password" style="padding:11px;border:2px solid var(--dg);border-radius:10px;font:inherit"><input id="ln" type="text" placeholder="Display name (for new accounts)" maxlength="24" style="padding:11px;border:2px solid var(--dg);border-radius:10px;font:inherit"><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" type="submit">Log in</button><button class="btn" type="button" onclick="sbUp()">Create account</button></div><div class="st" style="font-size:12px">By creating an account you confirm you are 16 or older and agree to the <a href="terms.html" target="_blank" rel="noopener">Terms</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</div><div id="lm" class="st">${SBMSG}</div></form>`}
+function loginHtml(){if(!SB)return ORIGBOX;return `<div class="lgp"><span>+100 coins<small>right winner</small></span><span>+200 coins<small>right method too</small></span><span>2x<small>main event</small></span></div><form class="lgf" data-m="in" onsubmit="sbSub(event)"><div class="lgt" role="tablist"><button type="button" class="on" data-t="in" onclick="setLM('in')">Log in</button><button type="button" data-t="up" onclick="setLM('up')">Create account</button></div><label>Email<input id="le" type="email" placeholder="you@example.com" required autocomplete="email"></label><label class="lgn">Display name<input id="ln" type="text" placeholder="Shown on the scoreboard" maxlength="24" autocomplete="nickname"></label><label>Password<span class="lgw"><input id="lp" type="password" placeholder="6+ characters" required minlength="6" autocomplete="current-password"><button type="button" class="lgs" onclick="const i=document.getElementById('lp');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'Show':'Hide'">Show</button></span></label><button class="btn lgb" type="submit">Log in</button><div class="lgc">By creating an account you confirm you are 16 or older and agree to the <a href="terms.html" target="_blank" rel="noopener">Terms</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</div><div id="lm" class="st" role="status">${SBMSG}</div></form>`}
+function setLM(m){const f=document.querySelector(".lgf");if(!f)return;f.dataset.m=m;f.querySelectorAll(".lgt button").forEach(b=>b.classList.toggle("on",b.dataset.t===m));f.querySelector(".lgb").textContent=m==="in"?"Log in":"Create account";f.querySelector("#lp").autocomplete=m==="in"?"current-password":"new-password";lmsg("")}
+function sbSub(e){e.preventDefault();document.querySelector(".lgf").dataset.m==="up"?sbUp():sbIn(e)}
 const lmsg=t=>{const e=document.getElementById("lm");if(e)e.textContent=t};
 async function sbIn(e){e.preventDefault();const{error}=await SB.auth.signInWithPassword({email:le.value.trim(),password:lp.value});if(error)lmsg(error.message);else location.reload()}
 async function sbUp(){const em=le.value.trim(),pw=lp.value;if(!em||pw.length<6){lmsg("Enter an email and a password of 6+ characters.");return}try{localStorage.setItem("ufcname",(ln.value||em.split("@")[0]).trim().slice(0,24))}catch(e){};const{data,error}=await SB.auth.signUp({email:em,password:pw});if(error)lmsg(error.message);else if(data.session)location.reload();else lmsg("Check your email to confirm your account, then log in.")}
@@ -397,7 +421,7 @@ const coins=id=>{const f=(PICKS[id]||{}).fights||{};return EV.fights.reduce((s,x
 function board(){return Object.keys(PICKS).map(id=>({id,c:coins(id),n:Object.keys((PICKS[id]||{}).fights||{}).length})).sort((a,b)=>b.c-a.c||b.n-a.n)}
 function ren(){
  const A=document.getElementById("acct"),B=board(),rank=B.findIndex(x=>x.id===ME)+1,mine=(PICKS[ME]||{}).fights||{};
- A.innerHTML=!READY?'<div class="box">Connecting…</div>':ME&&DB?`<div class="box"><h3>${esc(NAMES[ME]||"You")}</h3><small style="color:var(--mut)">${SB?"Logged in":"Logged in with your Claude account"}${OWNER?" · owner":""}${SB?` · <a href="#" onclick="sbOut();return false" style="color:inherit">Log out</a> · <a href="#" onclick="sbDel();return false" style="color:inherit">Delete account</a>`:""}</small><div class="stats"><div><b>${coins(ME)}</b><small>Coins</small></div><div><b>${Object.keys(mine).length}</b><small>Picks</small></div><div><b>${rank||"–"}</b><small>Rank</small></div></div></div>`:`<div class="box"><h3>Log in to play</h3>${loginHtml()}</div>`;
+ A.innerHTML=!READY?'<div class="box">Connecting…</div>':ME&&DB?`<div class="box"><h3>${esc(NAMES[ME]||"You")}</h3><small style="color:var(--mut)">${SB?"Logged in":"Logged in with your Claude account"}${OWNER?" · owner":""}${SB?` · <a href="#" onclick="sbOut();return false" style="color:inherit">Log out</a> · <a href="#" onclick="sbDel();return false" style="color:inherit">Delete account</a>`:""}</small><div class="stats"><div><b>${coins(ME)}</b><small>Coins</small></div><div><b>${Object.keys(mine).length}</b><small>Picks</small></div><div><b>${rank||"–"}</b><small>Rank</small></div></div></div>`:`<div class="box lg"><div class="lgh"><span class="lgi" aria-hidden="true">🥊</span><div><h3>Join the game</h3><small>Pick winners, earn coins, climb the scoreboard</small></div></div>${loginHtml()}</div>`;
  document.getElementById("evt").innerHTML=`<div class="fm" style="margin:0 0 10px">${EV.name} · ${EV.when}${locked()?" · picks closed":""}</div>`+EV.fights.map((f,i)=>{const p=mine[f.id],r=RES[f.id];let st=p?`Your pick: <b>${p.w}</b> · ${p.m}${p.r?" · R"+p.r:""}`:(locked()?"Picks closed":"Tap to pick the winner");if(r)st+=` · Result: ${r.w} (${r.m}${r.r?" R"+r.r:""}) · <b class="pt">+${pts(p,r,f.main)}</b>`;
   const av=(n,t)=>{const s=photo(n);return `<span class="av"><i style="${s?`background-image:url(${s})`:""}">${s?"":ini(n)}</i><span class="mt">${t?`<span class="tag mini ${tc(t)}">${t}</span>`:""}${(EXTRA[n]||[]).map(x=>`<span class="tag mini ${tc(x)}">${x}</span>`).join("")}</span></span>`};
   return `<button class="fight ${f.main?"main":""}" onclick="openPick(${i})"><div class="fm">${f.cls} · ${f.tag}${f.main?" · 2x coins":""}</div><div class="vs"><div>${av(f.a,f.ta)}<span>${f.a}</span></div><em>VS</em><div>${av(f.b,f.tb)}<span>${f.b}</span></div></div><div class="st">${st}</div></button>`}).join("");
