@@ -257,6 +257,16 @@ dialog{background:var(--panel)}
 .lgb{width:100%;padding:14px;font-size:16px;margin-top:2px}
 .lgc{font:12px/1.5 Arial;color:var(--mut)}.lgc a{color:var(--dg2);font-weight:700}.lgf[data-m="in"] .lgc{display:none}
 .lgf .st{margin:0;min-height:18px;color:#b3261e;font-weight:700}
+/* last week's results */
+.lwh{display:flex;flex-direction:column;gap:2px;padding:12px 16px;background:linear-gradient(135deg,#0b4d30,#073b24);color:#fff;border-radius:14px 14px 0 0;border-bottom:3px solid var(--gold)}.lwh small{color:#cfe5d8}
+#lw{padding:0 16px}#lw .lwh,#lw .lwr{max-width:728px}
+.lwr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(180deg,#fbfdfb,#e9f2ec);border-left:6px solid var(--dg);border-bottom:1px solid #c9dccf}
+.lwr.main{border-left-color:var(--gold);background:linear-gradient(180deg,#fff7de,#eef2e4)}
+.lwr:last-child{border-radius:0 0 14px 14px}
+.lwn{display:flex;flex-direction:column;min-width:0}.lww{font:700 16px Arial;color:var(--dg)}.lww::before{content:"✓ ";color:#a87800}
+.lwd{font:13px Arial;color:var(--mut)}
+.lwm{display:flex;flex-direction:column;align-items:flex-end;text-align:right;flex:none}.lwm small{font:12px Arial;color:var(--mut);max-width:150px}
+.lwc{background:var(--dg);color:var(--gold);font:700 12px Arial;letter-spacing:.8px;padding:4px 10px;border-radius:999px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style></head><body>
 <div id="prog"></div>
@@ -265,6 +275,7 @@ dialog{background:var(--panel)}
 <div id="content">
 <h2 class="sec">Your <span>profile</span></h2><div class="pnl rv" id="acct"></div>
 <h2 class="sec">This week's <span>main card</span></h2><div class="pnl rv" id="evt"></div>
+<h2 class="sec">Last week's <span>results</span></h2><div class="pnl rv" id="lw"></div>
 <h2 class="sec"><span>Scoreboard</span></h2><div class="pnl rv" id="lb"></div>
 <h2 class="sec" id="rh">Fighter <span>roster</span></h2>
 <div class="bar"><div class="bar-in"><button class="nv" onclick="swc(-1)" aria-label="Previous class">‹</button><nav id="nav"></nav><button class="nv" onclick="swc(1)" aria-label="Next class">›</button></div></div>
@@ -382,6 +393,22 @@ const EV={id:"ufc334",name:"UFC 334",when:"Sat, Nov 14 · Madison Square Garden,
 {id:"f3",a:"Caio Borralho",b:"Yousri Belgaroui",ta:"#6",tb:"UNRANKED",cls:"Middleweight",tag:"Main card",rounds:3},
 {id:"f4",a:"Uroš Medić",b:"Kevin Holland",ta:"#9",tb:"#14",cls:"Welterweight",tag:"Main card",rounds:3},
 {id:"f5",a:"Bilal Hasan",b:"Luis Gurule",ta:"PROSPECT",tb:"UNRANKED",cls:"Flyweight",tag:"Main card",rounds:3}]};
+const LAST={name:"UFC Fight Night: Cortes Acosta vs Walker",when:"Sat, Nov 7 · Meta APEX, Las Vegas",fights:[
+["Johnny Walker","Waldo Cortes-Acosta","Heavyweight","KO/TKO","R3 2:27",1],
+["Tatiana Suarez","Virna Jandiroba","Women's Strawweight","DEC","Unanimous"],
+["Elijah Smith","Davey Grant","Bantamweight","KO/TKO","R1 1:00"],
+["Lucas Fernando","Billy Elekana","","DEC","Unanimous"],
+["Nina Milošević","Priscila Cachoeira","Women's Bantamweight","KO/TKO","R2 3:40"],
+["Mitch Raposo","Marcos Degli","Flyweight","DEC","Unanimous"],
+["Ollie Schmid","Keiichiro Nakamura","Featherweight","DEC","Unanimous"],
+["Thomas Petersen","Gabriel Lorenço","Heavyweight","KO/TKO","R3 4:47"],
+["Karine Silva","Gabriella Fernandes","Women's Flyweight","DEC","Unanimous"],
+["Murtazali Magomedov","Jose Delano","Featherweight","DEC","Unanimous"],
+["Austin Bashi","Carlos Calderon","Featherweight","SUB","R1 1:07"],
+["Andre Petroski","Mantas Kondratavicius","Middleweight","KO/TKO","R2 4:39"],
+["Seokhyeon Ko","Wellington Turman","Welterweight","DEC","Unanimous"],
+["Jose Souza","Jonny Parsons","Welterweight","KO","R1 4:16"]]};
+function renLast(){const el=document.getElementById("lw");if(!el)return;el.innerHTML=`<div class="lwh"><b>${esc(LAST.name)}</b><small>${esc(LAST.when)}</small></div>`+LAST.fights.map(f=>`<div class="lwr${f[5]?" main":""}"><div class="lwn"><span class="lww">${esc(f[0])}</span><span class="lwd">def. ${esc(f[1])}</span></div><div class="lwm"><span class="lwc">${esc(f[3])}</span><small>${esc(f[4])}${f[2]?" · "+esc(f[2]):""}</small></div></div>`).join("")}
 let DB=null,U=null,ME=null,OWNER=false,PICKS={},RES={},NAMES={},READY=false,sel={},CF=null;
 
 /* ===== Supabase mode (used when the page is NOT opened inside claude.ai) ===== */
@@ -414,6 +441,7 @@ async function sbInit(){
  };
 }
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+renLast();
 const ini=n=>n.split(" ").map(x=>x[0]).slice(0,2).join("");
 const photo=n=>{for(const k in D){const f=D[k].find(x=>x.n===n);if(f&&f.pic)return f.pic}return ""};
 const pts=(p,r,main)=>{if(!p||!r||p.w!==r.w)return 0;const v=p.m===r.m?200:100;return main?v*2:v};
