@@ -237,7 +237,7 @@ dialog{background:var(--panel)}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style></head><body>
 <div id="prog"></div>
-<section id="hero"><div class="hp one"><canvas id="c1" width="960" height="537"></canvas></div><div class="hc" id="hc"><h1>UFC <span>Fighter</span> Roster</h1><p class="sub" style="color:#ddd">Scroll to bring the fighters to life</p><span class="hint">Scroll ↓</span></div></section>
+<section id="hero"><div class="hp one"><canvas id="c1" width="1920" height="1080"></canvas></div><div class="hc" id="hc"><h1>UFC <span>Fighter</span> Roster</h1><p class="sub" style="color:#ddd">Scroll to bring the fighters to life</p><span class="hint">Scroll ↓</span></div></section>
 <div id="sp" style="height:20svh"></div>
 <div id="content">
 <h2 class="sec">Your <span>profile</span></h2><div class="pnl rv" id="acct"></div>
@@ -316,19 +316,29 @@ q.addEventListener("input",render);
 dlg.addEventListener("click",e=>{if(e.target===dlg)closeDlg()});
 addEventListener("keydown",e=>{if(!dlg.open||zm.open)return;if(e.key==="ArrowRight")step(1);if(e.key==="ArrowLeft")step(-1)});
 
-const NF=205,PER=15,FW=960,FH=537;
-const SH=[];for(let s=0;s<14;s++){const i=new Image();i.decoding="async";i.src="g/s"+s+".webp";SH.push(i)}
+const NF=161,FW=1920,FH=1080,CAP=14;
 const cvs=document.getElementById("c1"),cx=cvs.getContext("2d");cx.imageSmoothingQuality="high";
-let pos=0;
-const okF=i=>{const im=SH[Math.floor(i/PER)];return im&&im.complete&&im.naturalWidth>0};
-const blit=(i,a)=>{cx.globalAlpha=a;cx.drawImage(SH[Math.floor(i/PER)],0,(i%PER)*FH,FW,FH,0,0,cvs.width,cvs.height)};
-function drawF(){let f=Math.max(0,Math.min(NF-1,pos)),i=Math.floor(f),fr=f-i;while(i>0&&!okF(i))i--;if(!okF(i))return;blit(i,1);if(fr>.02&&i<NF-1&&okF(i+1))blit(i+1,fr);cx.globalAlpha=1}
-SH.forEach(i=>i.addEventListener("load",drawF));
+let pos=0,dirty=true;
+const FB=new Array(NF).fill(null),BM=new Map(),PD=new Set();
+const fname=i=>"v/"+String(i).padStart(3,"0")+".webp";
+function ensure(i){if(i<0||i>=NF||BM.has(i)||PD.has(i)||!FB[i])return;PD.add(i);
+ createImageBitmap(FB[i]).then(b=>{PD.delete(i);BM.set(i,b);dirty=true;
+  if(BM.size>CAP){let far=-1,fd=-1;for(const k of BM.keys()){const d=Math.abs(k-pos);if(d>fd){fd=d;far=k}}const o=BM.get(far);BM.delete(far);o.close&&o.close()}}).catch(()=>PD.delete(i))}
+(async()=>{const rank=i=>i%16===0?0:i%8===0?1:i%4===0?2:i%2===0?3:4;
+ const order=[...Array(NF).keys()].sort((a,b)=>rank(a)-rank(b)||a-b);let k=0;
+ const w=async()=>{while(k<order.length){const i=order[k++];try{const r=await fetch(fname(i));if(!r.ok)continue;FB[i]=await r.blob();if(i<2||Math.abs(i-pos)<3)ensure(i);dirty=true}catch(e){}}};
+ await Promise.all([w(),w(),w(),w(),w(),w()])})();
+const nearBM=i=>{for(let d=0;d<NF;d++){if(BM.has(i-d))return i-d;if(BM.has(i+d))return i+d}return -1};
+function drawF(){const f=Math.max(0,Math.min(NF-1,pos)),i=Math.floor(f),fr=f-i;
+ for(let j=-2;j<=3;j++){ensure(i+j)}
+ const a=BM.has(i)?i:nearBM(i);if(a<0)return;
+ cx.globalAlpha=1;cx.drawImage(BM.get(a),0,0,cvs.width,cvs.height);
+ if(fr>.02&&i<NF-1&&BM.has(i+1)&&a===i){cx.globalAlpha=fr;cx.drawImage(BM.get(i+1),0,0,cvs.width,cvs.height);cx.globalAlpha=1}}
 const hero=document.getElementById("hero"),hc=document.getElementById("hc"),sp=document.getElementById("sp");
 let HH=1;const mH=()=>{HH=(hero.offsetHeight||innerHeight)+(sp?sp.offsetHeight:0)};mH();addEventListener("resize",mH);addEventListener("load",mH);
 let lastT=0;
 function loop(t){const dt=Math.min(.064,(t-lastT)/1000||.016);lastT=t;const sy=LK?LOCKY:scrollY,p=Math.min(1,Math.max(0,sy/HH)),d=p*(NF-1)-pos;
- if(Math.abs(d)>.002){pos+=d*(1-Math.exp(-dt/.07));drawF()}
+ if(Math.abs(d)>.002){pos+=d*(1-Math.exp(-dt/.07));drawF();dirty=false}else if(dirty){drawF();dirty=false}
  const q=pos/(NF-1);cvs.style.transform="scale("+(1+.25*q)+")";hc.style.opacity=Math.max(0,1-q*3);requestAnimationFrame(loop)}requestAnimationFrame(loop);
 
 function swc(d){const ks=classes.filter(k=>D[k]);show(ks[(ks.indexOf(cur)+d+ks.length)%ks.length])}
