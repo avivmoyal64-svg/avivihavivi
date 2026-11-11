@@ -484,7 +484,8 @@ async function saveRes(){try{const fights=Object.assign({},RES,{[CF.id]:{w:sel.w
 async function names(){try{const ids=Object.keys(PICKS).concat(ME?[ME]:[]);if(!U||!ids.length)return;const ps=await U.profiles(ids);ids.forEach(id=>{NAMES[id]=String((ps[id]&&ps[id].name)||NAMES[id]||"").slice(0,24)});ren()}catch(e){}}
 
 const tagOf=n=>{const r=findF(n);if(r)return D[r[0]][r[1]].tag;const k=s=>String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();for(const c in D){const f=D[c].find(x=>k(x.n)===k(n));if(f)return f.tag}return""};
-async function loadEvents(){try{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),4000);const r=await fetch("events.json",{cache:"no-store",signal:ac.signal});clearTimeout(t);if(!r.ok)return;const j=await r.json();
+async function loadEvents(){try{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),4000);let j=null;try{const q=await fetch(SUPA_URL+"/rest/v1/site_data?key=eq.events&select=value",{headers:{apikey:SUPA_KEY},cache:"no-store",signal:ac.signal});if(q.ok){const a=await q.json();if(a[0]&&a[0].value&&a[0].value.next)j=a[0].value}}catch(e){}
+ if(!j){const r=await fetch("events.json",{cache:"no-store",signal:ac.signal});if(!r.ok){clearTimeout(t);return}j=await r.json()}clearTimeout(t);
  if(j.next&&j.next.fights&&j.next.fights.length>=3){EV={id:j.next.id,name:j.next.name,when:j.next.when,lock:j.next.lock,src:j.next.source,fights:j.next.fights.map(f=>Object.assign({},f,{ta:tagOf(f.a),tb:tagOf(f.b)}))}}
  if(j.last&&j.last.fights&&j.last.fights.length){LAST={name:j.last.name,when:j.last.when,fights:j.last.fights.map(f=>[f.w,f.l,f.cls,f.method,f.detail,f.main?1:0,f.card?1:0])}}
  AUTO=j.history||{};}catch(e){}
