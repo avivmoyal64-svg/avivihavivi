@@ -22,34 +22,41 @@ const fmtWhen = (iso, venue) => {
 };
 const name = a => (a && (a.athlete?.displayName || a.athlete?.fullName || a.displayName)) || "";
 
-function methodOf(c) {
-  const res = c.status?.result || {};
-  const t = [res.shortDisplayName, res.name, res.description].filter(Boolean).join(" ").toLowerCase();
-  if (!t) return { method: "", m: "", detail: "" };
+const ORD = c => (c.competitors || []).slice().sort((x, y) => (x.order || 9) - (y.order || 9));
+const clsOf = c => String(c.type?.text || c.type?.abbreviation || "").replace(/^W\s+/, "Women's ").replace(/\s*(title\s*)?bout\s*$/i, "").trim();
+const core = async (ev, c, tail = "") => { try { return await get(`https://sports.core.api.espn.com/v2/sports/mma/leagues/ufc/events/${ev.id}/competitions/${c.id}${tail}`, true); } catch { return null; } };
+
+function parseMethod(t) {
+  t = String(t || "").toLowerCase();
+  if (!t) return null;
+  if (/sub|choke|armbar|lock|triangle|guillotine/.test(t)) return "SUB";
+  if (/dec/.test(t)) return "DEC";
+  if (/dq|disq/.test(t)) return "DQ";
+  if (/draw|no contest|no-contest/.test(t)) return "NC";
+  if (/ko|tko|stop|doctor|retire|punch|kick|knee|elbow/.test(t)) return "KO/TKO";
+  return null;
+}
+async function resultOf(ev, c) {
   const rd = c.status?.period, clk = c.status?.displayClock;
-  if (/sub/.test(t)) return { method: "SUB", m: "SUB", detail: rd ? `R${rd}${clk ? " " + clk : ""}` : "" };
-  if (/dec/.test(t)) {
-    const kind = /split|s dec/.test(t) ? "Split" : /major|m dec/.test(t) ? "Majority" : /unan|u dec/.test(t) ? "Unanimous" : "";
-    return { method: "DEC", m: "DEC", detail: kind };
-  }
-  if (/dq|disq/.test(t)) return { method: "DQ", m: "DQ", detail: rd ? `R${rd}` : "" };
-  if (/draw|no contest|nc/.test(t)) return { method: "NC/DRAW", m: "NC", detail: "" };
-  return { method: "KO/TKO", m: "KO/TKO", detail: rd ? `R${rd}${clk ? " " + clk : ""}` : "" };
+  const st = await core(ev, c, "/status");
+  const r = st?.result || c.status?.result || {};
+  let m = parseMethod([r.name, r.displayName, r.shortDisplayName, r.description, st?.type?.detail, st?.type?.description].filter(Boolean).join(" "));
+  const full = clk === "5:00" || clk === "5:00.0";
+  if (!m) m = full ? "DEC" : "KO/TKO";
+  const detail = m === "DEC" ? (/split/i.test(JSON.stringify(r)) ? "Split" : /majority/i.test(JSON.stringify(r)) ? "Majority" : /unan/i.test(JSON.stringify(r)) ? "Unanimous" : "") : (rd ? `R${rd}${clk ? " " + clk : ""}` : "");
+  return { method: m === "NC" ? "NC/DRAW" : m, m, detail, raw: r };
 }
 
 function comps(ev) {
-  const list = (ev.competitions || []).map((c, i) => ({ c, i, t: Date.parse(c.date || c.startDate || ev.date) || 0 }));
-  list.sort((a, b) => a.t - b.t || b.i - a.i);
-  const n = list.length;
-  const segMain = list.map(x => /main/i.test(x.c.cardSegment?.name || x.c.cardSegment?.description || ""));
-  const hasSeg = list.some(x => x.c.cardSegment);
-  const mainCount = hasSeg ? segMain.filter(Boolean).length : n >= 13 ? 6 : 5;
-  list.forEach((x, k) => { x.main = hasSeg ? segMain[k] : k >= n - mainCount; x.pos = k; });
-  list.n = n;
+  const list = (ev.competitions || []).map((c, i) => ({ c, i, t: Date.parse(c.date || ev.date) || 0 }));
+  list.sort((a, b) => a.i - b.i);
+  const n = list.length, maxT = Math.max(...list.map(x => x.t));
+  let main = list.map(x => x.t === maxT);
+  const cnt = main.filter(Boolean).length;
+  if (cnt < 3 || cnt > 7) main = list.map((x, k) => k >= n - (n >= 13 ? 6 : 5));
+  list.forEach((x, k) => { x.main = main[k]; x.pos = k; });
   return list;
 }
-const clsOf = c => String(c.type?.text || c.type?.abbreviation || "").replace(/\s*(title\s*)?bout\s*$/i, "").replace(/\s*title\s*$/i, "").trim();
-const isTitle = c => /title|championship/i.test(JSON.stringify([c.type, c.notes, c.note, c.name, c.format?.name]));
 
 async function officialMainCard(ev) {
   try {
@@ -72,7 +79,17 @@ async function officialMainCard(ev) {
 }
 
 
-Deno.serve(async () => {
+Deno.serve(async (req) => {
+if (new URL(req.url).searchParams.get("debug")) {
+  const sbd = await get(`https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard?dates=${ymd(new Date(Date.now() - 21 * 864e5))}-${ymd(new Date(Date.now() + 28 * 864e5))}&limit=100`, true);
+  const evs = (sbd.events || []).filter(e => /ufc/i.test(e.name || ""));
+  const dn = e => e.status?.type?.state === "post" || e.status?.type?.completed;
+  const pe = evs.filter(dn).pop(), ne = evs.find(e => !dn(e));
+  const o = {};
+  if (pe) { o.status = []; for (const c of pe.competitions.slice(-2)) o.status.push(await core(pe, c, "/status")); }
+  if (ne) { o.comp = await core(ne, ne.competitions[ne.competitions.length - 1]); }
+  return new Response(JSON.stringify(o).slice(0, 6000), { headers: { "content-type": "application/json" } });
+}
 try {
 const prev: any = await readPrev();
 const now = Date.now();
@@ -90,12 +107,18 @@ const venueOf = ev => { const v = ev.competitions?.[0]?.venue || ev.venues?.[0] 
 if (upcoming.length) {
   const ev = upcoming[0], L = comps(ev), main = L.filter(x => x.main);
   if (main.length >= 3) {
-    const fights = main.slice().reverse().map((x, k, arr) => {
-      const cs = x.c.competitors || [], a = name(cs[0]), b = name(cs[1]);
+    const fights = [];
+    const rev = main.slice().reverse();
+    for (let k = 0; k < rev.length; k++) {
+      const x = rev[k], cs = ORD(x.c), a = name(cs[0]), b = name(cs[1]);
+      if (!a || !b) continue;
+      const cc = await core(ev, x.c);
+      const periods = cc?.format?.regulation?.periods || 0;
+      const five = periods ? periods >= 5 : k < 2;
       const isMain = k === 0, co = k === 1;
-      const title = isTitle(x.c);
-      return { id: fid(ev, a, b), a, b, cls: clsOf(x.c), tag: (title ? "Title fight · " : "") + (isMain ? "Main event" : co ? "Co-main" : "Main card"), main: isMain ? 1 : 0, rounds: isMain || title ? 5 : 3 };
-    }).filter(f => f.a && f.b);
+      const title = /title|championship/i.test(JSON.stringify([cc?.notes, cc?.note, cc?.name, cc?.type?.text])) || (five && (co || (isMain && /^UFC \d+/i.test(ev.name))));
+      fights.push({ id: fid(ev, a, b), a, b, cls: clsOf(x.c), tag: (title ? "Title fight · " : "") + (isMain ? "Main event" : co ? "Co-main" : "Main card"), main: isMain ? 1 : 0, rounds: five ? 5 : 3 });
+    }
     const off = await officialMainCard(ev);
     const lock = off ? off.ts : main[0].t;
     out.next = { id: evId(ev), name: String(ev.name).split(":")[0].trim() || ev.shortName, when: fmtWhen(ev.date, venueOf(ev)), lock, source: off ? "ufc.com" : "espn", fights };
@@ -103,12 +126,14 @@ if (upcoming.length) {
 }
 if (past.length) {
   const ev = past[past.length - 1], L = comps(ev);
-  const rows = L.slice().reverse().map((x, k) => {
-    const cs = x.c.competitors || [], w = cs.find(c => c.winner), l = cs.find(c => c !== w);
-    if (!w) return null;
-    const mo = methodOf(x.c);
-    return { id: fid(ev, name(w), name(l)), w: name(w), l: name(l), cls: clsOf(x.c), method: mo.method, m: mo.m, detail: mo.detail, main: k === 0 ? 1 : 0, card: x.main ? 1 : 0 };
-  }).filter(Boolean);
+  const rows = [];
+  const rev = L.slice().reverse();
+  for (let k = 0; k < rev.length; k++) {
+    const x = rev[k], cs = ORD(x.c), w = cs.find(c => c.winner), l = cs.find(c => c !== w);
+    if (!w) continue;
+    const mo = await resultOf(ev, x.c);
+    rows.push({ id: fid(ev, name(w), name(l)), w: name(w), l: name(l), cls: clsOf(x.c), method: mo.method, m: mo.m, detail: mo.detail, main: k === 0 ? 1 : 0, card: x.main ? 1 : 0 });
+  }
   if (rows.length) {
     out.last = { id: evId(ev), name: ev.name, when: fmtWhen(ev.date, venueOf(ev)), fights: rows };
     rows.forEach(r => { out.history[r.id] = { w: r.w, m: r.m === "NC" || r.m === "DQ" ? "" : r.m, main: r.main }; });
