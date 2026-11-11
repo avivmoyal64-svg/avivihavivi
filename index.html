@@ -215,6 +215,25 @@ dialog{background:var(--panel)}
 .lb{border-bottom-color:#073b2422}
 .resph{background:repeating-linear-gradient(115deg,#f3f8f4 0 14px,#dfeae3 14px 28px)}
 .lf{max-width:1180px;margin:30px auto 0;padding:22px 16px 34px;border-top:2px solid var(--gold);text-align:center;font:12px/1.6 Arial,sans-serif;color:var(--mut)}.lf nav{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin:10px 0}.lf a{color:var(--dg);font-weight:700;text-decoration:none}.lf a:hover{color:var(--gold)}
+/* split pick screen */
+#pk #pkb.body{padding:0}
+.pkh{padding:4px 18px 12px}.pkh h2{margin:0}
+.spl{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--gold)}
+.sd{position:relative;min-height:430px;padding:0 10px 14px;display:flex;flex-direction:column;gap:8px;color:#fff;background:var(--ph) center top/auto 56% no-repeat,#073b24;transition:filter .3s,opacity .3s}
+.sd::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#073b2400 18%,#073b24c8 34%,#073b24 44%);pointer-events:none}
+.sd>*{position:relative}
+.sd.off{filter:saturate(.35) brightness(.8)}
+.sd.on{box-shadow:inset 0 0 0 3px var(--gold)}
+.sdp{all:unset;position:relative;color:#fff;cursor:pointer;display:flex;flex-direction:column;gap:3px;min-height:218px;justify-content:flex-end;padding-top:8px}
+.sdt{display:flex;flex-wrap:wrap;gap:3px;min-height:18px}.sdt .tag.mini{position:static;transform:none}
+.sdi{position:absolute!important;top:34px;left:50%;transform:translateX(-50%);width:120px;height:120px;border-radius:50%;background:#0d5a37;border:3px solid var(--gold);display:grid;place-items:center;font:44px Impact,Arial,sans-serif;color:var(--gold)}
+.sdn{display:block;color:#fff;font:20px/1.1 Impact,Arial,sans-serif;letter-spacing:1px;text-transform:uppercase;text-shadow:0 2px 8px #000}
+.sdy{font:700 12px Arial;color:var(--gold)}
+.sd .pl{align-self:flex-start;padding:0}
+.sdl{font:700 11px Arial;letter-spacing:1px;text-transform:uppercase;color:#cfe5d8;margin-top:4px}
+.ch.sm{padding:7px 11px;font-size:13px}
+.sd .ch{background:#ffffff1f;border-color:#ffffff44;color:#fff}.sd .ch.on{background:linear-gradient(90deg,#f7d56a,#d4a017);color:#14210a;border-color:#fff3b0}
+.pkf{padding:14px 18px 18px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style></head><body>
 <div id="prog"></div>
@@ -378,8 +397,11 @@ function openFighter(n){const r=findF(n);if(!r)return;if(cur!==r[0])show(r[0]);o
 const prof=n=>findF(n)?`<button class="pl" onclick="openFighter(decodeURIComponent('${encodeURIComponent(n)}'))">View profile</button>`:'<span class="pl off">No profile yet</span>';
 function openPick(i){CF=EV.fights[i];const m=((PICKS[ME]||{}).fights||{})[CF.id]||{};sel={w:m.w||"",m:m.m||"",r:m.r||0};drawPk();document.getElementById("pk").showModal()}
 function setW(k){sel.w=[CF.a,CF.b][k];drawPk()}function setM(m){sel.m=m;if(m==="DEC")sel.r=0;drawPk()}function setR(r){sel.r=r;drawPk()}
-function drawPk(){const f=CF,ok=sel.w&&sel.m&&(sel.m==="DEC"||sel.r),can=ME&&DB&&!locked(),ch=(l,on,fn)=>`<button class="ch ${on?"on":""}" onclick="${fn}">${l}</button>`;
- document.getElementById("pkb").innerHTML=`<h2>${f.a} vs ${f.b}</h2><small>${f.cls} · ${f.tag}${f.main?" · 2x coins":""}</small><h3>1 · Who wins?</h3><div class="chs">${[f.a,f.b].map((n,k)=>`<div class="pf">${ch(n,sel.w===n,`setW(${k})`)}${prof(n)}</div>`).join("")}</div><h3>2 · How?</h3><div class="chs">${["DEC","TKO/KO","SUB"].map(m=>ch(m,sel.m===m,`setM('${m}')`)).join("")}</div>${sel.m&&sel.m!=="DEC"?`<h3>3 · Which round?</h3><div class="chs">${Array.from({length:f.rounds},(_,k)=>ch("R"+(k+1),sel.r===k+1,`setR(${k+1})`)).join("")}</div>`:""}<div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn" ${ok&&can?"":"disabled"} onclick="savePick()">Lock in my pick</button>${OWNER&&DB?`<button class="btn" style="background:#333" ${ok?"":"disabled"} onclick="saveRes()">Save as official result</button>`:""}</div><div class="st">${!ME?"Log in to save picks.":locked()?"Picks are closed for this event.":"Round is saved but doesn't score coins yet."}</div>`}
+function setSide(k,m){const n=[CF.a,CF.b][k];if(sel.w!==n){sel.w=n;sel.m="";sel.r=0}if(m){sel.m=m;if(m==="DEC")sel.r=0}drawPk()}
+function drawPk(){const f=CF,ok=sel.w&&sel.m&&(sel.m==="DEC"||sel.r),can=ME&&DB&&!locked(),ch=(l,on,fn)=>`<button class="ch sm ${on?"on":""}" onclick="${fn}">${l}</button>`;
+ const side=(n,t,k)=>{const on=sel.w===n,s=photo(n),tg=[t].concat(EXTRA[n]||[]).filter(Boolean).map(x=>`<span class="tag mini ${tc(x)}">${esc(x)}</span>`).join("");
+  return `<div class="sd ${on?"on":sel.w?"off":""}" style="--ph:${s?`url(${s})`:"none"}">${s?"":`<div class="sdi">${esc(ini(n))}</div>`}<button class="sdp" onclick="setSide(${k})" aria-label="Pick ${esc(n)}"><span class="sdt">${tg}</span><span class="sdn">${esc(n)}</span><span class="sdy">${on?"✓ Your pick":"Tap to pick"}</span></button>${prof(n)}<div class="sdl">How?</div><div class="chs">${["DEC","TKO/KO","SUB"].map(m=>ch(m,on&&sel.m===m,`setSide(${k},'${m}')`)).join("")}</div>${on&&sel.m&&sel.m!=="DEC"?`<div class="sdl">Round</div><div class="chs">${Array.from({length:f.rounds},(_,i)=>ch("R"+(i+1),sel.r===i+1,`setR(${i+1})`)).join("")}</div>`:""}</div>`};
+ document.getElementById("pkb").innerHTML=`<div class="pkh"><h2>${esc(f.a)} vs ${esc(f.b)}</h2><small>${esc(f.cls)} · ${esc(f.tag)}${f.main?" · 2x coins":""}</small></div><div class="spl">${side(f.a,f.ta,0)}${side(f.b,f.tb,1)}</div><div class="pkf"><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" ${ok&&can?"":"disabled"} onclick="savePick()">Lock in my pick</button>${OWNER&&DB?`<button class="btn" style="background:#333" ${ok?"":"disabled"} onclick="saveRes()">Save as official result</button>`:""}</div><div class="st">${!ME?"Log in to save picks.":locked()?"Picks are closed for this event.":"Pick a side, then how it ends. Round is saved but doesn't score coins yet."}</div></div>`}
 async function savePick(){try{const fights=Object.assign({},(PICKS[ME]||{}).fights||{},{[CF.id]:{w:sel.w,m:sel.m,r:sel.r}});await DB.doc("picks/"+ME).set({fights,t:Date.now()});PICKS[ME]={fights};ren();document.getElementById("pk").close()}catch(e){document.querySelector("#pkb .st").textContent="Couldn't save your pick. You may need contributor access to this page."}}
 async function saveRes(){try{const fights=Object.assign({},RES,{[CF.id]:{w:sel.w,m:sel.m,r:sel.r}});await DB.doc("results/"+EV.id).set({fights});RES=fights;ren();document.getElementById("pk").close()}catch(e){}}
 async function names(){try{const ids=Object.keys(PICKS).concat(ME?[ME]:[]);if(!U||!ids.length)return;const ps=await U.profiles(ids);ids.forEach(id=>{NAMES[id]=String((ps[id]&&ps[id].name)||NAMES[id]||"").slice(0,24)});ren()}catch(e){}}
