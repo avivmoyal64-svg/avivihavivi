@@ -265,6 +265,11 @@ dialog{background:var(--panel)}
 .lwf .lwwin span:last-child{color:var(--dg);font-weight:700}
 .lwf .mt{margin-top:8px;max-width:none}.lwf .tag.lwt{background:linear-gradient(90deg,#073b24,#0d5a37);color:#f7d56a!important;border:1px solid #d4a01788;font-size:12px;padding:4px 10px;opacity:1;white-space:nowrap;letter-spacing:.5px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.sr{position:relative}.sg{position:absolute;left:16px;right:16px;top:100%;margin-top:6px;z-index:30;background:var(--panel);border:2px solid var(--dg);border-radius:14px;box-shadow:0 12px 30px #0003;overflow:hidden}
+.sg[hidden]{display:none}.sg button{display:flex;align-items:center;gap:12px;width:100%;padding:8px 12px;background:none;border:0;border-bottom:1px solid #cfdcd3;color:var(--tx);text-align:left;cursor:pointer;font:15px Arial,sans-serif}
+.sg button:last-child{border-bottom:0}.sg button:hover,.sg button:focus-visible{background:#dcebe1;outline:0}
+.sg .sp{width:46px;height:46px;border-radius:50%;object-fit:cover;object-position:top;flex:none;background:#cfdcd3;display:grid;place-items:center;font-weight:700;color:var(--dg)}
+.sg b{display:block}.sg small{color:var(--mut)}
 </style></head><body>
 <div id="prog"></div>
 <section id="hero"><div class="hp one"><canvas id="c1" width="1920" height="1080"></canvas></div><div class="hc" id="hc"><h1>UFC <span>Fighter</span> Roster</h1><p class="sub" style="color:#ddd">Scroll to bring the fighters to life</p><span class="hint">Scroll ↓</span></div></section>
@@ -276,7 +281,7 @@ dialog{background:var(--panel)}
 <h2 class="sec"><span>Scoreboard</span></h2><div class="pnl rv" id="lb"></div>
 <h2 class="sec" id="rh">Fighter <span>roster</span></h2>
 <div class="bar"><div class="bar-in"><button class="nv" onclick="swc(-1)" aria-label="Previous class">‹</button><nav id="nav"></nav><button class="nv" onclick="swc(1)" aria-label="Next class">›</button></div></div>
-<div class="sr"><input id="q" type="search" placeholder="Search fighter" aria-label="Search fighters"></div>
+<div class="sr"><input id="q" type="search" placeholder="Search fighter" aria-label="Search fighters" autocomplete="off"><div id="sg" class="sg" role="listbox" hidden></div></div>
 <main id="grid"></main>
 <p class="note">Fighter details and images come from your document. Rank tags are from the UFC's official rankings (Oct 27 to Nov 3, 2026 polls).</p>
 <footer class="lf"><div>Unofficial fan project. Not affiliated with, endorsed by or sponsored by UFC or any fighter. Names, logos and images belong to their owners. Coins are virtual and have no cash value.</div><nav aria-label="Legal"><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="copyright.html">Copyright</a><a href="contact.html">Contact</a></nav><div>© 2026 UFC Fighter Roster fan site</div></footer>
@@ -344,6 +349,17 @@ swipeClose(dlg);swipeClose(document.getElementById("pk"));
 
 function closeDlg(){if(!dlg.open||dlg.classList.contains("out"))return;dlg.classList.add("out");setTimeout(()=>{dlg.close();dlg.classList.remove("out")},230)}
 q.addEventListener("input",render);
+const sg=document.getElementById("sg");
+function suggest(){const t=q.value.trim().toLowerCase();if(t.length<2){sg.hidden=true;sg.innerHTML="";return}
+ const m=[];for(const k of classes)for(const f of (D[k]||[])){const n=f.n.toLowerCase(),nk=(f.nick||"").toLowerCase();const sc=n.startsWith(t)?0:n.split(" ").some(w=>w.startsWith(t))?1:n.includes(t)||nk.includes(t)?2:9;if(sc<9)m.push([sc,k,f])}
+ m.sort((a,b)=>a[0]-b[0]);const top=m.slice(0,6);
+ sg.innerHTML=top.map((x,i)=>`<button type="button" role="option" data-i="${i}">${x[2].pic?`<img class="sp" src="${x[2].pic}" alt="">`:`<span class="sp">${x[2].n.split(" ").map(w=>w[0]).slice(0,2).join("")}</span>`}<span><b>${x[2].n}</b><small>${x[2].nick?x[2].nick+" · ":""}${x[1]}</small></span></button>`).join("");
+ sg.hidden=!top.length;sg._m=top}
+function pickSg(i){const x=sg._m&&sg._m[i];if(!x)return;sg.hidden=true;show(x[1]);const j=list.indexOf(x[2]);if(j>=0)open_(j)}
+q.addEventListener("input",suggest);
+q.addEventListener("keydown",e=>{if(e.key==="Enter"&&!sg.hidden){e.preventDefault();pickSg(0)}else if(e.key==="Escape")sg.hidden=true});
+sg.addEventListener("click",e=>{const b=e.target.closest("button");if(b)pickSg(+b.dataset.i)});
+document.addEventListener("click",e=>{if(!e.target.closest(".sr"))sg.hidden=true});
 dlg.addEventListener("click",e=>{if(e.target===dlg)closeDlg()});
 addEventListener("keydown",e=>{if(!dlg.open||zm.open)return;if(e.key==="ArrowRight")step(1);if(e.key==="ArrowLeft")step(-1)});
 
