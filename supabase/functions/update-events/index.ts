@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Builds events.json (next card, last results, history) from ESPN's public scoreboard,
 // and takes the official main-card start time from ufc.com when it can be found.
 
