@@ -152,7 +152,7 @@ nav .wc.on small{color:#ffe}
 dialog{border:2px solid var(--gold);box-shadow:0 0 0 5px #d4a01726,0 30px 80px #10261a55}
 .fight{border-color:#e5cf8f}.box{border-color:#e5cf8f}
 .hp.one{left:0;right:auto;width:100%}
-@media(max-aspect-ratio:1/1){.hp.one{display:flex;align-items:center}.hp.one canvas{position:static;height:auto}}
+@media(max-aspect-ratio:1/1){.hp.one{display:flex;align-items:center}.hp.one canvas{position:static;height:auto;transform-origin:50% 66%}}
 /* ===== tags ===== */
 .tw{right:8px;flex-wrap:wrap;gap:4px 5px;align-items:flex-start}
 .tag.fc{background:linear-gradient(90deg,#c98f0a,#f7d56a);color:#2a1d00}
@@ -316,7 +316,7 @@ q.addEventListener("input",render);
 dlg.addEventListener("click",e=>{if(e.target===dlg)closeDlg()});
 addEventListener("keydown",e=>{if(!dlg.open||zm.open)return;if(e.key==="ArrowRight")step(1);if(e.key==="ArrowLeft")step(-1)});
 
-const NF=161,FW=1920,FH=1080,CAP=14;
+const NF=114,FW=1920,FH=1080,CAP=14;
 const cvs=document.getElementById("c1"),cx=cvs.getContext("2d");cx.imageSmoothingQuality="high";
 let pos=0,dirty=true;
 const FB=new Array(NF).fill(null),BM=new Map(),PD=new Set();
@@ -339,7 +339,7 @@ let HH=1;const mH=()=>{HH=(hero.offsetHeight||innerHeight)+(sp?sp.offsetHeight:0
 let lastT=0;
 function loop(t){const dt=Math.min(.064,(t-lastT)/1000||.016);lastT=t;const sy=LK?LOCKY:scrollY,p=Math.min(1,Math.max(0,sy/HH)),d=p*(NF-1)-pos;
  if(Math.abs(d)>.002){pos+=d*(1-Math.exp(-dt/.07));drawF();dirty=false}else if(dirty){drawF();dirty=false}
- const q=pos/(NF-1);cvs.style.transform="scale("+(1+.25*q)+")";hc.style.opacity=Math.max(0,1-q*3);requestAnimationFrame(loop)}requestAnimationFrame(loop);
+ const q=pos/(NF-1);cvs.style.transform="scale("+(1+.45*q)+")";hc.style.opacity=Math.max(0,1-q*3);requestAnimationFrame(loop)}requestAnimationFrame(loop);
 
 function swc(d){const ks=classes.filter(k=>D[k]);show(ks[(ks.indexOf(cur)+d+ks.length)%ks.length])}
 let SC=false,st;
