@@ -31,7 +31,7 @@ button:hover{background:#ff3550}.e{color:#ff8a98;font-size:13px;margin-bottom:10
 <input type="password" name="pw" placeholder="Password" autocomplete="current-password" autofocus required><button>Enter</button>
 <p style="margin-top:14px">Don't have the password? Ask Aviv</p>
 <p style="margin-top:6px"><a href="/terms.html">Terms</a> · <a href="/privacy.html">Privacy</a> · <a href="/copyright.html">Copyright</a> · <a href="/contact.html">Contact</a></p></form></div>
-<div class="cr">Photo: see Copyright page</div></body></html>`,
+<div class="cr"><a href="/copyright.html" style="color:#ffffffaa;font-size:10px">Photo: U.S. Army, public domain</a></div></body></html>`,
     { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" } }
   );
 
