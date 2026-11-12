@@ -338,7 +338,7 @@ details.ev .evb{padding:2px 14px 10px}
 <div class="arw" id="inw"><button class="arb" onclick="openInstall()">📲 Install the app</button></div>
 <h2 class="sec">This week's <span>main card</span></h2><div id="rmn"></div><div class="pnl rv" id="evt"></div>
 <h2 class="sec">Last week's <span>results</span></h2><div class="pnl rv" id="lw"></div>
-<div class="arw" id="arw" hidden><button class="arb" onclick="openArchive()">🗓 Past events</button></div>
+<div class="arw" id="arw"><button class="arb" onclick="openArchive()">🗓 Past events</button></div>
 <h2 class="sec"><span>Scoreboard</span></h2><div class="pnl rv" id="lb"></div>
 <h2 class="sec" id="rh">Fighter <span>roster</span></h2>
 <div class="bar"><div class="bar-in"><button class="nv" onclick="swc(-1)" aria-label="Previous class">‹</button><nav id="nav"></nav><button class="nv" onclick="swc(1)" aria-label="Next class">›</button></div></div>
@@ -645,9 +645,9 @@ function openArchive(){const mine=(PICKS[ME]||{}).fights||{};
    const rd=(String(f.d||"").match(/^R(\d)/)||[])[1],how=nm(f.m||"")+(f.d?(f.m==="DEC"?" · "+f.d:rd?" · R"+rd:""):"");
    return `<div class="arf"><b>${esc(f.w)} def. ${esc(f.l)}${f.main?" · Main event":""}</b><small>${esc(how)}</small>${ME?`<small>${p?`Your pick: ${esc(p.w)}${p.m?" · "+esc(nm(p.m)):""} · ${p.w===f.w?`<span class="ok">✓ +${pt}</span><i class="coin"></i>`:`<span class="no">✗</span>`}`:"You didn't pick this fight"}</small>`:""}</div>`}).join("");
   return `<details class="ev"><summary>${esc(e.name)}<small>${esc(e.when)}${ME&&n?` · You got ${c} of ${n} right · +${coins}`:""}${ME&&n?'<i class="coin"></i>':""}</small></summary><div class="evb">${rows}</div></details>`}).join("");
- document.getElementById("arb2").innerHTML=`<h2>Past events</h2>${evs||'<div class="cpn">No past events yet.</div>'}`;document.getElementById("ar").showModal()}
+ document.getElementById("arb2").innerHTML=`<h2>Past events</h2>${evs||'<div class="cpn">No past events yet. They appear here after the next update runs.</div>'}`;document.getElementById("ar").showModal()}
 const instvis=()=>{const w=document.getElementById("inw");if(w)w.hidden=standalone()};
-const arvis=()=>{const w=document.getElementById("arw");if(w)w.hidden=!(ARCH&&ARCH.length)};
+const arvis=()=>{const w=document.getElementById("arw");if(w)w.hidden=false};
 
 /* ===== install as an app ===== */
 let DEFI=null;addEventListener("beforeinstallprompt",e=>{e.preventDefault();DEFI=e;try{instRef()}catch(x){}});
