@@ -506,7 +506,8 @@ async function savePick(){try{const fights=Object.assign({},(PICKS[ME]||{}).figh
 async function saveRes(){try{const fights=Object.assign({},RES,{[CF.id]:{w:sel.w,m:sel.m,r:sel.r}});await DB.doc("results/"+EV.id).set({fights});RES=fights;ren();document.getElementById("pk").close()}catch(e){}}
 async function names(){try{const ids=Object.keys(PICKS).concat(ME?[ME]:[]);if(!U||!ids.length)return;const ps=await U.profiles(ids);ids.forEach(id=>{NAMES[id]=String((ps[id]&&ps[id].name)||NAMES[id]||"").slice(0,24)});ren()}catch(e){}}
 
-const tagOf=n=>{const r=findF(n);if(r)return D[r[0]][r[1]].tag;const k=s=>String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();for(const c in D){const f=D[c].find(x=>k(x.n)===k(n));if(f)return f.tag}return""};
+const tagOf=n=>{const r=findF(n);if(r)return D[r[0]][r[1]].tag;const k=s=>String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();for(const c in D){const f=D[c].find(x=>k(x.n)===k(n));if(f)return f.tag}return OTHER_TAG[n]||""};
+const OTHER_TAG={"Kayla Harrison":"CHAMP","Amanda Nunes":"LEGEND"};
 async function loadEvents(){try{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),4000);let j=null;try{const q=await fetch(SUPA_URL+"/rest/v1/site_data?key=eq.events&select=value",{headers:{apikey:SUPA_KEY},cache:"no-store",signal:ac.signal});if(q.ok){const a=await q.json();if(a[0]&&a[0].value&&a[0].value.next)j=a[0].value}}catch(e){}
  if(!j){const r=await fetch("events.json",{cache:"no-store",signal:ac.signal});if(!r.ok){clearTimeout(t);return}j=await r.json()}clearTimeout(t);
  if(j.next&&j.next.fights&&j.next.fights.length>=3){EV={id:j.next.id,name:j.next.name,when:j.next.when,lock:j.next.lock,src:j.next.source,fights:j.next.fights.map(f=>Object.assign({},f,{ta:tagOf(f.a),tb:tagOf(f.b)}))}}
