@@ -137,6 +137,11 @@ if (upcoming.length) {
       const [ra, rb] = await Promise.all([recFor(ia), recFor(ib)]);
       fights.push({ id: fid(ev, a, b), a, b, ia, ib, ra, rb, cls: clsOf(x.c), tag: (title ? "Title fight · " : "") + (isMain ? "Main event" : co ? "Co-main" : "Main card"), main: isMain ? 1 : 0, rounds: five ? 5 : 3 });
     }
+    // which fight is in progress right now (shows a red LIVE dot on the site)
+    for (const x of main) {
+      const cs = ORD(x.c), f = fights.find(z => z.id === fid(ev, name(cs[0]), name(cs[1])));
+      if (f) f.live = x.c.status?.type?.state === "in" ? 1 : 0;
+    }
     // per-minute runs reuse the saved start time and only re-check ufc.com every 15 minutes
     const isLive = !!new URL(req.url).searchParams.get("live"), sameEv = prev.next && prev.next.id === evId(ev);
     const reuse = isLive && sameEv && (prev.next.source === "ufc.com" || new Date().getMinutes() % 15 !== 0);
