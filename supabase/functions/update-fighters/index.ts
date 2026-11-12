@@ -16,6 +16,13 @@ const slugOf = (n: string) => String(n).normalize("NFD").replace(/[\u0300-\u036f
 const clean = (s: string) => String(s || "").replace(/<[^>]*>/g, " ").replace(/&amp;/g, "&").replace(/&#0?39;|&rsquo;|&apos;/g, "'").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
 const ATH = /href="[^"]*\/athlete\/([^"?#]+)"[^>]*>([^<]+)<\/a>/i;
 
+// finds which roster class a rankings table belongs to (looks at the table's heading text)
+const classOf = (tb: string) => {
+  const head = clean(((tb.match(/<h4[^>]*>([\s\S]*?)<\/h4>/i) || [])[1] || "").replace(/<span[\s\S]*?<\/span>/gi, ""));
+  if (!head || /women|pound/i.test(head)) return "";
+  const keys = Object.keys(ROSTER).filter(k => norm(head).includes(norm(k))).sort((a, b) => b.length - a.length);
+  return keys[0] || "";
+};
 // ---- rankings page: { "Flyweight": { "Name": 0 (champion) | 1..15 } } plus name -> ufc.com slug
 async function rankings() {
   const html = await get("https://www.ufc.com/rankings");
@@ -23,8 +30,8 @@ async function rankings() {
   for (const tb of html.split(/<table/i).slice(1)) {
     const end = tb.search(/<\/table>/i), body = end > 0 ? tb.slice(0, end) : tb;
     const cap = (body.match(/<caption[\s\S]*?<\/caption>/i) || [""])[0];
-    const cls = clean(((cap.match(/<h4[^>]*>([\s\S]*?)<\/h4>/i) || [])[1] || "").replace(/<span[\s\S]*?<\/span>/gi, ""));
-    if (!cls || !ROSTER[cls]) continue;
+    const cls = classOf(tb);
+    if (!cls) continue;
     const ranks: Record<string, number> = {};
     const champ = cap.match(ATH);
     if (champ) { const n = clean(champ[2]); ranks[n] = 0; slugs[norm(n)] = champ[1]; }
@@ -60,8 +67,8 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ parsed: await athlete(s), wl: (h.match(/.{0,60}\(W-L-D\)/) || [""])[0], bio: clean(h.slice(i, i + 3000)).slice(0, 600) }), { headers: { "content-type": "application/json" } });
     }
     if (q.get("ranks")) {
-      const html = await get("https://www.ufc.com/rankings"), i = html.indexOf("<table");
-      return new Response(JSON.stringify({ tables: (html.match(/<table/gi) || []).length, sample: html.slice(i, i + 1800) }), { headers: { "content-type": "application/json" } });
+      const html = await get("https://www.ufc.com/rankings"), tbs = html.split(/<table/i).slice(1);
+      return new Response(JSON.stringify({ tables: tbs.map(tb => ({ h4: ((tb.match(/<h4[^>]*>([\s\S]*?)<\/h4>/i) || [])[1] || "").replace(/\s+/g, " ").slice(0, 90), cls: classOf(tb), rows: (tb.match(/weight-class-rank"/g) || []).length })), second: (tbs[1] || "").replace(/\s+/g, " ").slice(0, 1200) }), { headers: { "content-type": "application/json" } });
     }
     const prev: any = await readRow("fighters"), ev: any = await readRow("events");
     const out: any = { updated: new Date().toISOString(), rk: prev.rk || {}, f: prev.f || {} };
@@ -77,15 +84,15 @@ Deno.serve(async (req) => {
     }
     due.sort((a, b) => ((out.f[a] && out.f[a].t) || 0) - ((out.f[b] && out.f[b].t) || 0));
     const todo = due.slice(0, 30);
-    let okc = 0;
+    let okc = 0; const failed: string[] = [];
     for (let i = 0; i < todo.length; i += 6) {
       await Promise.all(todo.slice(i, i + 6).map(async (n) => {
         const slug = slugs[norm(n)] || slugOf(n);
-        try { const o = await athlete(slug); out.f[n] = Object.assign({}, out.f[n] || {}, o, { t: now }); if (o.rec) okc++; }
-        catch (e) { out.f[n] = Object.assign({}, out.f[n] || {}, { t: now - 18 * 3600e3 }); }   // try again in ~2 h
+        try { const o = await athlete(slug); out.f[n] = Object.assign({}, out.f[n] || {}, o, { t: now }); if (o.rec) okc++; else failed.push(n); }
+        catch (e) { failed.push(n); out.f[n] = Object.assign({}, out.f[n] || {}, { t: now - 18 * 3600e3 }); }   // try again in ~2 h
       }));
     }
     await writeRow("fighters", out);
-    return new Response(JSON.stringify({ ok: true, classesRanked: Object.keys(out.rk).length, refreshed: todo.length, withRecord: okc, remaining: due.length - todo.length }), { headers: { "content-type": "application/json" } });
+    return new Response(JSON.stringify({ ok: true, classesRanked: Object.keys(out.rk).length, refreshed: todo.length, withRecord: okc, failed, remaining: due.length - todo.length }), { headers: { "content-type": "application/json" } });
   } catch (e) { console.error(e); return new Response("error: " + (e as Error).message, { status: 500 }); }
 });
