@@ -101,7 +101,7 @@ if (new URL(req.url).searchParams.get("debug")) {
 try {
 const prev: any = await readPrev();
 const now = Date.now();
-const sb = await get(`https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard?dates=${ymd(new Date(now - 21 * 864e5))}-${ymd(new Date(now + 28 * 864e5))}&limit=100`, true);
+const sb = await get(`https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard?dates=${ymd(new Date(now - 120 * 864e5))}-${ymd(new Date(now + 28 * 864e5))}&limit=100`, true);
 const events = (sb.events || []).filter(e => /ufc/i.test(e.name || e.shortName || "")).sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
 const done = e => e.status?.type?.state === "post" || e.status?.type?.completed;
 const upcoming = events.filter(e => !done(e));
@@ -111,7 +111,7 @@ if (new URL(req.url).searchParams.get("live")) {
   const near = events.some(e => { const d = now - Date.parse(e.date); return d > -2 * 3600e3 && d < 10 * 3600e3; });
   if (!near) return new Response(JSON.stringify({ ok: true, idle: true }), { headers: { "content-type": "application/json" } });
 }
-const out: any = { updated: new Date().toISOString(), next: prev.next, last: prev.last, history: prev.history || {} };
+const out: any = { updated: new Date().toISOString(), next: prev.next, last: prev.last, history: prev.history || {}, archive: prev.archive || [] };
 
 const evId = ev => "e" + ev.id;
 const fid = (ev, a, b) => evId(ev) + "-" + [slug(a), slug(b)].sort().join("-vs-");
@@ -177,6 +177,26 @@ if (past.length) {
   if (rows.length) {
     out.last = { id: evId(ev), name: ev.name, when: fmtWhen(ev.date, venueOf(ev)), fights: rows };
     rows.forEach(r => { out.history[r.id] = { w: r.w, m: r.m === "NC" || r.m === "DQ" ? "" : r.m, main: r.main }; });
+  }
+}
+// archive of earlier cards (main card only). Only cards not saved yet are fetched, max 3 per run.
+{
+  const have = new Set((out.archive || []).map(e => e.id)), added: any[] = [];
+  for (const ev of past.slice().reverse()) {
+    if (added.length >= 3) break;
+    if (have.has(evId(ev))) continue;
+    const L = comps(ev).filter(x => x.main).reverse(), rows: any[] = [];
+    for (let k = 0; k < L.length; k++) {
+      const x = L[k], cs = ORD(x.c), w = cs.find(c => c.winner), l = cs.find(c => c !== w);
+      if (!w || !l) continue;
+      const mo = await resultOf(ev, x.c);
+      rows.push({ id: fid(ev, name(w), name(l)), w: name(w), l: name(l), m: mo.m === "NC" || mo.m === "DQ" ? "" : mo.m, d: mo.detail, main: k === 0 ? 1 : 0 });
+    }
+    if (rows.length >= 3) added.push({ id: evId(ev), name: String(ev.name), when: fmtWhen(ev.date, venueOf(ev)), ts: Date.parse(ev.date), fights: rows });
+  }
+  if (added.length) {
+    out.archive = (out.archive || []).concat(added).sort((a, b) => b.ts - a.ts).slice(0, 40);
+    added.forEach(e => e.fights.forEach(r => { if (!out.history[r.id]) out.history[r.id] = { w: r.w, m: r.m, main: r.main }; }));
   }
 }
 const strip = o => JSON.stringify({ ...o, updated: 0 });

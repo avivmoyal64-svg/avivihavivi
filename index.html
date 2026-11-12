@@ -2,6 +2,12 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>UFC Fighter Roster</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#073b24">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="UFC Roster"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 :root{--bg:#ffffff;--panel:#ffffff;--tx:#10261a;--mut:#5b7266;--red:#0f6b3a;--red2:#1f9d5a;--gold:#d4a017;--grn:#168a4e;--org:#9a5b00;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{color-scheme:light;scroll-behavior:smooth}*{box-sizing:border-box}
@@ -287,14 +293,48 @@ dialog{background:var(--panel)}
 .stx{display:grid;gap:10px;margin-top:12px}.stx label.ck{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;font:15px/1.4 Arial}.stx label.ck input{width:20px;height:20px;margin:1px 0 0}.stx label.ck small{display:block;color:var(--mut);font-size:12.5px}
 .stx input[type=password]{width:100%;padding:12px 13px;border:2px solid #b9d3c3;border-radius:12px;font:16px Arial;background:#fff;color:var(--tx)}
 .stx h3{margin:14px 0 0;font:18px Impact,Arial,sans-serif;letter-spacing:1px}
+
+.rmn{margin:0 0 12px;padding:12px 14px;border-radius:14px;background:linear-gradient(90deg,#fff6d6,#fffbea);border:1px solid #d4a01788;border-left:5px solid var(--gold);color:#4a3a05;font:15px/1.4 Arial,sans-serif;cursor:pointer;display:flex;gap:10px;align-items:center}
+.rmn b{color:#7a5600}.rmn.hot{background:linear-gradient(90deg,#ffe9d6,#fff3ea);border-color:#c2570a88;border-left-color:#c2570a;color:#5a2a05}.rmn.hot b{color:#9a3a00}
+.rmn i{font-style:normal;font-size:22px;flex:none}
+.cmpb,.arb{display:inline-flex;align-items:center;gap:6px;margin:8px 0 2px;padding:7px 14px;border-radius:999px;background:linear-gradient(90deg,var(--dg),var(--dg2));color:var(--gold);border:1px solid #d4a01799;font:700 12px/1.3 Arial,sans-serif;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;transition:.2s}
+.cmpb:hover,.arb:hover{filter:brightness(1.15);box-shadow:0 2px 10px #0d5a3744}
+.arw{margin:-6px 0 6px;text-align:center}
+#cpb h2,#arb2 h2{margin:0 0 8px}
+.cps{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin:8px 0 12px;text-align:center}
+.cps em{font:20px Impact,Arial,sans-serif;color:var(--mut);font-style:normal}
+.cpav{display:block;width:84px;height:84px;margin:0 auto 6px;border-radius:50%;background:#dfe9e2 center top/cover;border:3px solid #fff;box-shadow:0 2px 10px #0d3a2433;font:700 24px/84px Arial;color:#8fa497}
+.cps b{display:block;font:16px/1.2 Arial;color:var(--tx)}
+.cpq{width:100%;padding:12px 13px;border:2px solid #b9d3c3;border-radius:12px;font:16px Arial;background:#fff;color:var(--tx)}
+.cpl{display:grid;gap:6px;margin:8px 0}
+.cpr{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid #cfdcd3;border-radius:12px;background:#f3f8f4;text-align:left;cursor:pointer;font:15px Arial;color:var(--tx)}
+.cpr i{width:34px;height:34px;border-radius:50%;background:#dfe9e2 center top/cover;flex:none}
+.cpr small{margin-left:auto;color:var(--mut)}
+.cr{padding:9px 0;border-bottom:1px solid #10261a14;text-align:center}.cr:last-child{border:0}
+.cr>small{display:block;color:var(--mut);font:700 11px Arial;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+.cr>div{display:grid;grid-template-columns:1fr 1fr;gap:10px;font:16px/1.35 Arial}
+.cr>div b{font-weight:700}.cr>div b.best{color:var(--gold)}
+.cr .tags{justify-content:center}.rks{display:flex;flex-wrap:wrap;gap:5px;justify-content:center}.rks .tag{position:static;font-size:11px}
+.cpn{background:#eaf2ec;border-radius:12px;padding:12px;color:var(--mut);font:13px/1.5 Arial;text-align:center;margin-top:8px}
+details.ev{border:1px solid #cfdcd3;border-radius:14px;background:#f3f8f4;margin:0 0 10px;overflow:hidden}
+details.ev summary{padding:12px 14px;cursor:pointer;list-style:none;font:700 15px/1.35 Arial;color:var(--tx)}
+details.ev summary::-webkit-details-marker{display:none}
+details.ev summary small{display:block;font-weight:400;color:var(--mut);font-size:12.5px}
+details.ev summary:after{content:"＋";float:right;color:var(--gold);font-size:18px}
+details.ev[open] summary:after{content:"－"}
+details.ev .evb{padding:2px 14px 10px}
+.arf{padding:9px 0;border-top:1px solid #10261a14;font:14px/1.4 Arial}
+.arf b{display:block}.arf small{display:block;color:var(--mut);font-size:13px}.arf .ok{color:var(--grn);font-weight:700}.arf .no{color:#a33}
+.ins{margin-top:6px;color:var(--mut);font:13px/1.5 Arial}
 </style></head><body>
 <div id="prog"></div>
 <section id="hero"><div class="hp one"><canvas id="c1" width="1920" height="1080"></canvas></div><div class="hc" id="hc"><h1>UFC <span>Fighter</span> Roster</h1><p class="sub" style="color:#ddd">Scroll to bring the fighters to life</p><span class="hint">Scroll ↓</span></div></section>
 <div id="sp" style="height:80svh"></div>
 <div id="content">
 <h2 class="sec">Your <span>profile</span></h2><div class="pnl rv" id="acct"></div>
-<h2 class="sec">This week's <span>main card</span></h2><div class="pnl rv" id="evt"></div>
+<h2 class="sec">This week's <span>main card</span></h2><div id="rmn"></div><div class="pnl rv" id="evt"></div>
 <h2 class="sec">Last week's <span>results</span></h2><div class="pnl rv" id="lw"></div>
+<div class="arw" id="arw" hidden><button class="arb" onclick="openArchive()">🗓 Past events</button></div>
 <h2 class="sec"><span>Scoreboard</span></h2><div class="pnl rv" id="lb"></div>
 <h2 class="sec" id="rh">Fighter <span>roster</span></h2>
 <div class="bar"><div class="bar-in"><button class="nv" onclick="swc(-1)" aria-label="Previous class">‹</button><nav id="nav"></nav><button class="nv" onclick="swc(1)" aria-label="Next class">›</button></div></div>
@@ -306,6 +346,8 @@ dialog{background:var(--panel)}
 <dialog id="pk"><div class="top"><span></span><button onclick="pk.close()" aria-label="Close">✕</button></div><div id="pkb" class="body"></div></dialog>
 <dialog id="pf"><div class="top"><span></span><button onclick="document.getElementById('pf').close()" aria-label="Close">✕</button></div><div id="pfb" class="body"></div></dialog>
 <dialog id="st"><div class="top"><span></span><button onclick="document.getElementById('st').close()" aria-label="Close">✕</button></div><div id="stb" class="body"></div></dialog>
+<dialog id="cp"><div class="top"><span></span><button onclick="document.getElementById('cp').close()" aria-label="Close">✕</button></div><div id="cpb" class="body"></div></dialog>
+<dialog id="ar"><div class="top"><span></span><button onclick="document.getElementById('ar').close()" aria-label="Close">✕</button></div><div id="arb2" class="body"></div></dialog>
 <dialog id="zm"><button id="zx" aria-label="Close zoom">✕</button><img id="zi" alt="Zoomed resume" draggable="false"><div class="zt">Pinch or scroll to zoom · drag to move · double-tap to reset</div></dialog>
 <dialog id="dlg"><div class="top"><button onclick="step(-1)" aria-label="Previous fighter">‹</button><button onclick="step(1)" aria-label="Next fighter">›</button><button onclick="closeDlg()" aria-label="Close">✕</button></div><div id="dbody"></div></dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
@@ -331,7 +373,7 @@ let io;function obs(){io&&io.disconnect();const cs=[...grid.querySelectorAll(".c
 io=new IntersectionObserver(es=>es.forEach(e=>{const c=e.target;if(e.isIntersecting){c.classList.remove("above");c.classList.add("in")}else{c.classList.remove("in");c.classList.toggle("above",e.boundingClientRect.top<0)}}),{threshold:0,rootMargin:"40% 0px 40% 0px"});cs.forEach(c=>io.observe(c))}
 const prog=document.getElementById("prog");addEventListener("scroll",()=>{if(LK)return;const r=document.documentElement;prog.style.width=(r.scrollTop/((r.scrollHeight-r.clientHeight)||1)*100)+"%"},{passive:true});
 function open_(i){idx=i;const f=list[i],t=a=>a.length?`<div class="tags">${a.map(x=>`<span>${x}</span>`).join("")}</div>`:`<small>None added</small>`;
- dbody.innerHTML=`${f.res?`<img class="res" src="${f.res}" alt="${f.n} UFC career" decoding="async">`:`<div class="resph">Resume picture coming soon</div>`}<div class="rt">${tgs(f)}</div><div class="body">${f.res?`<span class="zh">🔍 Hold the resume picture to zoom</span>`:""}<h2>${f.n}${f.rec?` <span class="rec" title="Pro MMA record (W-L-D)">${f.rec}</span>`:""}</h2><small>${f.nick?f.nick+" · ":""}${cur}</small><h3>MMA base</h3>${t(f.base)}<h3 class="s">Strengths</h3>${t(f.s)}<h3 class="w">Weaknesses</h3>${t(f.w)}<h3 class="m">Most-watch fights</h3><small>Highlights</small><div style="height:6px"></div>${t(f.hl)}<div style="height:10px"></div><small>Full fights</small><div style="height:6px"></div>${t(f.ff)}</div>`;
+ dbody.innerHTML=`${f.res?`<img class="res" src="${f.res}" alt="${f.n} UFC career" decoding="async">`:`<div class="resph">Resume picture coming soon</div>`}<div class="rt">${tgs(f)}</div><div class="body">${f.res?`<span class="zh">🔍 Hold the resume picture to zoom</span>`:""}<h2>${f.n}${f.rec?` <span class="rec" title="Pro MMA record (W-L-D)">${f.rec}</span>`:""}</h2><small>${f.nick?f.nick+" · ":""}${cur}${f.age?" · Age "+f.age:""}${f.ht?" · "+f.ht:""}${f.rch?" · Reach "+f.rch:""}</small><div><button class="cmpb" onclick="openCmp()">⚖ Compare with another fighter</button></div><h3>MMA base</h3>${t(f.base)}<h3 class="s">Strengths</h3>${t(f.s)}<h3 class="w">Weaknesses</h3>${t(f.w)}<h3 class="m">Most-watch fights</h3><small>Highlights</small><div style="height:6px"></div>${t(f.hl)}<div style="height:10px"></div><small>Full fights</small><div style="height:6px"></div>${t(f.ff)}</div>`;
  dlg.scrollTop=0;if(!dlg.open)dlg.showModal()}
 function step(d){if(list.length)open_((idx+d+list.length)%list.length)}
 const zm=document.getElementById("zm"),zi=document.getElementById("zi");let Z={s:1,x:0,y:0},ptr=new Map(),pd=0,hold=null;
@@ -356,7 +398,7 @@ let LK=0,LOCKY=0;
 function lockS(){if(LK++===0){LOCKY=scrollY;const b=document.body;b.style.top=-LOCKY+"px";b.classList.add("lk")}}
 function unlockS(){if(LK>0&&--LK===0){const b=document.body;b.classList.remove("lk");b.style.top="";scrollTo({top:LOCKY,left:0,behavior:"instant"})}}
 {const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){if(!this.open)lockS();sm.call(this)}}
-["dlg","pk","zm","pf","st"].forEach(id=>document.getElementById(id).addEventListener("close",unlockS));
+["dlg","pk","zm","pf","st","cp","ar"].forEach(id=>document.getElementById(id).addEventListener("close",unlockS));
 function swipeClose(d){let y0=0,dy=0,on=false,t0=0;
  d.addEventListener("touchstart",e=>{if(e.touches.length!==1||d.scrollTop>0){on=false;return}y0=e.touches[0].clientY;dy=0;on=true;t0=Date.now();d.style.transition="none"},{passive:true});
  d.addEventListener("touchmove",e=>{if(!on)return;const y=e.touches[0].clientY-y0;if(d.scrollTop>0){on=false;d.style.transform="";d.style.opacity="";return}if(y<=0){dy=0;d.style.transform="";d.style.opacity="";return}dy=y;if(e.cancelable)e.preventDefault();d.style.transform="translateY("+dy*.92+"px)";d.style.opacity=Math.max(.4,1-dy/520)},{passive:false});
@@ -364,7 +406,7 @@ function swipeClose(d){let y0=0,dy=0,on=false,t0=0;
   if(dy>110||(v>.7&&dy>45)){d.style.transform="translateY(110vh)";d.style.opacity="0";setTimeout(()=>{d.close();d.style.transition="";d.style.transform="";d.style.opacity=""},250)}
   else{d.style.transform="";d.style.opacity="";setTimeout(()=>{d.style.transition=""},280)}};
  d.addEventListener("touchend",end);d.addEventListener("touchcancel",end)}
-swipeClose(dlg);swipeClose(document.getElementById("pk"));swipeClose(document.getElementById("pf"));swipeClose(document.getElementById("st"));
+swipeClose(dlg);swipeClose(document.getElementById("pk"));swipeClose(document.getElementById("pf"));swipeClose(document.getElementById("st"));swipeClose(document.getElementById("cp"));swipeClose(document.getElementById("ar"));
 
 function closeDlg(){if(!dlg.open||dlg.classList.contains("out"))return;dlg.classList.add("out");setTimeout(()=>{dlg.close();dlg.classList.remove("out")},230)}
 q.addEventListener("input",render);
@@ -443,7 +485,7 @@ let LAST={name:"UFC Fight Night: Cortes Acosta vs Walker",when:"Sat, Nov 7 · Me
 function renLast(){const el=document.getElementById("lw");if(!el)return;
  const av=(n,m,win)=>{const s=photo(n);return `<span class="av ${win?"win":"lose"}"><i style="${s?`background-image:url(${s})`:""}">${s?"":ini(n)}</i><span class="mt">${win?`<span class="tag mini lwt">${esc(m)}</span>`:""}</span></span>`};
  el.innerHTML=`<div class="fm" style="margin:0 0 10px">${esc(LAST.name)} · ${esc(LAST.when)}</div>`+LAST.fights.filter(f=>f[6]).map(f=>{const r=(String(f[4]).match(/^R(\d)/)||[])[1],m=f[3]+(r?" · R"+r:"");return `<div class="fight lwf ${f[5]?"main":""}"><div class="fm">${esc(f[2]||"Main card")}${f[5]?" · Main event":""}</div><div class="vs"><div class="lwwin">${av(f[0],m,1)}<span>${esc(f[0])}</span></div><em>VS</em><div class="lwlose">${av(f[1],"",0)}<span>${esc(f[1])}</span></div></div></div>`}).join("")}
-let SHOW=true,BOARDGO=null,DB=null,U=null,ME=null,OWNER=false,PICKS={},RES={},AUTO={},MAINF={},NAMES={},READY=false,sel={},CF=null;
+let ARCH=[],SHOW=true,BOARDGO=null,DB=null,U=null,ME=null,OWNER=false,PICKS={},RES={},AUTO={},MAINF={},NAMES={},READY=false,sel={},CF=null;
 
 /* ===== Supabase mode (used when the page is NOT opened inside claude.ai) ===== */
 const SUPA_URL="https://hauxmxemyvgbgkbholln.supabase.co",SUPA_KEY="sb_publishable_doIqm34FPpJah1gWDeQWvQ_O54mnuip";
@@ -490,7 +532,7 @@ const pts=(p,r,main)=>{if(!p||!r||p.w!==r.w)return 0;const v=r.m&&nm(p.m)===nm(r
 const LOCKH=5,lockAt=()=>EV.lock-LOCKH*3600e3,locked=()=>Date.now()>=lockAt();
 const coins=id=>{if((PICKS[id]||{}).hidden)return PICKS[id].sc||0;const f=(PICKS[id]||{}).fights||{};return Object.keys(f).reduce((s,k)=>s+pts(f[k],res(k),mainOf(k)),0)};
 function board(){return Object.keys(PICKS).map(id=>({id,c:coins(id),n:(PICKS[id]||{}).hidden?(PICKS[id].n||0):Object.keys((PICKS[id]||{}).fights||{}).length})).sort((a,b)=>b.c-a.c||b.n-a.n)}
-function ren(){
+function ren(){try{rmn()}catch(e){}
  const A=document.getElementById("acct"),B=board(),rank=B.findIndex(x=>x.id===ME)+1,mine=(PICKS[ME]||{}).fights||{};
  A.innerHTML=!READY?'<div class="box">Connecting…</div>':ME&&DB?`<div class="box"><h3>${esc(NAMES[ME]||"You")}</h3><small style="color:var(--mut)">${SB?"Logged in":"Logged in with your Claude account"}${OWNER?" · owner":""}${SB?` · <a href="#" onclick="openSettings();return false" style="color:inherit">Settings</a> · <a href="#" onclick="sbOut();return false" style="color:inherit">Log out</a> · <a href="#" onclick="sbDel();return false" style="color:inherit">Delete account</a>`:""}</small><div class="stats"><div><b>${coins(ME)}<i class="coin"></i></b><small>Coins</small></div><div><b>${Object.keys(mine).length}</b><small>Picks</small></div><div><b>${rank||"–"}</b><small>Rank</small></div></div></div>`:`<div class="box lg"><div class="lgh"><span class="lgi" aria-hidden="true">🥊</span><div><h3>Join the game</h3><small>Pick winners, earn coins, climb the scoreboard</small></div></div>${loginHtml()}</div>`;
  document.getElementById("evt").innerHTML=`<div class="fm" style="margin:0 0 10px">${EV.name} · ${EV.when}${EV.src?` · Main card ${new Date(EV.lock).toLocaleString(undefined,{weekday:"short",hour:"2-digit",minute:"2-digit"})} your time (${EV.src==="ufc.com"?"official, ufc.com":"estimate"})`:""}${locked()?" · picks locked":` · Picks lock ${new Date(lockAt()).toLocaleString(undefined,{weekday:"short",hour:"2-digit",minute:"2-digit"})} (5 hours before the fights)`}</div>`+EV.fights.map((f,i)=>{const p=mine[f.id],r=res(f.id);let st=p?`Your pick: <b>${p.w}</b> · ${p.m}${p.r?" · R"+p.r:""}${locked()?" · 🔒 locked":` <span class="chg">Change pick</span>`}`:(locked()?"Picks locked":"Tap to pick the winner");if(r)st+=` · Result: ${r.w} (${r.m}${r.r?" R"+r.r:""}) · <b class="pt">+${pts(p,r,f.main)}<i class="coin"></i></b>`;
@@ -534,7 +576,7 @@ function openProf(id){const P=PICKS[id]||{},mine=id===ME,hid=!!P.hidden,B=board(
  (hid?'<div class="pfn">This player keeps their picks private.</div>':keys.length?rows:'<div class="pfn">No picks yet.</div>');
  document.getElementById("pf").showModal()}
 function openSettings(){if(!SB||!ME)return;
- document.getElementById("stb").innerHTML=`<h2>Settings</h2><div class="stx"><label class="ck"><input type="checkbox" id="stshow" ${SHOW?"checked":""} onchange="setShow(this.checked)"><span>Let other players see my picks<small>Your coins and rank always show on the scoreboard. When this is off, others can't open your picks.</small></span></label><h3>Change password</h3><input type="password" id="stp1" placeholder="New password (6+ characters)" autocomplete="new-password" minlength="6"><input type="password" id="stp2" placeholder="Repeat new password" autocomplete="new-password"><button class="btn" type="button" onclick="chgPw()">Change password</button><div class="st" id="stm" role="status"></div></div>`;
+ document.getElementById("stb").innerHTML=`<h2>Settings</h2><div class="stx"><label class="ck"><input type="checkbox" id="stshow" ${SHOW?"checked":""} onchange="setShow(this.checked)"><span>Let other players see my picks<small>Your coins and rank always show on the scoreboard. When this is off, others can't open your picks.</small></span></label><h3>Change password</h3><input type="password" id="stp1" placeholder="New password (6+ characters)" autocomplete="new-password" minlength="6"><input type="password" id="stp2" placeholder="Repeat new password" autocomplete="new-password"><button class="btn" type="button" onclick="chgPw()">Change password</button><div class="st" id="stm" role="status"></div><h3>Install the app</h3><div id="stinst">${instHtml()}</div></div>`;
  document.getElementById("st").showModal()}
 const stmsg=t=>{const e=document.getElementById("stm");if(e)e.textContent=t};
 async function setShow(v){const cb=document.getElementById("stshow");try{
@@ -545,6 +587,65 @@ async function chgPw(){const a=document.getElementById("stp1").value,b=document.
  if(a.length<6){stmsg("Use at least 6 characters.");return}if(a!==b){stmsg("The two passwords don't match.");return}
  const{error}=await SB.auth.updateUser({password:a});if(error){stmsg(error.message);return}
  document.getElementById("stp1").value="";document.getElementById("stp2").value="";stmsg("Password changed.")}
+
+/* ===== reminder banner ===== */
+function rmn(){const el=document.getElementById("rmn");if(!el)return;
+ const un=(EV.fights||[]).filter(f=>!((PICKS[ME]||{}).fights||{})[f.id]).length;
+ if(!(ME&&DB&&READY)||locked()||!un){el.innerHTML="";return}
+ const ms=lockAt()-Date.now(),h=Math.floor(ms/3600e3),m=Math.floor(ms%3600e3/60e3),hot=ms<2*3600e3;
+ const when=ms<48*3600e3?`in <b>${h?h+"h ":""}${m}m</b>`:`<b>${new Date(lockAt()).toLocaleString(undefined,{weekday:"short",hour:"2-digit",minute:"2-digit"})}</b>`;
+ el.innerHTML=`<div class="rmn ${hot?"hot":""}" role="button" tabindex="0" onclick="document.getElementById('evt').scrollIntoView({behavior:'smooth',block:'start'})"><i>⏰</i><span>Picks lock ${when}. You haven't picked <b>${un} fight${un>1?"s":""}</b> yet.</span></div>`}
+setInterval(()=>{try{rmn()}catch(e){}},30000);
+
+/* ===== fighter updates (rankings, records, age, height, reach) ===== */
+const nk=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+function applyFighters(j){if(!j)return;const rk=j.rk||{},fm=j.f||{},by={};for(const n in fm)by[nk(n)]=fm[n];
+ for(const c in D){const r=rk[c],rm={};if(r)for(const n in r)rm[nk(n)]=r[n];const full=r&&Object.keys(r).length>=15;
+  D[c].forEach(f=>{const x=by[nk(f.n)];if(x){if(x.rec&&/^\d+-\d+(-\d+)?$/.test(x.rec))f.rec=x.rec;if(x.ht)f.ht=x.ht;if(x.rch)f.rch=x.rch;if(x.age)f.age=x.age}
+   if(r&&/^(CHAMP|UNRANKED|#\d+)$/.test(f.tag)){const v=rm[nk(f.n)];if(v===0)f.tag="CHAMP";else if(v>0)f.tag="#"+v;else if(full)f.tag="UNRANKED"}})}
+ try{(EV.fights||[]).forEach(f=>{f.ta=tagOf(f.a);f.tb=tagOf(f.b)})}catch(e){}}
+async function loadFighters(){try{const q=await fetch(SUPA_URL+"/rest/v1/site_data?key=eq.fighters&select=value",{headers:{apikey:SUPA_KEY},cache:"no-store"});if(!q.ok)return;const a=await q.json();if(a[0]&&a[0].value){applyFighters(a[0].value);const dl=document.getElementById("dlg");if(!(dl&&dl.open))render();ren()}}catch(e){}}
+
+/* ===== compare two fighters ===== */
+let CMPA=null,CMPB=null,CMPR=[];
+const allF=()=>{const a=[];for(const c in D)D[c].forEach(f=>a.push({f,c}));return a};
+const avs=(n)=>{const s=photo(n);return `<span class="cpav" style="${s?`background-image:url(${s})`:""}">${s?"":ini(n)}</span>`};
+function openCmp(){const f=list[idx];if(!f)return;CMPA=f.n;CMPB=null;CMPR=[];drawCmp();try{document.getElementById("dlg").close()}catch(e){}document.getElementById("cp").showModal();const b=document.getElementById("cp");b.scrollTop=0}
+function cmpSearch(v){const k=nk(v);CMPR=k?allF().filter(x=>x.f.n!==CMPA&&(nk(x.f.n).includes(k)||nk(x.f.nick||"").includes(k))).slice(0,8):[];
+ document.getElementById("cpl").innerHTML=CMPR.map((x,i)=>{const s=photo(x.f.n);return `<button class="cpr" onclick="cmpPick(${i})"><i style="${s?`background-image:url(${s})`:""}"></i><span>${esc(x.f.n)}</span><small>${esc(x.c)}</small></button>`}).join("")}
+function cmpPick(i){const x=CMPR[i];if(!x)return;CMPB=x.f.n;CMPR=[];drawCmp()}
+function drawCmp(){const A=findF(CMPA),a=A&&D[A[0]][A[1]],B=CMPB&&findF(CMPB),b=B&&D[B[0]][B[1]];if(!a)return;
+ const num=s=>parseFloat(String(s||"").replace(/(\d+)'(\d+).*/,(m,x,y)=>(+x*12+ +y)))||0;
+ const row=(l,x,y,best)=>{let bx="",by="";if(best){const nx=best(x),ny=best(y);if(nx&&ny&&nx!==ny){bx=nx>ny?"best":"";by=ny>nx?"best":""}}return `<div class="cr"><small>${l}</small><div><b class="${bx}">${x||"—"}</b><b class="${by}">${y||"—"}</b></div></div>`};
+ const chips=(x)=>x&&x.length?`<div class="tags">${x.slice(0,6).map(z=>`<span>${esc(z)}</span>`).join("")}</div>`:"—";
+ const crow=(l,x,y)=>`<div class="cr"><small>${l}</small><div>${x}${y}</div></div>`;
+ const tg=f=>`<span class="tag ${tc(f.tag)}">${esc(f.tag)}</span>`+(f.tg||[]).map(z=>`<span class="tag ${tc(z)}">${esc(z)}</span>`).join("");
+ const wins=r=>{const m=String(r||"").match(/^(\d+)-/);return m?+m[1]:0};
+ let h=`<h2>Compare fighters</h2><div class="cps"><div>${avs(a.n)}<b>${esc(a.n)}</b></div><em>VS</em><div>${b?avs(b.n)+`<b>${esc(b.n)}</b>`:`<span class="cpav">?</span><b style="color:var(--mut)">Pick a fighter</b>`}</div></div>`;
+ h+=`<input id="cpq" class="cpq" type="search" placeholder="${b?"Change fighter…":"Search a fighter to compare"}" oninput="cmpSearch(this.value)" autocomplete="off"><div id="cpl" class="cpl"></div>`;
+ if(b){h+=row("Record",a.rec,b.rec,r=>wins(r))+crow("Rank / status",`<div class="rks">${tg(a)}</div>`,`<div class="rks">${tg(b)}</div>`)+row("Weight class",A[0],B[0])+row("Age",a.age,b.age)+row("Height",a.ht,b.ht,num)+row("Reach",a.rch,b.rch,num)+row("Style",(a.base||[]).slice(0,3).join(", "),(b.base||[]).slice(0,3).join(", "))+crow("Strengths",`<div>${chips(a.s)}</div>`,`<div>${chips(b.s)}</div>`)+crow("Weaknesses",`<div>${chips(a.w)}</div>`,`<div>${chips(b.w)}</div>`)+row("Highlight fights",(a.hl||[]).length||"—",(b.hl||[]).length||"—");
+  if(!(a.age||b.age||a.ht||b.ht||a.rch||b.rch))h+=`<div class="cpn">Age, height and reach show up after the next fighter update.</div>`}
+ document.getElementById("cpb").innerHTML=h;const q=document.getElementById("cpq");if(q&&!b)setTimeout(()=>{try{q.focus({preventScroll:true})}catch(e){}},50)}
+
+/* ===== past events archive ===== */
+function openArchive(){const mine=(PICKS[ME]||{}).fights||{};
+ const evs=(ARCH||[]).map(e=>{let n=0,c=0,coins=0;const rows=e.fights.map(f=>{const p=mine[f.id],r={w:f.w,m:f.m},pt=p?pts(p,r,f.main):0;if(p){n++;if(p.w===f.w)c++;coins+=pt}
+   const rd=(String(f.d||"").match(/^R(\d)/)||[])[1],how=nm(f.m||"")+(f.d?(f.m==="DEC"?" · "+f.d:rd?" · R"+rd:""):"");
+   return `<div class="arf"><b>${esc(f.w)} def. ${esc(f.l)}${f.main?" · Main event":""}</b><small>${esc(how)}</small>${ME?`<small>${p?`Your pick: ${esc(p.w)}${p.m?" · "+esc(nm(p.m)):""} · ${p.w===f.w?`<span class="ok">✓ +${pt}</span><i class="coin"></i>`:`<span class="no">✗</span>`}`:"You didn't pick this fight"}</small>`:""}</div>`}).join("");
+  return `<details class="ev"><summary>${esc(e.name)}<small>${esc(e.when)}${ME&&n?` · You got ${c} of ${n} right · +${coins}`:""}${ME&&n?'<i class="coin"></i>':""}</small></summary><div class="evb">${rows}</div></details>`}).join("");
+ document.getElementById("arb2").innerHTML=`<h2>Past events</h2>${evs||'<div class="cpn">No past events yet.</div>'}`;document.getElementById("ar").showModal()}
+const arvis=()=>{const w=document.getElementById("arw");if(w)w.hidden=!(ARCH&&ARCH.length)};
+
+/* ===== install as an app ===== */
+let DEFI=null;addEventListener("beforeinstallprompt",e=>{e.preventDefault();DEFI=e;try{instRef()}catch(x){}});
+const standalone=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+function instHtml(){if(standalone())return '<div class="ins">The app is installed on this device.</div>';
+ if(DEFI)return '<button class="btn" type="button" onclick="doInstall()">Install the app</button>';
+ if(/iphone|ipad|ipod/i.test(navigator.userAgent))return '<div class="ins">On iPhone or iPad: tap the Share button in Safari, then <b>Add to Home Screen</b>.</div>';
+ return '<div class="ins">In your browser menu, choose <b>Install app</b> or <b>Add to Home screen</b>.</div>'}
+function instRef(){const e=document.getElementById("stinst");if(e)e.innerHTML=instHtml()}
+async function doInstall(){if(!DEFI)return;DEFI.prompt();try{await DEFI.userChoice}catch(e){}DEFI=null;instRef()}
+try{if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}catch(e){}
 async function savePick(){if(isDone())return;try{const fights=Object.assign({},(PICKS[ME]||{}).fights||{},{[CF.id]:{w:sel.w,m:sel.m,r:sel.r}});await DB.doc("picks/"+ME).set({fights,t:Date.now()});PICKS[ME]={fights};ren();document.getElementById("pk").close()}catch(e){document.querySelector("#pkb .st").textContent="Couldn't save your pick. You may need contributor access to this page."}}
 async function saveRes(){try{const fights=Object.assign({},RES,{[CF.id]:{w:sel.w,m:sel.m,r:sel.r}});await DB.doc("results/"+EV.id).set({fights});RES=fights;ren();document.getElementById("pk").close()}catch(e){}}
 async function names(){try{const ids=Object.keys(PICKS).concat(ME?[ME]:[]);if(!U||!ids.length)return;const ps=await U.profiles(ids);ids.forEach(id=>{NAMES[id]=String((ps[id]&&ps[id].name)||NAMES[id]||"").slice(0,24)});ren()}catch(e){}}
@@ -558,13 +659,13 @@ function applyEv(j){
  if(j.last&&j.last.fights&&j.last.fights.length){LAST={name:j.last.name,when:j.last.when,fights:j.last.fights.map(f=>[f.w,f.l,f.cls,f.method,f.detail,f.main?1:0,f.card?1:0])}}
  try{(j.next&&j.next.fights||[]).forEach(f=>{if(f.ra)OREC[f.a]=f.ra;if(f.rb)OREC[f.b]=f.rb})}catch(e){}
  try{const hs=[];(j.next&&j.next.fights||[]).forEach(f=>{hs.push([f.a,f.ia,f.cls],[f.b,f.ib,f.cls])});(j.last&&j.last.fights||[]).forEach(f=>{hs.push([f.w,f.wi,f.cls],[f.l,f.li,f.cls])});headshots(hs)}catch(e){}
- AUTO=j.history||{};MAINF={};EV.fights.forEach(f=>MAINF[f.id]=f.main?1:0)}
+ ARCH=j.archive||[];AUTO=j.history||{};MAINF={};EV.fights.forEach(f=>MAINF[f.id]=f.main?1:0)}
 const sigOf=j=>JSON.stringify([j.next,j.last,j.history]);let SIG="",POLL=null,LASTPOLL=0;
 async function loadEvents(){try{const j=await getEvents(false);if(j){applyEv(j);SIG=sigOf(j)}}catch(e){}
- MAINF={};EV.fights.forEach(f=>MAINF[f.id]=f.main?1:0);renLast();schedulePoll()}
+ MAINF={};EV.fights.forEach(f=>MAINF[f.id]=f.main?1:0);renLast();arvis();schedulePoll();loadFighters()}
 /* live updates: re-check the results about every 45 s around fight time (every 10 min otherwise), only while the page is open */
 async function pollEvents(){LASTPOLL=Date.now();try{const j=await getEvents(true);if(j){const sg=sigOf(j),a=document.activeElement;
-  if(sg!==SIG&&!(a&&a.closest&&a.closest("#acct"))){applyEv(j);SIG=sg;ren();renLast();BOARDGO&&BOARDGO()}}}catch(e){}schedulePoll()}
+  if(sg!==SIG&&!(a&&a.closest&&a.closest("#acct"))){applyEv(j);SIG=sg;ren();renLast();arvis();BOARDGO&&BOARDGO()}}}catch(e){}schedulePoll()}
 function schedulePoll(){clearTimeout(POLL);const n=Date.now(),live=n>EV.lock-2*3600e3&&n<EV.lock+10*3600e3;POLL=setTimeout(()=>{if(document.hidden){schedulePoll();return}pollEvents()},live?45000:600000)}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-LASTPOLL>30000&&READY)pollEvents()});
 (async()=>{await loadEvents();try{if(!window.claude){await sbInit()}else{U=await claude.use("user");DB=await claude.use("db");if(U){ME=await U.id();OWNER=await U.isOwner()}}if(DB&&ME){DB.collection("picks").onSnapshot(s=>{PICKS={};s.docs.forEach(d=>PICKS[d.id]=d.data());ren();names()},()=>{});DB.doc("results/"+EV.id).onSnapshot(s=>{RES=s.exists?((s.data()||{}).fights||{}):{};ren()},()=>{})}}catch(e){}READY=true;ren();names()})();

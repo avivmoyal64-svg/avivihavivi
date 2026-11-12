@@ -1,7 +1,7 @@
 // Private-site gate: everything except the legal pages needs the shared password.
 // The password is NOT in the code: set SITE_PASSWORD in Vercel -> Settings -> Environment Variables.
 export const config = {
-  matcher: ["/((?!terms\\.html|privacy\\.html|copyright\\.html|contact\\.html|legal\\.css|gate-bg\\.jpg|favicon\\.ico).*)"],
+  matcher: ["/((?!terms\\.html|privacy\\.html|copyright\\.html|contact\\.html|legal\\.css|gate-bg\\.jpg|favicon\\.ico|manifest\\.webmanifest|icon-192\\.png|icon-512\\.png|apple-touch-icon\\.png|sw\\.js).*)"],
 };
 
 const enc = new TextEncoder();
