@@ -460,9 +460,9 @@ async function sbInit(){
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const ini=n=>n.split(" ").map(x=>x[0]).slice(0,2).join("");
 const photo=n=>{for(const k in D){const f=D[k].find(x=>x.n===n);if(f&&f.pic)return f.pic}return RP[n]||""};
-const RP={},HS_CLS=["Flyweight","Bantamweight","Featherweight","Lightweight","Welterweight","Middleweight"];
-function headshots(list){/* list: [name,athleteId,class] - only for classes already on the site, and only shown once the image really loads */
- list.forEach(([n,id,c])=>{if(!n||!id||!HS_CLS.includes(c)||RP[n])return;if(Object.values(D).some(a=>a.some(f=>f.n===n&&f.pic)))return;
+const RP={};
+function headshots(list){/* list: [name,athleteId,class] - for every class that exists on the site (D) plus all women's classes; shown only once the image really loads */
+ list.forEach(([n,id,c])=>{if(!n||!id||!(D[c]||/^Women/.test(c||""))||RP[n])return;if(Object.values(D).some(a=>a.some(f=>f.n===n&&f.pic)))return;
   const u="https://a.espncdn.com/i/headshots/mma/players/full/"+encodeURIComponent(id)+".png",im=new Image();
   im.onload=()=>{RP[n]=u;try{ren()}catch(e){}try{renLast()}catch(e){}};im.src=u})}
 const nm=s=>s==="TKO/KO"?"KO/TKO":s;
