@@ -127,15 +127,18 @@ if (upcoming.length) {
       const x = rev[k], cs = ORD(x.c), a = name(cs[0]), b = name(cs[1]);
       if (!a || !b) continue;
       const known = pn[fid(ev, a, b)];
-      if (known && known.ra !== undefined && known.ia !== undefined && known.main === (k === 0 ? 1 : 0)) { fights.push(known); continue; }
+      if (known && known.ra !== undefined && known.ia !== undefined && known.main === (k === 0 ? 1 : 0) && known.v === 2) { fights.push(known); continue; }
       const cc = await core(ev, x.c);
       const periods = cc?.format?.regulation?.periods || 0;
-      const five = periods ? periods >= 5 : k < 2;
       const isMain = k === 0, co = k === 1;
-      const title = /title|championship/i.test(JSON.stringify([cc?.notes, cc?.note, cc?.name, cc?.type?.text])) || (five && (co || (isMain && /^UFC \d+/i.test(ev.name))));
+      const desc = String(cc?.description || "");
+      const titleTxt = /title|championship/i.test(JSON.stringify([cc?.notes, cc?.note, cc?.name, cc?.types]));
+      // 5 rounds if ESPN says so (format or "5 Rnd" description), or it is a title fight
+      const five = periods >= 5 || /5 rnd/i.test(desc) || titleTxt || (!periods && !desc && k < 2);
+      const title = titleTxt || (five && (co || (isMain && /^UFC \d+/i.test(ev.name))));
       const ia = cs[0].athlete?.id || cs[0].id, ib = cs[1].athlete?.id || cs[1].id;
       const [ra, rb] = await Promise.all([recFor(ia), recFor(ib)]);
-      fights.push({ id: fid(ev, a, b), a, b, ia, ib, ra, rb, cls: clsOf(x.c), tag: (title ? "Title fight · " : "") + (isMain ? "Main event" : co ? "Co-main" : "Main card"), main: isMain ? 1 : 0, rounds: five ? 5 : 3 });
+      fights.push({ v: 2, id: fid(ev, a, b), a, b, ia, ib, ra, rb, cls: clsOf(x.c), tag: (title ? "Title fight · " : "") + (isMain ? "Main event" : co ? "Co-main" : "Main card"), main: isMain ? 1 : 0, rounds: five ? 5 : 3 });
     }
     // which fight is in progress right now (shows a red LIVE dot on the site)
     for (const x of main) {
