@@ -332,6 +332,7 @@ details.ev .evb{padding:2px 14px 10px}
 <div id="sp" style="height:80svh"></div>
 <div id="content">
 <h2 class="sec">Your <span>profile</span></h2><div class="pnl rv" id="acct"></div>
+<div class="arw" id="inw"><button class="arb" onclick="openInstall()">📲 Install the app</button></div>
 <h2 class="sec">This week's <span>main card</span></h2><div id="rmn"></div><div class="pnl rv" id="evt"></div>
 <h2 class="sec">Last week's <span>results</span></h2><div class="pnl rv" id="lw"></div>
 <div class="arw" id="arw" hidden><button class="arb" onclick="openArchive()">🗓 Past events</button></div>
@@ -367,7 +368,7 @@ function show(c){const ch=c!==cur;cur=c;q.value="";
  if(!nav.children.length)nav.innerHTML=classes.map(k=>`<button class="wc${k.length>13?" lw":""}" data-k="${k}" ${D[k]?"":"data-off=1"}><b>${k}</b><small>${D[k]?D[k].length+" fighters":"Soon"}</small></button>`).join("");[...nav.children].forEach(b=>b.classList.toggle("on",b.dataset.k===c));render();if(!SC)centerOn(c);setTimeout(fx,60);if(UI&&ch)toRoster()}
 function render(){const t=q.value.trim().toLowerCase();list=D[cur].filter(f=>f.n.toLowerCase().includes(t)||(f.nick||"").toLowerCase().includes(t));
  grid.innerHTML=list.length?list.map((f,i)=>`<button class="card" style="transition-delay:${(i%3)*70}ms" onclick="open_(${i})"><div class="pic"><div class="tw"><span class="tag ${tc(f.tag)}">${f.tag}</span></div>${(f.tg||[]).length?`<div class="tb">${f.tg.map(x=>`<span class="tag ${tc(x)}">${x}</span>`).join("")}</div>`:""}${f.pic?`<img src="${f.pic}" alt="${f.n}">`:`<div class="ph">${f.n.split(" ").map(x=>x[0]).slice(0,2).join("")}</div>`}</div><div class="info"><b>${f.n}${f.rec?`<span class="rec rc">${f.rec}</span>`:""}</b><small>${f.nick||cur}</small><div class="chips">${f.base.slice(0,2).map(x=>`<span class="chip">${x}</span>`).join("")}</div></div></button>`).join(""):'<div class="empty">No fighters match your search</div>';obs()}
-const tc=t=>({CHAMP:"g",LEGEND:"b",PROSPECT:"p",INACTIVE:"v","RIZIN CHAMP":"rz","PFL CHAMPION":"pf","BELLATOR CHAMP":"bl","FW #2":"fw",UNRANKED:"ur",FC:"fc","DOUBLE CHAMPION":"dc",GATEKEEPER:"gk",BMF:"s"}[t]||"");
+const tc=t=>({CHAMP:"g",LEGEND:"b",PROSPECT:"p",INACTIVE:"v","RIZIN CHAMP":"rz","PFL CHAMPION":"pf","BELLATOR CHAMP":"bl","FW #2":"fw",UNRANKED:"ur",FC:"fc","DOUBLE CHAMPION":"dc",GATEKEEPER:"gk",BMF:"s"}[t]||(/^[A-Z]{2,3} (#\d+|CHAMP)$/.test(t)?"fw":""));
 const tgs=(f,card)=>`<span class="tag ${tc(f.tag)}">${f.tag}</span>`+(f.tg||[]).filter(x=>!(card&&x==="DOUBLE CHAMPION")).map(x=>`<span class="tag ${tc(x)}">${x}</span>`).join("");
 let io;function obs(){io&&io.disconnect();const cs=[...grid.querySelectorAll(".card")];if(!("IntersectionObserver"in window)){cs.forEach(c=>c.classList.add("in"));return}
 io=new IntersectionObserver(es=>es.forEach(e=>{const c=e.target;if(e.isIntersecting){c.classList.remove("above");c.classList.add("in")}else{c.classList.remove("in");c.classList.toggle("above",e.boundingClientRect.top<0)}}),{threshold:0,rootMargin:"40% 0px 40% 0px"});cs.forEach(c=>io.observe(c))}
@@ -600,9 +601,15 @@ setInterval(()=>{try{rmn()}catch(e){}},30000);
 /* ===== fighter updates (rankings, records, age, height, reach) ===== */
 const nk=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
 function applyFighters(j){if(!j)return;const rk=j.rk||{},fm=j.f||{},by={};for(const n in fm)by[nk(n)]=fm[n];
- for(const c in D){const r=rk[c],rm={};if(r)for(const n in r)rm[nk(n)]=r[n];const full=r&&Object.keys(r).length>=15;
-  D[c].forEach(f=>{const x=by[nk(f.n)];if(x){if(x.rec&&/^\d+-\d+(-\d+)?$/.test(x.rec))f.rec=x.rec;if(x.ht)f.ht=x.ht;if(x.rch)f.rch=x.rch;if(x.age)f.age=x.age}
-   if(r&&/^(CHAMP|UNRANKED|#\d+)$/.test(f.tag)){const v=rm[nk(f.n)];if(v===0)f.tag="CHAMP";else if(v>0)f.tag="#"+v;else if(full)f.tag="UNRANKED"}})}
+ const ABBR={Flyweight:"FLW",Bantamweight:"BW",Featherweight:"FW",Lightweight:"LW",Welterweight:"WW",Middleweight:"MW","Light Heavyweight":"LHW",Heavyweight:"HW"};
+ const maps={};for(const c in rk){maps[c]=[];for(const n in rk[c])maps[c].push({k:nk(n),t:new Set(nk(n).split(" ")),r:rk[c][n]})}
+ const find=(c,name)=>{const L=maps[c];if(!L)return undefined;const k=nk(name),w=k.split(" ");let e=L.find(x=>x.k===k);if(!e&&w.length>=2)e=L.find(x=>w.every(z=>x.t.has(z)));return e?e.r:undefined};
+ const RT=/^(CHAMP|UNRANKED|#\d+|[A-Z]{2,3} (#\d+|CHAMP))$/;
+ const G=f=>{const g=f.tag;return g==="LEGEND"?0:g==="CHAMP"?1:/^#\d+$/.test(g)?2+(+g.slice(1))/100:/^[A-Z]{2,3} (#\d+|CHAMP)$/.test(g)?3:/^(BELLATOR|PFL|RIZIN)/.test(g)?4:g==="UNRANKED"?5:g==="INACTIVE"?6:g==="PROSPECT"?7:8};
+ for(const c in D){const full=rk[c]&&Object.keys(rk[c]).length>=15;
+  D[c].forEach((f,i)=>{f._i=i;const x=by[nk(f.n)];if(x){if(x.rec&&/^\d+-\d+(-\d+)?$/.test(x.rec))f.rec=x.rec;if(x.ht)f.ht=x.ht;if(x.rch)f.rch=x.rch;if(x.age)f.age=x.age}
+   if(rk[c]&&RT.test(f.tag)){const v=find(c,f.n);if(v===0)f.tag="CHAMP";else if(v>0)f.tag="#"+v;else{let o;for(const c2 in maps){if(c2===c)continue;const r2=find(c2,f.n);if(r2!==undefined){o=(ABBR[c2]||c2)+(r2===0?" CHAMP":" #"+r2);break}}if(o)f.tag=o;else if(full)f.tag="UNRANKED"}}});
+  if(rk[c])D[c].sort((a,b)=>G(a)-G(b)||a._i-b._i)}
  try{(EV.fights||[]).forEach(f=>{f.ta=tagOf(f.a);f.tb=tagOf(f.b)})}catch(e){}}
 async function loadFighters(){try{const q=await fetch(SUPA_URL+"/rest/v1/site_data?key=eq.fighters&select=value",{headers:{apikey:SUPA_KEY},cache:"no-store"});if(!q.ok)return;const a=await q.json();if(a[0]&&a[0].value){applyFighters(a[0].value);const dl=document.getElementById("dlg");if(!(dl&&dl.open))render();ren()}}catch(e){}}
 
@@ -634,6 +641,7 @@ function openArchive(){const mine=(PICKS[ME]||{}).fights||{};
    return `<div class="arf"><b>${esc(f.w)} def. ${esc(f.l)}${f.main?" · Main event":""}</b><small>${esc(how)}</small>${ME?`<small>${p?`Your pick: ${esc(p.w)}${p.m?" · "+esc(nm(p.m)):""} · ${p.w===f.w?`<span class="ok">✓ +${pt}</span><i class="coin"></i>`:`<span class="no">✗</span>`}`:"You didn't pick this fight"}</small>`:""}</div>`}).join("");
   return `<details class="ev"><summary>${esc(e.name)}<small>${esc(e.when)}${ME&&n?` · You got ${c} of ${n} right · +${coins}`:""}${ME&&n?'<i class="coin"></i>':""}</small></summary><div class="evb">${rows}</div></details>`}).join("");
  document.getElementById("arb2").innerHTML=`<h2>Past events</h2>${evs||'<div class="cpn">No past events yet.</div>'}`;document.getElementById("ar").showModal()}
+const instvis=()=>{const w=document.getElementById("inw");if(w)w.hidden=standalone()};
 const arvis=()=>{const w=document.getElementById("arw");if(w)w.hidden=!(ARCH&&ARCH.length)};
 
 /* ===== install as an app ===== */
@@ -644,6 +652,9 @@ function instHtml(){if(standalone())return '<div class="ins">The app is installe
  if(/iphone|ipad|ipod/i.test(navigator.userAgent))return '<div class="ins">On iPhone or iPad: tap the Share button in Safari, then <b>Add to Home Screen</b>.</div>';
  return '<div class="ins">In your browser menu, choose <b>Install app</b> or <b>Add to Home screen</b>.</div>'}
 function instRef(){const e=document.getElementById("stinst");if(e)e.innerHTML=instHtml()}
+function openInstall(){if(DEFI){doInstall();return}
+ document.getElementById("arb2").innerHTML='<h2>Install the app</h2>'+(standalone()?'<div class="cpn">The app is already installed on this device.</div>':/iphone|ipad|ipod/i.test(navigator.userAgent)?'<div class="cpn" style="text-align:left">On iPhone or iPad (use <b>Safari</b>):<br>1. Tap the <b>Share</b> button (square with an arrow).<br>2. Scroll down and tap <b>Add to Home Screen</b>.<br>3. Tap <b>Add</b>.</div>':'<div class="cpn" style="text-align:left">On Android (Chrome): open the <b>⋮ menu</b> and tap <b>Install app</b> or <b>Add to Home screen</b>.<br><br>On a computer (Chrome or Edge): click the install icon at the right end of the address bar.</div>');
+ document.getElementById("ar").showModal()}
 async function doInstall(){if(!DEFI)return;DEFI.prompt();try{await DEFI.userChoice}catch(e){}DEFI=null;instRef()}
 try{if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}catch(e){}
 async function savePick(){if(isDone())return;try{const fights=Object.assign({},(PICKS[ME]||{}).fights||{},{[CF.id]:{w:sel.w,m:sel.m,r:sel.r}});await DB.doc("picks/"+ME).set({fights,t:Date.now()});PICKS[ME]={fights};ren();document.getElementById("pk").close()}catch(e){document.querySelector("#pkb .st").textContent="Couldn't save your pick. You may need contributor access to this page."}}
@@ -662,7 +673,7 @@ function applyEv(j){
  ARCH=j.archive||[];AUTO=j.history||{};MAINF={};EV.fights.forEach(f=>MAINF[f.id]=f.main?1:0)}
 const sigOf=j=>JSON.stringify([j.next,j.last,j.history]);let SIG="",POLL=null,LASTPOLL=0;
 async function loadEvents(){try{const j=await getEvents(false);if(j){applyEv(j);SIG=sigOf(j)}}catch(e){}
- MAINF={};EV.fights.forEach(f=>MAINF[f.id]=f.main?1:0);renLast();arvis();schedulePoll();loadFighters()}
+ MAINF={};EV.fights.forEach(f=>MAINF[f.id]=f.main?1:0);renLast();arvis();instvis();schedulePoll();loadFighters()}
 /* live updates: re-check the results about every 45 s around fight time (every 10 min otherwise), only while the page is open */
 async function pollEvents(){LASTPOLL=Date.now();try{const j=await getEvents(true);if(j){const sg=sigOf(j),a=document.activeElement;
   if(sg!==SIG&&!(a&&a.closest&&a.closest("#acct"))){applyEv(j);SIG=sg;ren();renLast();arvis();BOARDGO&&BOARDGO()}}}catch(e){}schedulePoll()}

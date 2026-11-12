@@ -41,6 +41,15 @@ async function rankings() {
       const r = row.match(/weight-class-rank[^>]*>\s*(\d+)/i), a = row.match(ATH);
       if (r && a) { const n = clean(a[2]); ranks[n] = +r[1]; slugs[norm(n)] = a[1]; }
     }
+    // also store each ranked fighter under the name used on our roster (ufc.com may add middle names)
+    for (const [n, v] of Object.entries(ranks)) {
+      const sl = slugs[norm(n)], tk = norm(n).split(" ");
+      for (const c in ROSTER) for (const rn of ROSTER[c]) {
+        if (rn === n || ranks[rn] !== undefined) continue;
+        const rt = norm(rn).split(" ");
+        if (slugOf(rn) === sl || (rt.length >= 2 && rt.every(w => tk.includes(w)))) { ranks[rn] = v; slugs[norm(rn)] = sl; }
+      }
+    }
     if (Object.keys(ranks).length >= 10) rk[cls] = ranks;
   }
   return { rk, slugs };
@@ -67,6 +76,11 @@ Deno.serve(async (req) => {
     if (q.get("peek")) {   // debugging: shows what was read from one athlete page
       const s = q.get("peek")!, h = await get("https://www.ufc.com/athlete/" + s), i = h.indexOf("c-bio__label");
       return new Response(JSON.stringify({ parsed: await athlete(s), wl: (h.match(/.{0,60}\(W-L-D\)/) || [""])[0], bio: clean(h.slice(i, i + 3000)).slice(0, 600) }), { headers: { "content-type": "application/json" } });
+    }
+    if (q.get("who")) {   // debugging: where is a fighter in the saved rankings?
+      const w = norm(q.get("who")!), cur: any = await readRow("fighters"), hits: any[] = [];
+      for (const c in cur.rk || {}) for (const n in cur.rk[c]) if (norm(n).includes(w)) hits.push({ cls: c, name: n, rank: cur.rk[c][n] });
+      return new Response(JSON.stringify({ hits, info: Object.entries(cur.f || {}).filter(([n]) => norm(n).includes(w)) }), { headers: { "content-type": "application/json" } });
     }
     if (q.get("ranks")) {
       const html = await get("https://www.ufc.com/rankings"), tbs = html.split(/<table/i).slice(1);
