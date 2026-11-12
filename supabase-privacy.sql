@@ -31,7 +31,7 @@ language sql stable security definer set search_path = public as $$
     from res rs full join hist h on h.fid = rs.fid
   )
   select p.user_id, p.name, p.show_picks,
-    (select count(*) from jsonb_object_keys(p.fights))::int,
+    (select count(*) from jsonb_object_keys(p.fights) k where k ~ '^e[0-9]+-')::int,
     coalesce((
       select sum(
         case when coalesce(ar.r->>'m', '') <> ''
