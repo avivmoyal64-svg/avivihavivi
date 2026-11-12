@@ -1,8 +1,10 @@
 -- Run once in Supabase: SQL Editor -> New query -> paste -> Run
 -- Lets each player choose whether other players can see their picks, and powers the scoreboard.
 
--- 1) The choice (off by default = private)
-alter table public.picks add column if not exists show_picks boolean not null default false;
+-- 1) The choice (on by default = public; players can turn it off in Settings)
+alter table public.picks add column if not exists show_picks boolean not null default true;
+alter table public.picks alter column show_picks set default true;
+update public.picks set show_picks = true;
 
 -- 2) Only the owner (or everyone, if the player allowed it) can read a picks row directly
 drop policy if exists "picks readable" on public.picks;
