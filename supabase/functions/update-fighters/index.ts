@@ -8,7 +8,7 @@ const SB_URL = Deno.env.get("SUPABASE_URL")!, SB_KEY = Deno.env.get("SUPABASE_SE
 const dbH = { apikey: SB_KEY, Authorization: "Bearer " + SB_KEY, "content-type": "application/json" };
 const readRow = async (key: string) => { try { const r = await fetch(SB_URL + "/rest/v1/site_data?key=eq." + key + "&select=value", { headers: dbH }); const j = await r.json(); return (j[0] && j[0].value) || {}; } catch { return {}; } };
 const writeRow = async (key: string, o: unknown) => { const r = await fetch(SB_URL + "/rest/v1/site_data?on_conflict=key", { method: "POST", headers: { ...dbH, Prefer: "resolution=merge-duplicates" }, body: JSON.stringify({ key, value: o, updated_at: new Date().toISOString() }) }); if (!r.ok) throw new Error("write failed " + r.status + " " + await r.text()); };
-const UA = { "user-agent": "Mozilla/5.0 (compatible; ufc-roster-updater)", accept: "text/html,*/*" };
+const UA = { "user-agent": "Mozilla/5.0 (compatible; ufc-roster-updater)", accept: "text/html,*/*", "accept-language": "en-US,en;q=0.9" };
 const get = async (u: string) => { const r = await fetch(u, { headers: UA }); if (!r.ok) throw new Error(u + " -> " + r.status); return r.text(); };
 
 const norm = (s: string) => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -20,6 +20,8 @@ const ATH = /href="[^"]*\/athlete\/([^"?#]+)"[^>]*>([^<]+)<\/a>/i;
 const classOf = (tb: string) => {
   const head = clean(((tb.match(/<h4[^>]*>([\s\S]*?)<\/h4>/i) || [])[1] || "").replace(/<span[\s\S]*?<\/span>/gi, ""));
   if (!head || /women|pound/i.test(head)) return "";
+  const DE: Record<string, string> = { fliegengewicht: "Flyweight", bantamgewicht: "Bantamweight", federgewicht: "Featherweight", leicht: "Lightweight", leichtgewicht: "Lightweight", weltergewicht: "Welterweight", mittelgewicht: "Middleweight", halbschwergewicht: "Light Heavyweight", schwergewicht: "Heavyweight" };
+  if (DE[norm(head)] && ROSTER[DE[norm(head)]]) return DE[norm(head)];
   const keys = Object.keys(ROSTER).filter(k => norm(head).includes(norm(k))).sort((a, b) => b.length - a.length);
   return keys[0] || "";
 };
@@ -51,8 +53,8 @@ async function athlete(slug: string) {
   const m = h.match(/(\d+)-(\d+)-(\d+)\s*\(W-L-D\)/);
   if (m) o.rec = (m[1] + "-" + m[2] + (+m[3] ? "-" + m[3] : ""));
   const i = h.indexOf("c-bio__label"), bio = i >= 0 ? clean(h.slice(i, i + 12000)) : "";
-  const num = (label: string) => { const r = bio.match(new RegExp("\\b" + label + "\\s+(\\d+(?:\\.\\d+)?)", "i")); return r ? parseFloat(r[1]) : 0; };
-  const ht = inch(String(num("Height"))), rc = inch(String(num("Reach"))), age = num("Age");
+  const num = (label: string) => { const r = bio.match(new RegExp("\\b(?:" + label + ")\\s+(\\d+(?:\\.\\d+)?)", "i")); return r ? parseFloat(r[1]) : 0; };
+  const ht = inch(String(num("Height|Gr\\S{1,2}e"))), rc = inch(String(num("Reach|Reichweite"))), age = num("Age|Alter");
   if (ht) o.ht = Math.floor(ht / 12) + "'" + Math.round(ht % 12) + "\"";
   if (rc) o.rch = Math.round(rc) + "\"";
   if (age > 15 && age < 60) o.age = Math.round(age);
