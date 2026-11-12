@@ -23,7 +23,7 @@ async function rankings() {
   for (const tb of html.split(/<table/i).slice(1)) {
     const end = tb.search(/<\/table>/i), body = end > 0 ? tb.slice(0, end) : tb;
     const cap = (body.match(/<caption[\s\S]*?<\/caption>/i) || [""])[0];
-    const cls = clean((cap.match(/<h4[^>]*>([\s\S]*?)<\/h4>/i) || [])[1]);
+    const cls = clean(((cap.match(/<h4[^>]*>([\s\S]*?)<\/h4>/i) || [])[1] || "").replace(/<span[\s\S]*?<\/span>/gi, ""));
     if (!cls || !ROSTER[cls]) continue;
     const ranks: Record<string, number> = {};
     const champ = cap.match(ATH);
@@ -43,12 +43,12 @@ async function athlete(slug: string) {
   const o: any = {};
   const m = h.match(/(\d+)-(\d+)-(\d+)\s*\(W-L-D\)/);
   if (m) o.rec = (m[1] + "-" + m[2] + (+m[3] ? "-" + m[3] : ""));
-  const i = h.indexOf("c-bio__label"), bio = i >= 0 ? h.slice(i, i + 9000) : "";
-  const val = (label: string) => { const r = bio.match(new RegExp("c-bio__label[^>]*>\\s*" + label + "\\s*<[\\s\\S]{0,260}?c-bio__text[^>]*>\\s*([^<]+?)\\s*<", "i")); return r ? r[1].trim() : ""; };
-  const ht = inch(val("Height")), rc = inch(val("Reach")), age = parseInt(val("Age"));
+  const i = h.indexOf("c-bio__label"), bio = i >= 0 ? clean(h.slice(i, i + 12000)) : "";
+  const num = (label: string) => { const r = bio.match(new RegExp("\\b" + label + "\\s+(\\d+(?:\\.\\d+)?)", "i")); return r ? parseFloat(r[1]) : 0; };
+  const ht = inch(String(num("Height"))), rc = inch(String(num("Reach"))), age = num("Age");
   if (ht) o.ht = Math.floor(ht / 12) + "'" + Math.round(ht % 12) + "\"";
   if (rc) o.rch = Math.round(rc) + "\"";
-  if (age > 15 && age < 60) o.age = age;
+  if (age > 15 && age < 60) o.age = Math.round(age);
   return o;
 }
 
@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
     const now = Date.now(), due: string[] = [];
     for (const cls in ROSTER) for (const n of ROSTER[cls]) {
       const t = (out.f[n] && out.f[n].t) || 0, age = now - t;
-      if (age > (card.has(norm(n)) ? 2 : 20) * 3600e3) due.push(n);
+      if (age > (card.has(norm(n)) ? 2 : 20) * 3600e3 || (!(out.f[n] && out.f[n].age) && age > 3600e3)) due.push(n);
     }
     due.sort((a, b) => ((out.f[a] && out.f[a].t) || 0) - ((out.f[b] && out.f[b].t) || 0));
     const todo = due.slice(0, 30);
