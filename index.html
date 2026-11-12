@@ -114,6 +114,7 @@ nav{scroll-snap-type:x mandatory;padding:6px calc(50% - 64px);gap:10px;-webkit-o
 nav .wc{flex:none;width:128px;scroll-snap-align:center;border-radius:14px;padding:10px 8px;background:#eef4ef;border:1px solid #cfdcd3;display:flex;flex-direction:column;align-items:center;gap:2px;transition:transform .15s,opacity .15s,background .25s,box-shadow .25s;text-transform:none;letter-spacing:.5px}
 nav .wc b{font:17px Impact,Arial,sans-serif;font-weight:400;letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
 nav .wc small{font:11px Arial,sans-serif;color:var(--mut)}
+nav .wc.lw b{font-size:13px;letter-spacing:.2px}
 nav .wc.on{background:linear-gradient(135deg,var(--red),var(--red2));border-color:transparent;box-shadow:0 6px 22px #0f7a438a}
 nav .wc.on small{color:#ffe}
 .sr{max-width:1180px;margin:14px auto 0;padding:0 16px}.sr #q,.sr #q:focus{width:100%;font-size:16px}
@@ -320,7 +321,7 @@ let cur="Flyweight",idx=0,list=[];
 let UI=false;
 function toRoster(){if(LK)return;const r=document.getElementById("rh"),y=r.getBoundingClientRect().top+scrollY-10;if(scrollY>y+4)scrollTo({top:y,behavior:"smooth"})}
 function show(c){const ch=c!==cur;cur=c;q.value="";
- if(!nav.children.length)nav.innerHTML=classes.map(k=>`<button class="wc" data-k="${k}" ${D[k]?"":"data-off=1"}><b>${k}</b><small>${D[k]?D[k].length+" fighters":"Soon"}</small></button>`).join("");[...nav.children].forEach(b=>b.classList.toggle("on",b.dataset.k===c));render();if(!SC)centerOn(c);setTimeout(fx,60);if(UI&&ch)toRoster()}
+ if(!nav.children.length)nav.innerHTML=classes.map(k=>`<button class="wc${k.length>13?" lw":""}" data-k="${k}" ${D[k]?"":"data-off=1"}><b>${k}</b><small>${D[k]?D[k].length+" fighters":"Soon"}</small></button>`).join("");[...nav.children].forEach(b=>b.classList.toggle("on",b.dataset.k===c));render();if(!SC)centerOn(c);setTimeout(fx,60);if(UI&&ch)toRoster()}
 function render(){const t=q.value.trim().toLowerCase();list=D[cur].filter(f=>f.n.toLowerCase().includes(t)||(f.nick||"").toLowerCase().includes(t));
  grid.innerHTML=list.length?list.map((f,i)=>`<button class="card" style="transition-delay:${(i%3)*70}ms" onclick="open_(${i})"><div class="pic"><div class="tw"><span class="tag ${tc(f.tag)}">${f.tag}</span></div>${(f.tg||[]).length?`<div class="tb">${f.tg.map(x=>`<span class="tag ${tc(x)}">${x}</span>`).join("")}</div>`:""}${f.pic?`<img src="${f.pic}" alt="${f.n}">`:`<div class="ph">${f.n.split(" ").map(x=>x[0]).slice(0,2).join("")}</div>`}</div><div class="info"><b>${f.n}${f.rec?`<span class="rec rc">${f.rec}</span>`:""}</b><small>${f.nick||cur}</small><div class="chips">${f.base.slice(0,2).map(x=>`<span class="chip">${x}</span>`).join("")}</div></div></button>`).join(""):'<div class="empty">No fighters match your search</div>';obs()}
 const tc=t=>({CHAMP:"g",LEGEND:"b",PROSPECT:"p",INACTIVE:"v","RIZIN CHAMP":"rz","PFL CHAMPION":"pf","BELLATOR CHAMP":"bl","FW #2":"fw",UNRANKED:"ur",FC:"fc","DOUBLE CHAMPION":"dc",GATEKEEPER:"gk",BMF:"s"}[t]||"");
