@@ -116,7 +116,7 @@ nav .wc b{font:17px Impact,Arial,sans-serif;font-weight:400;letter-spacing:1px;t
 nav .wc small{font:11px Arial,sans-serif;color:var(--mut)}
 nav .wc.on{background:linear-gradient(135deg,var(--red),var(--red2));border-color:transparent;box-shadow:0 6px 22px #0f7a438a}
 nav .wc.on small{color:#ffe}
-.sr{max-width:1180px;margin:14px auto 0;padding:0 16px}.sr #q,.sr #q:focus{width:100%}
+.sr{max-width:1180px;margin:14px auto 0;padding:0 16px}.sr #q,.sr #q:focus{width:100%;font-size:16px}
 #content{position:relative;z-index:1;background:radial-gradient(900px 500px at 15% 0,#0f7a431f,transparent 60%),var(--bg);box-shadow:0 -30px 60px #000a}
 .sec{max-width:1180px;margin:0 auto;padding:40px 16px 0;font:30px Impact,Arial,sans-serif;letter-spacing:2px;text-transform:uppercase}
 .sec span{color:var(--red)}
@@ -271,6 +271,7 @@ dialog{background:var(--panel)}
 .sg .sp{width:46px;height:46px;border-radius:50%;object-fit:cover;object-position:top;flex:none;background:#cfdcd3;display:grid;place-items:center;font-weight:700;color:var(--dg)}
 .sg b{display:block}.sg small{color:var(--mut)}
 .rec{display:inline-block;vertical-align:middle;margin-left:10px;padding:3px 11px;border-radius:999px;background:var(--dg);color:#fff;font:700 .5em/1.4 Arial,sans-serif;letter-spacing:.06em;white-space:nowrap;border:1px solid var(--gold)}
+.info .rec{font-size:11px;margin-left:7px;padding:2px 8px;background:#ffffff1f;color:#f3e2a4;letter-spacing:.04em;font-weight:700;line-height:1.5}
 </style></head><body>
 <div id="prog"></div>
 <section id="hero"><div class="hp one"><canvas id="c1" width="1920" height="1080"></canvas></div><div class="hc" id="hc"><h1>UFC <span>Fighter</span> Roster</h1><p class="sub" style="color:#ddd">Scroll to bring the fighters to life</p><span class="hint">Scroll ↓</span></div></section>
@@ -306,7 +307,7 @@ function toRoster(){if(LK)return;const r=document.getElementById("rh"),y=r.getBo
 function show(c){const ch=c!==cur;cur=c;q.value="";
  if(!nav.children.length)nav.innerHTML=classes.map(k=>`<button class="wc" data-k="${k}" ${D[k]?"":"data-off=1"}><b>${k}</b><small>${D[k]?D[k].length+" fighters":"Soon"}</small></button>`).join("");[...nav.children].forEach(b=>b.classList.toggle("on",b.dataset.k===c));render();if(!SC)centerOn(c);setTimeout(fx,60);if(UI&&ch)toRoster()}
 function render(){const t=q.value.trim().toLowerCase();list=D[cur].filter(f=>f.n.toLowerCase().includes(t)||(f.nick||"").toLowerCase().includes(t));
- grid.innerHTML=list.length?list.map((f,i)=>`<button class="card" style="transition-delay:${(i%3)*70}ms" onclick="open_(${i})"><div class="pic"><div class="tw"><span class="tag ${tc(f.tag)}">${f.tag}</span></div>${(f.tg||[]).length?`<div class="tb">${f.tg.map(x=>`<span class="tag ${tc(x)}">${x}</span>`).join("")}</div>`:""}${f.pic?`<img src="${f.pic}" alt="${f.n}">`:`<div class="ph">${f.n.split(" ").map(x=>x[0]).slice(0,2).join("")}</div>`}</div><div class="info"><b>${f.n}</b><small>${f.nick||cur}</small><div class="chips">${f.base.slice(0,2).map(x=>`<span class="chip">${x}</span>`).join("")}</div></div></button>`).join(""):'<div class="empty">No fighters match your search</div>';obs()}
+ grid.innerHTML=list.length?list.map((f,i)=>`<button class="card" style="transition-delay:${(i%3)*70}ms" onclick="open_(${i})"><div class="pic"><div class="tw"><span class="tag ${tc(f.tag)}">${f.tag}</span></div>${(f.tg||[]).length?`<div class="tb">${f.tg.map(x=>`<span class="tag ${tc(x)}">${x}</span>`).join("")}</div>`:""}${f.pic?`<img src="${f.pic}" alt="${f.n}">`:`<div class="ph">${f.n.split(" ").map(x=>x[0]).slice(0,2).join("")}</div>`}</div><div class="info"><b>${f.n}${f.rec?`<span class="rec rc">${f.rec}</span>`:""}</b><small>${f.nick||cur}</small><div class="chips">${f.base.slice(0,2).map(x=>`<span class="chip">${x}</span>`).join("")}</div></div></button>`).join(""):'<div class="empty">No fighters match your search</div>';obs()}
 const tc=t=>({CHAMP:"g",LEGEND:"b",PROSPECT:"p",INACTIVE:"v","RIZIN CHAMP":"rz","PFL CHAMPION":"pf","BELLATOR CHAMP":"bl","FW #2":"fw",UNRANKED:"ur",FC:"fc","DOUBLE CHAMPION":"dc",GATEKEEPER:"gk",BMF:"s"}[t]||"");
 const tgs=(f,card)=>`<span class="tag ${tc(f.tag)}">${f.tag}</span>`+(f.tg||[]).filter(x=>!(card&&x==="DOUBLE CHAMPION")).map(x=>`<span class="tag ${tc(x)}">${x}</span>`).join("");
 let io;function obs(){io&&io.disconnect();const cs=[...grid.querySelectorAll(".card")];if(!("IntersectionObserver"in window)){cs.forEach(c=>c.classList.add("in"));return}
@@ -356,7 +357,7 @@ function suggest(){const t=q.value.trim().toLowerCase();if(t.length<2){sg.hidden
  m.sort((a,b)=>a[0]-b[0]);const top=m.slice(0,6);
  sg.innerHTML=top.map((x,i)=>`<button type="button" role="option" data-i="${i}">${x[2].pic?`<img class="sp" src="${x[2].pic}" alt="">`:`<span class="sp">${x[2].n.split(" ").map(w=>w[0]).slice(0,2).join("")}</span>`}<span><b>${x[2].n}</b><small>${x[2].nick?x[2].nick+" · ":""}${x[1]}</small></span></button>`).join("");
  sg.hidden=!top.length;sg._m=top}
-function pickSg(i){const x=sg._m&&sg._m[i];if(!x)return;sg.hidden=true;show(x[1]);const j=list.indexOf(x[2]);if(j>=0)open_(j)}
+function pickSg(i){const x=sg._m&&sg._m[i];if(!x)return;sg.hidden=true;q.blur();show(x[1]);const j=list.indexOf(x[2]);if(j>=0)open_(j)}
 q.addEventListener("input",suggest);
 q.addEventListener("keydown",e=>{if(e.key==="Enter"&&!sg.hidden){e.preventDefault();pickSg(0)}else if(e.key==="Escape")sg.hidden=true});
 sg.addEventListener("click",e=>{const b=e.target.closest("button");if(b)pickSg(+b.dataset.i)});
