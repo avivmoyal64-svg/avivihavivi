@@ -459,7 +459,12 @@ async function sbInit(){
 }
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const ini=n=>n.split(" ").map(x=>x[0]).slice(0,2).join("");
-const photo=n=>{for(const k in D){const f=D[k].find(x=>x.n===n);if(f&&f.pic)return f.pic}return ""};
+const photo=n=>{for(const k in D){const f=D[k].find(x=>x.n===n);if(f&&f.pic)return f.pic}return RP[n]||""};
+const RP={},HS_CLS=["Flyweight","Bantamweight","Featherweight","Lightweight","Welterweight","Middleweight"];
+function headshots(list){/* list: [name,athleteId,class] - only for classes already on the site, and only shown once the image really loads */
+ list.forEach(([n,id,c])=>{if(!n||!id||!HS_CLS.includes(c)||RP[n])return;if(Object.values(D).some(a=>a.some(f=>f.n===n&&f.pic)))return;
+  const u="https://a.espncdn.com/i/headshots/mma/players/full/"+encodeURIComponent(id)+".png",im=new Image();
+  im.onload=()=>{RP[n]=u;try{ren()}catch(e){}try{renLast()}catch(e){}};im.src=u})}
 const nm=s=>s==="TKO/KO"?"KO/TKO":s;
 const res=id=>RES[id]||AUTO[id]||null;
 const mainOf=id=>id in MAINF?MAINF[id]:(AUTO[id]&&AUTO[id].main);
@@ -506,6 +511,7 @@ async function loadEvents(){try{const ac=new AbortController(),t=setTimeout(()=>
  if(!j){const r=await fetch("events.json",{cache:"no-store",signal:ac.signal});if(!r.ok){clearTimeout(t);return}j=await r.json()}clearTimeout(t);
  if(j.next&&j.next.fights&&j.next.fights.length>=3){EV={id:j.next.id,name:j.next.name,when:j.next.when,lock:j.next.lock,src:j.next.source,fights:j.next.fights.map(f=>Object.assign({},f,{ta:tagOf(f.a),tb:tagOf(f.b)}))}}
  if(j.last&&j.last.fights&&j.last.fights.length){LAST={name:j.last.name,when:j.last.when,fights:j.last.fights.map(f=>[f.w,f.l,f.cls,f.method,f.detail,f.main?1:0,f.card?1:0])}}
+ try{const hs=[];(j.next&&j.next.fights||[]).forEach(f=>{hs.push([f.a,f.ia,f.cls],[f.b,f.ib,f.cls])});(j.last&&j.last.fights||[]).forEach(f=>{hs.push([f.w,f.wi,f.cls],[f.l,f.li,f.cls])});headshots(hs)}catch(e){}
  AUTO=j.history||{};}catch(e){}
  MAINF={};EV.fights.forEach(f=>MAINF[f.id]=f.main?1:0);renLast()}
 (async()=>{await loadEvents();try{if(!window.claude){await sbInit()}else{U=await claude.use("user");DB=await claude.use("db");if(U){ME=await U.id();OWNER=await U.isOwner()}}if(DB&&ME){DB.collection("picks").onSnapshot(s=>{PICKS={};s.docs.forEach(d=>PICKS[d.id]=d.data());ren();names()},()=>{});DB.doc("results/"+EV.id).onSnapshot(s=>{RES=s.exists?((s.data()||{}).fights||{}):{};ren()},()=>{})}}catch(e){}READY=true;ren();names()})();

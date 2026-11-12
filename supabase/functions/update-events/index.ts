@@ -117,7 +117,7 @@ if (upcoming.length) {
       const five = periods ? periods >= 5 : k < 2;
       const isMain = k === 0, co = k === 1;
       const title = /title|championship/i.test(JSON.stringify([cc?.notes, cc?.note, cc?.name, cc?.type?.text])) || (five && (co || (isMain && /^UFC \d+/i.test(ev.name))));
-      fights.push({ id: fid(ev, a, b), a, b, cls: clsOf(x.c), tag: (title ? "Title fight · " : "") + (isMain ? "Main event" : co ? "Co-main" : "Main card"), main: isMain ? 1 : 0, rounds: five ? 5 : 3 });
+      fights.push({ id: fid(ev, a, b), a, b, ia: cs[0].athlete?.id || cs[0].id, ib: cs[1].athlete?.id || cs[1].id, cls: clsOf(x.c), tag: (title ? "Title fight · " : "") + (isMain ? "Main event" : co ? "Co-main" : "Main card"), main: isMain ? 1 : 0, rounds: five ? 5 : 3 });
     }
     const off = await officialMainCard(ev);
     const lock = off ? off.ts : main[0].t;
@@ -132,7 +132,7 @@ if (past.length) {
     const x = rev[k], cs = ORD(x.c), w = cs.find(c => c.winner), l = cs.find(c => c !== w);
     if (!w) continue;
     const mo = await resultOf(ev, x.c);
-    rows.push({ id: fid(ev, name(w), name(l)), w: name(w), l: name(l), cls: clsOf(x.c), method: mo.method, m: mo.m, detail: mo.detail, main: k === 0 ? 1 : 0, card: x.main ? 1 : 0 });
+    rows.push({ id: fid(ev, name(w), name(l)), w: name(w), l: name(l), wi: w.athlete?.id || w.id, li: l.athlete?.id || l.id, cls: clsOf(x.c), method: mo.method, m: mo.m, detail: mo.detail, main: k === 0 ? 1 : 0, card: x.main ? 1 : 0 });
   }
   if (rows.length) {
     out.last = { id: evId(ev), name: ev.name, when: fmtWhen(ev.date, venueOf(ev)), fights: rows };
