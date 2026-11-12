@@ -480,7 +480,8 @@ function ren(){
   const av=(n,t)=>{const s=photo(n);return `<span class="av"><i style="${s?`background-image:url(${s})`:""}">${s?"":ini(n)}</i><span class="mt">${t?`<span class="tag mini ${tc(t)}">${t}</span>`:""}${(EXTRA[n]||[]).map(x=>`<span class="tag mini ${tc(x)}">${x}</span>`).join("")}</span></span>`};
   return `<button class="fight ${f.main?"main":""}" onclick="openPick(${i})"><div class="fm">${f.cls} · ${f.tag}${f.main?" · 2x coins":""}</div><div class="vs"><div>${av(f.a,f.ta)}<span>${f.a}${rc(f.a)}</span></div><em>VS</em><div>${av(f.b,f.tb)}<span>${f.b}${rc(f.b)}</span></div></div><div class="st">${st}</div></button>`}).join("");
  document.getElementById("lb").innerHTML=`<div class="box">${B.length?B.map((x,i)=>`<div class="lb ${x.id===ME?"me":""}"><span class="n">${i+1}</span><span class="nm">${esc(NAMES[x.id]||"Fight fan")}${x.id===ME?" (you)":""}<br><small style="color:var(--mut)">${x.n} pick${x.n===1?"":"s"}</small></span><span class="c">${x.c} 🪙</span></div>`).join(""):"No picks yet. Be the first to pick a winner."}<div class="st" style="margin-top:10px">Winner right: 100 coins · winner and method right: 200 · main event pays double.</div></div>`}
-const rc=n=>{const r=findF(n),k=x=>String(x).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();let rec=r?D[r[0]][r[1]].rec:"";if(!rec)for(const cl in D){const f=D[cl].find(x=>k(x.n)===k(n));if(f){rec=f.rec;break}}return rec?` <span class="rec">${rec}</span>`:""};
+const OREC={},OTHER_REC={"Ciryl Gane":"14-2","Josh Hokit":"10-0","Kayla Harrison":"19-1","Amanda Nunes":"23-5","Luis Gurule":"11-4"};
+const rc=n=>{const r=findF(n),k=x=>String(x).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();let rec=r?D[r[0]][r[1]].rec:"";if(!rec)for(const cl in D){const f=D[cl].find(x=>k(x.n)===k(n));if(f){rec=f.rec;break}}if(!rec)rec=OREC[n]||OTHER_REC[n]||"";return rec?` <span class="rec">${rec}</span>`:""};
 const findF=n=>{for(const k in D){const i=D[k].findIndex(x=>x.n===n);if(i>=0)return[k,i]}return null};
 function openFighter(n){const r=findF(n);if(!r)return;if(cur!==r[0])show(r[0]);open_(r[1])}
 const prof=n=>findF(n)?`<button class="pl" onclick="openFighter(decodeURIComponent('${encodeURIComponent(n)}'))">View profile</button>`:'<span class="pl off">No profile yet</span>';
@@ -514,6 +515,7 @@ async function loadEvents(){try{const ac=new AbortController(),t=setTimeout(()=>
  if(!j){const r=await fetch("events.json",{cache:"no-store",signal:ac.signal});if(!r.ok){clearTimeout(t);return}j=await r.json()}clearTimeout(t);
  if(j.next&&j.next.fights&&j.next.fights.length>=3){EV={id:j.next.id,name:j.next.name,when:j.next.when,lock:j.next.lock,src:j.next.source,fights:j.next.fights.map(f=>Object.assign({},f,{ta:tagOf(f.a),tb:tagOf(f.b)}))}}
  if(j.last&&j.last.fights&&j.last.fights.length){LAST={name:j.last.name,when:j.last.when,fights:j.last.fights.map(f=>[f.w,f.l,f.cls,f.method,f.detail,f.main?1:0,f.card?1:0])}}
+ try{(j.next&&j.next.fights||[]).forEach(f=>{if(f.ra)OREC[f.a]=f.ra;if(f.rb)OREC[f.b]=f.rb})}catch(e){}
  try{const hs=[];(j.next&&j.next.fights||[]).forEach(f=>{hs.push([f.a,f.ia,f.cls],[f.b,f.ib,f.cls])});(j.last&&j.last.fights||[]).forEach(f=>{hs.push([f.w,f.wi,f.cls],[f.l,f.li,f.cls])});headshots(hs)}catch(e){}
  AUTO=j.history||{};}catch(e){}
  MAINF={};EV.fights.forEach(f=>MAINF[f.id]=f.main?1:0);renLast()}

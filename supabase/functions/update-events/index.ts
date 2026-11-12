@@ -26,6 +26,14 @@ const ORD = c => (c.competitors || []).slice().sort((x, y) => (x.order || 9) - (
 const clsOf = c => String(c.type?.text || c.type?.abbreviation || "").replace(/^W\s+/, "Women's ").replace(/\s*(title\s*)?bout\s*$/i, "").trim();
 const core = async (ev, c, tail = "") => { try { return await get(`https://sports.core.api.espn.com/v2/sports/mma/leagues/ufc/events/${ev.id}/competitions/${c.id}${tail}`, true); } catch { return null; } };
 
+const recFor = async (aid) => {
+  try {
+    const j = await get(`https://sports.core.api.espn.com/v2/sports/mma/athletes/${aid}/records`, true);
+    const s = (j.items || []).map(i => String(i.summary || i.displayValue || "")).find(v => /^\d+-\d+(-\d+)?$/.test(v));
+    return s ? s.replace(/-0$/, "") : "";
+  } catch { return ""; }
+};
+
 function parseMethod(t) {
   t = String(t || "").toLowerCase();
   if (!t) return null;
@@ -117,7 +125,9 @@ if (upcoming.length) {
       const five = periods ? periods >= 5 : k < 2;
       const isMain = k === 0, co = k === 1;
       const title = /title|championship/i.test(JSON.stringify([cc?.notes, cc?.note, cc?.name, cc?.type?.text])) || (five && (co || (isMain && /^UFC \d+/i.test(ev.name))));
-      fights.push({ id: fid(ev, a, b), a, b, ia: cs[0].athlete?.id || cs[0].id, ib: cs[1].athlete?.id || cs[1].id, cls: clsOf(x.c), tag: (title ? "Title fight · " : "") + (isMain ? "Main event" : co ? "Co-main" : "Main card"), main: isMain ? 1 : 0, rounds: five ? 5 : 3 });
+      const ia = cs[0].athlete?.id || cs[0].id, ib = cs[1].athlete?.id || cs[1].id;
+      const [ra, rb] = await Promise.all([recFor(ia), recFor(ib)]);
+      fights.push({ id: fid(ev, a, b), a, b, ia, ib, ra, rb, cls: clsOf(x.c), tag: (title ? "Title fight · " : "") + (isMain ? "Main event" : co ? "Co-main" : "Main card"), main: isMain ? 1 : 0, rounds: five ? 5 : 3 });
     }
     const off = await officialMainCard(ev);
     const lock = off ? off.ts : main[0].t;
