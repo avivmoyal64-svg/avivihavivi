@@ -302,8 +302,8 @@ dialog{background:var(--panel)}
 <footer class="lf"><div>Unofficial fan project. Not affiliated with, endorsed by or sponsored by UFC or any fighter. Names, logos and images belong to their owners. Coins are virtual and have no cash value.</div><nav aria-label="Legal"><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="copyright.html">Copyright</a><a href="contact.html">Contact</a></nav><div>© 2026 UFC Fighter Roster fan site</div></footer>
 </div>
 <dialog id="pk"><div class="top"><span></span><button onclick="pk.close()" aria-label="Close">✕</button></div><div id="pkb" class="body"></div></dialog>
-<dialog id="pf"><div class="top"><span></span><button onclick="pf.close()" aria-label="Close">✕</button></div><div id="pfb" class="body"></div></dialog>
-<dialog id="st"><div class="top"><span></span><button onclick="st.close()" aria-label="Close">✕</button></div><div id="stb" class="body"></div></dialog>
+<dialog id="pf"><div class="top"><span></span><button onclick="document.getElementById('pf').close()" aria-label="Close">✕</button></div><div id="pfb" class="body"></div></dialog>
+<dialog id="st"><div class="top"><span></span><button onclick="document.getElementById('st').close()" aria-label="Close">✕</button></div><div id="stb" class="body"></div></dialog>
 <dialog id="zm"><button id="zx" aria-label="Close zoom">✕</button><img id="zi" alt="Zoomed resume" draggable="false"><div class="zt">Pinch or scroll to zoom · drag to move · double-tap to reset</div></dialog>
 <dialog id="dlg"><div class="top"><button onclick="step(-1)" aria-label="Previous fighter">‹</button><button onclick="step(1)" aria-label="Next fighter">›</button><button onclick="closeDlg()" aria-label="Close">✕</button></div><div id="dbody"></div></dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
