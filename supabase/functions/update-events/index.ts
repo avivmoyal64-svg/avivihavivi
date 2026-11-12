@@ -13,11 +13,11 @@ const get = async (u: string, json?: boolean) => {
   return json ? r.json() : r.text();
 };
 const ymd = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, "");
-const slug = (s: unknown) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const slug = (s: unknown) => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const ET = "America/New_York";
 const fmtWhen = (iso, venue) => {
   const d = new Date(iso);
-  const day = new Intl.DateTimeFormat("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: ET }).format(d).replace(",", ",");
+  const day = new Intl.DateTimeFormat("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: ET }).format(d);
   return day + (venue ? " · " + venue : "");
 };
 const name = a => (a && (a.athlete?.displayName || a.athlete?.fullName || a.displayName)) || "";
