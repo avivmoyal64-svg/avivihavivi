@@ -106,6 +106,11 @@ const events = (sb.events || []).filter(e => /ufc/i.test(e.name || e.shortName |
 const done = e => e.status?.type?.state === "post" || e.status?.type?.completed;
 const upcoming = events.filter(e => !done(e));
 const past = events.filter(done);
+if (new URL(req.url).searchParams.get("live")) {
+  // per-minute fight-night run: do nothing unless an event is about to start, live, or just finished
+  const near = events.some(e => { const d = now - Date.parse(e.date); return d > -2 * 3600e3 && d < 10 * 3600e3; });
+  if (!near) return new Response(JSON.stringify({ ok: true, idle: true }), { headers: { "content-type": "application/json" } });
+}
 const out: any = { updated: new Date().toISOString(), next: prev.next, last: prev.last, history: prev.history || {} };
 
 const evId = ev => "e" + ev.id;
@@ -116,10 +121,13 @@ if (upcoming.length) {
   const ev = upcoming[0], L = comps(ev), main = L.filter(x => x.main);
   if (main.length >= 3) {
     const fights = [];
+    const pn = prev.next && prev.next.id === evId(ev) ? Object.fromEntries((prev.next.fights || []).map(f => [f.id, f])) : {};
     const rev = main.slice().reverse();
     for (let k = 0; k < rev.length; k++) {
       const x = rev[k], cs = ORD(x.c), a = name(cs[0]), b = name(cs[1]);
       if (!a || !b) continue;
+      const known = pn[fid(ev, a, b)];
+      if (known && known.ra !== undefined && known.ia !== undefined && known.main === (k === 0 ? 1 : 0)) { fights.push(known); continue; }
       const cc = await core(ev, x.c);
       const periods = cc?.format?.regulation?.periods || 0;
       const five = periods ? periods >= 5 : k < 2;
@@ -129,9 +137,23 @@ if (upcoming.length) {
       const [ra, rb] = await Promise.all([recFor(ia), recFor(ib)]);
       fights.push({ id: fid(ev, a, b), a, b, ia, ib, ra, rb, cls: clsOf(x.c), tag: (title ? "Title fight · " : "") + (isMain ? "Main event" : co ? "Co-main" : "Main card"), main: isMain ? 1 : 0, rounds: five ? 5 : 3 });
     }
-    const off = await officialMainCard(ev);
-    const lock = off ? off.ts : main[0].t;
-    out.next = { id: evId(ev), name: String(ev.name).split(":")[0].trim() || ev.shortName, when: fmtWhen(ev.date, venueOf(ev)), lock, source: off ? "ufc.com" : "espn", fights };
+    // per-minute runs reuse the saved start time and only re-check ufc.com every 15 minutes
+    const isLive = !!new URL(req.url).searchParams.get("live"), sameEv = prev.next && prev.next.id === evId(ev);
+    const reuse = isLive && sameEv && (prev.next.source === "ufc.com" || new Date().getMinutes() % 15 !== 0);
+    const off = reuse ? null : await officialMainCard(ev);
+    const lock = off ? off.ts : reuse ? prev.next.lock : main[0].t;
+    const source = off ? "ufc.com" : reuse ? prev.next.source : "espn";
+    out.next = { id: evId(ev), name: String(ev.name).split(":")[0].trim() || ev.shortName, when: fmtWhen(ev.date, venueOf(ev)), lock, source, fights };
+    // fights that already finished: save winner + method right away (this is what makes results live)
+    for (const x of main) {
+      const cs = ORD(x.c), w = cs.find(c => c.winner), l = cs.find(c => c !== w);
+      const fin = x.c.status?.type?.completed || x.c.status?.type?.state === "post";
+      if (!fin || !w || !l) continue;
+      const id = fid(ev, name(w), name(l));
+      if (out.history[id]) continue;
+      const mo = await resultOf(ev, x.c);
+      out.history[id] = { w: name(w), m: mo.m === "NC" || mo.m === "DQ" ? "" : mo.m, main: x === main[main.length - 1] ? 1 : 0 };
+    }
   }
 }
 if (past.length) {

@@ -511,14 +511,22 @@ async function names(){try{const ids=Object.keys(PICKS).concat(ME?[ME]:[]);if(!U
 
 const tagOf=n=>{const r=findF(n);if(r)return D[r[0]][r[1]].tag;const k=s=>String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();for(const c in D){const f=D[c].find(x=>k(x.n)===k(n));if(f)return f.tag}return OTHER_TAG[n]||""};
 const OTHER_TAG={"Kayla Harrison":"CHAMP","Amanda Nunes":"LEGEND"};
-async function loadEvents(){try{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),4000);let j=null;try{const q=await fetch(SUPA_URL+"/rest/v1/site_data?key=eq.events&select=value",{headers:{apikey:SUPA_KEY},cache:"no-store",signal:ac.signal});if(q.ok){const a=await q.json();if(a[0]&&a[0].value&&a[0].value.next)j=a[0].value}}catch(e){}
- if(!j){const r=await fetch("events.json",{cache:"no-store",signal:ac.signal});if(!r.ok){clearTimeout(t);return}j=await r.json()}clearTimeout(t);
+async function getEvents(poll){const ac=new AbortController(),t=setTimeout(()=>ac.abort(),4000);let j=null;try{const q=await fetch(SUPA_URL+"/rest/v1/site_data?key=eq.events&select=value",{headers:{apikey:SUPA_KEY},cache:"no-store",signal:ac.signal});if(q.ok){const a=await q.json();if(a[0]&&a[0].value&&a[0].value.next)j=a[0].value}}catch(e){}
+ if(!j&&!poll){try{const r=await fetch("events.json",{cache:"no-store",signal:ac.signal});if(r.ok)j=await r.json()}catch(e){}}clearTimeout(t);return j}
+function applyEv(j){
  if(j.next&&j.next.fights&&j.next.fights.length>=3){EV={id:j.next.id,name:j.next.name,when:j.next.when,lock:j.next.lock,src:j.next.source,fights:j.next.fights.map(f=>Object.assign({},f,{ta:tagOf(f.a),tb:tagOf(f.b)}))}}
  if(j.last&&j.last.fights&&j.last.fights.length){LAST={name:j.last.name,when:j.last.when,fights:j.last.fights.map(f=>[f.w,f.l,f.cls,f.method,f.detail,f.main?1:0,f.card?1:0])}}
  try{(j.next&&j.next.fights||[]).forEach(f=>{if(f.ra)OREC[f.a]=f.ra;if(f.rb)OREC[f.b]=f.rb})}catch(e){}
  try{const hs=[];(j.next&&j.next.fights||[]).forEach(f=>{hs.push([f.a,f.ia,f.cls],[f.b,f.ib,f.cls])});(j.last&&j.last.fights||[]).forEach(f=>{hs.push([f.w,f.wi,f.cls],[f.l,f.li,f.cls])});headshots(hs)}catch(e){}
- AUTO=j.history||{};}catch(e){}
- MAINF={};EV.fights.forEach(f=>MAINF[f.id]=f.main?1:0);renLast()}
+ AUTO=j.history||{};MAINF={};EV.fights.forEach(f=>MAINF[f.id]=f.main?1:0)}
+const sigOf=j=>JSON.stringify([j.next,j.last,j.history]);let SIG="",POLL=null,LASTPOLL=0;
+async function loadEvents(){try{const j=await getEvents(false);if(j){applyEv(j);SIG=sigOf(j)}}catch(e){}
+ MAINF={};EV.fights.forEach(f=>MAINF[f.id]=f.main?1:0);renLast();schedulePoll()}
+/* live updates: re-check the results about every 45 s around fight time (every 10 min otherwise), only while the page is open */
+async function pollEvents(){LASTPOLL=Date.now();try{const j=await getEvents(true);if(j){const sg=sigOf(j),a=document.activeElement;
+  if(sg!==SIG&&!(a&&a.closest&&a.closest("#acct"))){applyEv(j);SIG=sg;ren();renLast()}}}catch(e){}schedulePoll()}
+function schedulePoll(){clearTimeout(POLL);const n=Date.now(),live=n>EV.lock-2*3600e3&&n<EV.lock+10*3600e3;POLL=setTimeout(()=>{if(document.hidden){schedulePoll();return}pollEvents()},live?45000:600000)}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-LASTPOLL>30000&&READY)pollEvents()});
 (async()=>{await loadEvents();try{if(!window.claude){await sbInit()}else{U=await claude.use("user");DB=await claude.use("db");if(U){ME=await U.id();OWNER=await U.isOwner()}}if(DB&&ME){DB.collection("picks").onSnapshot(s=>{PICKS={};s.docs.forEach(d=>PICKS[d.id]=d.data());ren();names()},()=>{});DB.doc("results/"+EV.id).onSnapshot(s=>{RES=s.exists?((s.data()||{}).fights||{}):{};ren()},()=>{})}}catch(e){}READY=true;ren();names()})();
 setTimeout(()=>{READY=true;ren()},10000);ren();renLast();
 show("Flyweight");UI=true;
