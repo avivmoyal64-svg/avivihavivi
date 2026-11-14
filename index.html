@@ -349,7 +349,7 @@ details.ev .evb{padding:2px 14px 10px}
 .pvr{padding:10px;margin:6px 0;border:1px solid #d3e0d7;border-radius:12px;background:#ffffffaa}
 .pvr.ok{border-color:#168a4e88;background:#168a4e10}.pvr.no{border-color:#a3333355;background:#a333330a}
 .pvv{display:flex;align-items:flex-start;justify-content:center;gap:8px}.pvv>b{align-self:center;color:var(--red);font:16px Impact,Arial,sans-serif}
-.pvf{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;min-width:0}
+.pvf[data-fn]{cursor:pointer}.pvf[data-fn] .pvn{text-decoration:underline;text-decoration-color:#d4a01788;text-underline-offset:3px}.pvf{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;min-width:0}
 .pvf i{width:64px;height:64px;border-radius:50%;background:#fff center top/cover;display:flex;align-items:center;justify-content:center;font:700 15px Arial,sans-serif;font-style:normal;color:#8d8d9b;border:2px solid #d3e0d7}
 .pvf.np,.pvf.lose{opacity:.45;filter:grayscale(.7)}.pvf.pk i{width:72px;height:72px;border-width:4px}.pvf.pk .pvn{color:var(--dg);background:#f7d56a55;padding:1px 8px;border-radius:8px}.pvf.pk i{border-color:var(--gold);box-shadow:0 0 0 3px #d4a01755,0 0 14px #f7d56a88}.pvf.pk.ok i,.pvf.win i{border-color:var(--grn)}.pvf.pk.no i{border-color:#a33;box-shadow:0 0 0 3px #a3333344}
 .pvn{font:700 15px/1.2 Arial,sans-serif;overflow-wrap:anywhere}
@@ -651,14 +651,16 @@ function fmap(){const m={};
  (ARCH||[]).forEach(e=>(e.fights||[]).forEach(f=>{m[f.id]={a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m,r:f.r}}));
  (EV.fights||[]).forEach(f=>{m[f.id]={a:f.a,b:f.b,main:!!f.main}});
  return m}
+const fa=n=>findF(n)?`data-fn="${esc(n)}" role="button" tabindex="0" `:"";
+document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest(".pvf[data-fn]");if(t){e.preventDefault();openFighter(t.dataset.fn)}});document.addEventListener("keydown",e=>{if(e.key!=="Enter")return;const t=e.target.closest&&e.target.closest(".pvf[data-fn]");if(t){e.preventDefault();openFighter(t.dataset.fn)}});
 function pickRow(k,p){const F=fmap()[k]||{},r=res(k)||(F.w?{w:F.w,m:F.m,r:F.r}:null);
  let a=F.a,b=F.b;if(!a){const pp=String(k).replace(/^e\d+-/,"").split("-vs-").map(slugName);a=pp[0]||"";b=pp[1]||""}
  const pw=String(p.w||""),aIs=nz(pw)===nz(a),bIs=nz(pw)===nz(b),unk=!aIs&&!bIs,L=unk?pw:a,R=unk?"":b;
  const main=F.main!==undefined?F.main:!!mainOf(k),done=!!r,ok=done&&p.w===r.w,pt=done?pts(p,r,main):0;
- const side=(n,picked)=>`<div class="pvf ${picked?"pk":"np"}${done&&picked?(ok?" ok":" no"):""}">${avZ(n)}<span class="pvn">${esc(n)}</span>${picked?`<em>${done?(ok?"✓ Correct":"✗ Wrong"):"✓ Pick"}</em>`:done&&r&&nz(n)===nz(r.w)?'<em class="wn">Won</em>':""}</div>`;
+ const side=(n,picked)=>`<div ${fa(n)}class="pvf ${picked?"pk":"np"}${done&&picked?(ok?" ok":" no"):""}">${avZ(n)}<span class="pvn">${esc(n)}</span>${picked?`<em>${done?(ok?"✓ Correct":"✗ Wrong"):"✓ Pick"}</em>`:done&&r&&nz(n)===nz(r.w)?'<em class="wn">Won</em>':""}</div>`;
  return `<div class="pvr${done?(ok?" ok":" no"):""}"><div class="pvv">${side(L,aIs||unk)}<b>vs</b>${R?side(R,bIs):'<div class="pvf np"><i></i><span class="pvn">?</span></div>'}</div><div class="pvt">Pick: <b>${esc(pw)}</b>${p.m?" · "+esc(nm(p.m)):""}${p.r?" · R"+esc(p.r):""}${main?" · 2x":""}</div>${done?`<div class="pvt">Result: ${esc(r.w)}${r.m?" ("+esc(nm(r.m))+")":""} · ${pt?`<span class="pt">+${pt}<i class="coin"></i></span>`:"no coins"}</div>`:'<div class="pvt">Waiting for the result</div>'}</div>`}
 function evBoard(fs){const rows=[];Object.keys(PICKS).forEach(id=>{const f=(PICKS[id]||{}).fights||{};let n=0,ok=0,c=0;fs.forEach(x=>{const p=f[x.id];if(!p)return;n++;const r=x.w?{w:x.w,m:x.m,r:x.r}:res(x.id);if(r&&p.w===r.w){ok++;c+=pts(p,r,x.main)}});const raw=fs.filter(x=>((PRAW[id]||{}).fights||{})[x.id]).length;if(n||raw)rows.push({id,n,ok,c,raw})});return rows.sort((a,b)=>b.c-a.c||b.ok-a.ok||b.n-a.n)}
-function evFights(fs){return fs.map(x=>{const r=x.w?{w:x.w,m:x.m,r:x.r}:res(x.id),mine=((PICKS[ME]||{}).fights||{})[x.id],f=(n)=>`<div class="pvf ${r&&nz(r.w)===nz(n)?"win":r?"lose":""}${mine&&mine.w===n?" pk":""}">${avZ(n)}<span class="pvn">${esc(n)}</span>${r&&nz(r.w)===nz(n)?'<em class="wn">Won</em>':""}</div>`;
+function evFights(fs){return fs.map(x=>{const r=x.w?{w:x.w,m:x.m,r:x.r}:res(x.id),mine=((PICKS[ME]||{}).fights||{})[x.id],f=(n)=>`<div ${fa(n)}class="pvf ${r&&nz(r.w)===nz(n)?"win":r?"lose":""}${mine&&mine.w===n?" pk":""}">${avZ(n)}<span class="pvn">${esc(n)}</span>${r&&nz(r.w)===nz(n)?'<em class="wn">Won</em>':""}</div>`;
   return `<div class="pgf${x.main?" main":""}"><div class="pvv">${f(x.a)}<b>vs</b>${f(x.b)}</div><div class="pvt">${r?`${esc(r.w)} wins${r.m?" · "+esc(nm(r.m)):""}`:"Not finished yet"}${x.main?" · Main event":""}</div></div>`}).join("")}
 function evBlock(title,sub,fs,nested,nof){const B=evBoard(fs),nmOf=id=>esc(NAMES[id]||(PICKS[id]||{}).name||"Fight fan");
  return `<div class="${nested?"pgx":"box pgx"}">${nested?"":`<h3>${esc(title)}</h3><div class="pgs2">${esc(sub||"")}</div>`}<div class="pgl">Players · tap a name to see their picks</div>`+
