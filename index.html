@@ -576,9 +576,9 @@ const ini=n=>n.split(" ").map(x=>x[0]).slice(0,2).join("");
 const photo=n=>{for(const k in D){const f=D[k].find(x=>x.n===n);if(f&&f.pic)return f.pic}return RP[n]||""};
 const RP={};
 function headshots(list){/* list: [name,athleteId,class] - for every class that exists on the site (D) plus all women's classes; shown only once the image really loads */
- list.forEach(([n,id,c])=>{if(!n||!id||!(D[c]||/^Women/.test(c||""))||RP[n])return;if(Object.values(D).some(a=>a.some(f=>f.n===n&&f.pic)))return;
+ list.forEach(([n,id,c])=>{if(!n||!id||RP[n])return;if(Object.values(D).some(a=>a.some(f=>f.n===n&&f.pic)))return;
   const u="https://a.espncdn.com/i/headshots/mma/players/full/"+encodeURIComponent(id)+".png",im=new Image();
-  im.onload=()=>{RP[n]=u;try{ren()}catch(e){}try{renLast()}catch(e){}};im.src=u})}
+  im.onload=()=>{RP[n]=u;clearTimeout(window.__hsT);window.__hsT=setTimeout(()=>{try{ren()}catch(e){}try{renLast()}catch(e){}try{document.querySelectorAll('#pgr details[open]').forEach(d=>{const b=d.querySelector('.evb'),e=(ARCH||[])[+d.dataset.i];if(b&&e)b.innerHTML=evBlock(e.name,e.when,pastFs(e),1)})}catch(e){}},250)};im.src=u})}
 const nm=s=>s==="TKO/KO"?"KO/TKO":s;
 const res=id=>RES[id]||AUTO[id]||null;
 const mainOf=id=>id in MAINF?MAINF[id]:(AUTO[id]&&AUTO[id].main);
@@ -702,7 +702,7 @@ function pkSum(f,dirty,sv){const w=sel.w,m=sel.m,r=sel.r,dec=m==="DEC",
  if(!m)return `<div class="pks">Now choose <b>how</b> ${esc(w)} wins.${stp}</div>`;
  if(!dec&&!r)return `<div class="pks">Almost done: choose the <b>round</b>.${stp}</div>`;
  return `<div class="pks ok">✓ <b>${esc(w)}</b> wins by <b>${esc(nm(m))}</b>${!dec&&r?" in round "+r:""}<br><small>${dirty?"Not saved yet. Tap the button below.":sv?"Saved.":""}</small>${stp}</div>`}
-const pgSig=()=>JSON.stringify([Object.keys(PICKS).map(k=>[k,Object.keys((PICKS[k]||{}).fights||{}).length]),Object.keys(AUTO).length,Object.keys(RES).length,EV.id,LASTX&&LASTX.id,Object.keys(NAMES).length]);
+const pgSig=()=>JSON.stringify([Object.keys(PICKS).map(k=>[k,Object.keys((PICKS[k]||{}).fights||{}).length]),Object.keys(AUTO).length,Object.keys(RES).length,EV.id,LASTX&&LASTX.id,Object.keys(NAMES).length,Object.keys(RP).length]);
 let PGSIG="";
 function pgRef(){try{hnav()}catch(e){}if(!anyPage()||(PS==="recent"&&!document.getElementById("pgS").hidden))return;if(pgSig()===PGSIG)return;const c=document.querySelector(".pgs:not([hidden])"),op=[...c.querySelectorAll("details")].map(d=>d.open);drawPage();[...c.querySelectorAll("details")].forEach((d,i)=>{if(op[i])d.open=true})}
 
@@ -787,9 +787,9 @@ async function getEvents(poll){const ac=new AbortController(),t=setTimeout(()=>a
 function applyEv(j){
  if(j.next&&j.next.fights&&j.next.fights.length>=3){EV={id:j.next.id,name:j.next.name,when:j.next.when,lock:j.next.lock,src:j.next.source,fights:j.next.fights.map(f=>Object.assign({},f,{ta:tagOf(f.a),tb:tagOf(f.b)}))}}
  if(j.last&&j.last.fights&&j.last.fights.length){LAST={name:j.last.name,when:j.last.when,fights:j.last.fights.map(f=>[f.w,f.l,f.cls,f.method,f.detail,f.main?1:0,f.card?1:0])}}
- if(j.last&&j.last.fights&&j.last.fights.length){LASTX={id:j.last.id,name:j.last.name,when:j.last.when,fights:j.last.fights.map(f=>({id:f.id,w:f.w,l:f.l,m:f.m||"",main:f.main?1:0,card:f.card?1:0}))}}
+ if(j.last&&j.last.fights&&j.last.fights.length){LASTX={id:j.last.id,name:j.last.name,when:j.last.when,fights:j.last.fights.map(f=>({id:f.id,w:f.w,l:f.l,m:f.m||"",r:f.r,main:f.main?1:0,card:f.card?1:0}))}}
  try{(j.next&&j.next.fights||[]).forEach(f=>{if(f.ra)OREC[f.a]=f.ra;if(f.rb)OREC[f.b]=f.rb})}catch(e){}
- try{const hs=[];(j.next&&j.next.fights||[]).forEach(f=>{hs.push([f.a,f.ia,f.cls],[f.b,f.ib,f.cls])});(j.last&&j.last.fights||[]).forEach(f=>{hs.push([f.w,f.wi,f.cls],[f.l,f.li,f.cls])});headshots(hs)}catch(e){}
+ try{const hs=[];(j.next&&j.next.fights||[]).forEach(f=>{hs.push([f.a,f.ia,f.cls],[f.b,f.ib,f.cls])});(j.last&&j.last.fights||[]).forEach(f=>{hs.push([f.w,f.wi,f.cls],[f.l,f.li,f.cls])});(ARCH||[]).forEach(e=>(e.fights||[]).forEach(f=>{hs.push([f.w,f.wi],[f.l,f.li])}));headshots(hs)}catch(e){}
  ARCH=j.archive||[];AUTO=j.history||{};MAINF={};EV.fights.forEach(f=>MAINF[f.id]=f.main?1:0)}
 const sigOf=j=>JSON.stringify([j.next,j.last,j.history]);let SIG="",POLL=null,LASTPOLL=0;
 async function loadEvents(){try{const j=await getEvents(false);if(j){applyEv(j);SIG=sigOf(j)}}catch(e){}

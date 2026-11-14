@@ -181,7 +181,7 @@ if (past.length) {
 }
 // archive of earlier cards (main card only). Only cards not saved yet are fetched, max 3 per run.
 {
-  const have = new Set((out.archive || []).map(e => e.id)), added: any[] = [];
+  const have = new Set((out.archive || []).filter(e => (e.fights || []).every(r => r.wi)).map(e => e.id)), added: any[] = [];
   for (const ev of past.slice().reverse()) {
     if (added.length >= 3) break;
     if (have.has(evId(ev))) continue;
@@ -190,12 +190,12 @@ if (past.length) {
       const x = L[k], cs = ORD(x.c), w = cs.find(c => c.winner), l = cs.find(c => c !== w);
       if (!w || !l) continue;
       const mo = await resultOf(ev, x.c);
-      rows.push({ id: fid(ev, name(w), name(l)), w: name(w), l: name(l), m: mo.m === "NC" || mo.m === "DQ" ? "" : mo.m, r: mo.rd, d: mo.detail, main: k === 0 ? 1 : 0 });
+      rows.push({ id: fid(ev, name(w), name(l)), w: name(w), l: name(l), wi: w.athlete?.id || w.id, li: l.athlete?.id || l.id, m: mo.m === "NC" || mo.m === "DQ" ? "" : mo.m, r: mo.rd, d: mo.detail, main: k === 0 ? 1 : 0 });
     }
     if (rows.length >= 3) added.push({ id: evId(ev), name: String(ev.name), when: fmtWhen(ev.date, venueOf(ev)), ts: Date.parse(ev.date), fights: rows });
   }
   if (added.length) {
-    out.archive = (out.archive || []).concat(added).sort((a, b) => b.ts - a.ts).slice(0, 40);
+    out.archive = (out.archive || []).filter(e => !added.some(a => a.id === e.id)).concat(added).sort((a, b) => b.ts - a.ts).slice(0, 40);
     added.forEach(e => e.fights.forEach(r => { if (!out.history[r.id]) out.history[r.id] = { w: r.w, m: r.m, r: r.r, main: r.main }; }));
   }
 }
