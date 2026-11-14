@@ -331,13 +331,13 @@ details.ev .evb{padding:2px 14px 10px}
 .arf b{display:block}.arf small{display:block;color:var(--mut);font-size:13px}.arf .ok{color:var(--grn);font-weight:700}.arf .no{color:#a33}
 .ins{margin-top:6px;color:var(--mut);font:13px/1.5 Arial}
 /* picks page, highlighted picks, strengths compare */
-.pgs{position:fixed;inset:0;z-index:40;isolation:isolate;overflow:auto;background:var(--bg) radial-gradient(900px 500px at 15% -5%,#0a5a3530,transparent 60%);overscroll-behavior:contain;padding-bottom:40px}
+.pgs{touch-action:pan-y;position:fixed;inset:0;z-index:40;isolation:isolate;overflow:auto;background:var(--bg) radial-gradient(900px 500px at 15% -5%,#0a5a3530,transparent 60%);overscroll-behavior:contain;padding-bottom:40px}
 .pgs[hidden]{display:none}
 .pgh{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;background:var(--dg);color:var(--gold)}
 .pgh h2{margin:0;font:18px Impact,Arial,sans-serif;letter-spacing:1.5px;text-transform:uppercase}
 .pgbk{all:unset;white-space:nowrap;cursor:pointer;background:#ffffff1f;border:1px solid #d4a01799;color:var(--gold);padding:7px 14px;border-radius:999px;font:700 13px Arial,sans-serif}
 .pgt{max-width:760px;margin:14px auto 0;padding:0 16px;display:flex;gap:8px;flex-wrap:wrap}
-.pgt button{background:#e3efe7;color:var(--tx);border:1px solid #b9d3c3;border-radius:999px;padding:9px 16px;font:14px Arial,sans-serif;cursor:pointer}
+.pgt{overflow-x:auto;scrollbar-width:none}.pgt::-webkit-scrollbar{display:none}.pgt button{white-space:nowrap;background:#e3efe7;color:var(--tx);border:1px solid #b9d3c3;border-radius:999px;padding:9px 16px;font:14px Arial,sans-serif;cursor:pointer}
 .pgt button.on{background:linear-gradient(90deg,var(--dg),var(--dg2));color:#fff;border-color:var(--gold)}
 .pgc{max-width:760px;margin:0 auto;padding:0 16px}
 .pgx{margin:14px 0}.pgs2{color:var(--mut);font:14px Arial,sans-serif;margin-bottom:6px}
@@ -676,7 +676,11 @@ function drawPage(){const P=document.getElementById("pgP"),S=document.getElement
   else document.getElementById("pgr").innerHTML=(ARCH||[]).length?(ARCH||[]).map((e,i)=>`<details class="ev pgev" data-i="${i}" ontoggle="pgLazy(this)"><summary>${esc(e.name)}<small>${esc(e.when)}</small></summary><div class="evb"></div></details>`).join(""):'<div class="box"><div class="pfn">No past events yet. They appear here after the next update runs.</div></div>'}
  PGSIG=pgSig()}
 function pgLazy(d){if(!d.open)return;const b=d.querySelector(".evb");if(b&&!b.dataset.f){b.dataset.f=1;const e=(ARCH||[])[+d.dataset.i];if(e)b.innerHTML=evBlock(e.name,e.when,pastFs(e),1)}}
-function pgTab(k){PS=k;drawPage();const s=document.getElementById("pgS");if(s)s.scrollTop=0}
+const PGO=["board","last","recent"];
+function pgTab(k,dir){const old=PS;PS=k;drawPage();const s=document.getElementById("pgS");if(s)s.scrollTop=0;const pn=document.getElementById("pgp_"+k);if(pn&&dir&&old!==k&&pn.animate){try{pn.animate([{transform:"translateX("+(dir>0?"40px":"-40px")+")",opacity:0},{transform:"none",opacity:1}],{duration:220,easing:"ease-out"})}catch(e){}}const on=document.querySelector("#pgt .on");if(on&&on.scrollIntoView){try{on.scrollIntoView({block:"nearest",inline:"center"})}catch(e){}}}
+(function(){const s=document.getElementById("pgS");if(!s)return;let x0=0,y0=0,t0=0,ok=false;
+s.addEventListener("touchstart",e=>{const t=e.touches[0];x0=t.clientX;y0=t.clientY;t0=Date.now();ok=e.touches.length===1&&!e.target.closest("input,textarea,button.pgbk")},{passive:true});
+s.addEventListener("touchend",e=>{if(!ok)return;ok=false;const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.5||Date.now()-t0>700)return;const i=PGO.indexOf(PS),n=i+(dx<0?1:-1);if(n<0||n>=PGO.length)return;pgTab(PGO[n],dx<0?1:-1)},{passive:true})})();
 function openPage(k){const pg=k==="picks"?"picks":"score";if(pg==="score"&&k!=="score")PS=k==="recent"?"recent":k==="last"?"last":"board";
  const was=anyPage(),tgt=pgEl(pg),oth=pgEl(pg==="picks"?"score":"picks");if(!tgt)return;oth.hidden=true;tgt.hidden=false;if(!was)lockS();
  const h="#"+(pg==="picks"?"picks":"scoreboard");try{if(location.hash!==h){was?history.replaceState({pg:1},"",h):history.pushState({pg:1},"",h)}}catch(e){}
