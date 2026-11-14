@@ -331,30 +331,30 @@ details.ev .evb{padding:2px 14px 10px}
 .arf b{display:block}.arf small{display:block;color:var(--mut);font-size:13px}.arf .ok{color:var(--grn);font-weight:700}.arf .no{color:#a33}
 .ins{margin-top:6px;color:var(--mut);font:13px/1.5 Arial}
 /* picks page, highlighted picks, strengths compare */
-.pgs{position:fixed;inset:0;z-index:40;overflow:auto;background:var(--bg) radial-gradient(900px 500px at 15% -5%,#0a5a3530,transparent 60%);overscroll-behavior:contain;padding-bottom:40px}
+.pgs{position:fixed;inset:0;z-index:40;isolation:isolate;overflow:auto;background:var(--bg) radial-gradient(900px 500px at 15% -5%,#0a5a3530,transparent 60%);overscroll-behavior:contain;padding-bottom:40px}
 .pgs[hidden]{display:none}
-.pgh{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;background:var(--dg);color:var(--gold)}
+.pgh{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;background:var(--dg);color:var(--gold)}
 .pgh h2{margin:0;font:18px Impact,Arial,sans-serif;letter-spacing:1.5px;text-transform:uppercase}
 .pgbk{all:unset;white-space:nowrap;cursor:pointer;background:#ffffff1f;border:1px solid #d4a01799;color:var(--gold);padding:7px 14px;border-radius:999px;font:700 13px Arial,sans-serif}
 .pgt{max-width:760px;margin:14px auto 0;padding:0 16px;display:flex;gap:8px;flex-wrap:wrap}
 .pgt button{background:#e3efe7;color:var(--tx);border:1px solid #b9d3c3;border-radius:999px;padding:9px 16px;font:14px Arial,sans-serif;cursor:pointer}
 .pgt button.on{background:linear-gradient(90deg,var(--dg),var(--dg2));color:#fff;border-color:var(--gold)}
 .pgc{max-width:760px;margin:0 auto;padding:0 16px}
-.pgx{margin:14px 0}.pgs2{color:var(--mut);font:13px Arial,sans-serif;margin-bottom:6px}
-.pgl{margin:16px 0 6px;font:700 11px Arial,sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:var(--dg2)}
+.pgx{margin:14px 0}.pgs2{color:var(--mut);font:14px Arial,sans-serif;margin-bottom:6px}
+.pgl{margin:18px 0 8px;font:700 13px Arial,sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:var(--dg2)}
 .pgu{border-bottom:1px solid #10261a14}.pgu summary{list-style:none;display:flex;align-items:center;gap:12px;padding:10px 4px;cursor:pointer}.pgu summary::-webkit-details-marker{display:none}
-.pgu .n{width:28px;font:22px Impact,Arial,sans-serif;color:var(--mut)}.pgu .nm{flex:1;font:15px Arial,sans-serif}.pgu .nm small{display:block;color:var(--mut);font-size:12px}.pgu .c{font:22px Impact,Arial,sans-serif;color:var(--gold)}
+.pgu .n{width:28px;font:22px Impact,Arial,sans-serif;color:var(--mut)}.pgu .nm{flex:1;font:700 17px Arial,sans-serif}.pgu .nm small{display:block;color:var(--mut);font:14px Arial,sans-serif;margin-top:2px}.pgu .c{font:22px Impact,Arial,sans-serif;color:var(--gold)}
 .pgu.me summary{background:#0f7a431a;border-radius:10px}.pgd{padding:4px 0 10px}
 .pvr{padding:10px;margin:6px 0;border:1px solid #d3e0d7;border-radius:12px;background:#ffffffaa}
 .pvr.ok{border-color:#168a4e88;background:#168a4e10}.pvr.no{border-color:#a3333355;background:#a333330a}
 .pvv{display:flex;align-items:flex-start;justify-content:center;gap:8px}.pvv>b{align-self:center;color:var(--red);font:16px Impact,Arial,sans-serif}
 .pvf{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;min-width:0}
-.pvf i{width:56px;height:56px;border-radius:50%;background:#fff center top/cover;display:flex;align-items:center;justify-content:center;font:700 15px Arial,sans-serif;font-style:normal;color:#8d8d9b;border:2px solid #d3e0d7}
+.pvf i{width:64px;height:64px;border-radius:50%;background:#fff center top/cover;display:flex;align-items:center;justify-content:center;font:700 15px Arial,sans-serif;font-style:normal;color:#8d8d9b;border:2px solid #d3e0d7}
 .pvf.np,.pvf.lose{opacity:.55}.pvf.pk i{border-color:var(--gold);box-shadow:0 0 0 3px #d4a01755,0 0 14px #f7d56a88}.pvf.pk.ok i,.pvf.win i{border-color:var(--grn)}.pvf.pk.no i{border-color:#a33;box-shadow:0 0 0 3px #a3333344}
-.pvn{font:700 13px/1.15 Arial,sans-serif;overflow-wrap:anywhere}
-.pvf em{font:700 10px Arial,sans-serif;font-style:normal;letter-spacing:.8px;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--dg);color:var(--gold)}
+.pvn{font:700 15px/1.2 Arial,sans-serif;overflow-wrap:anywhere}
+.pvf em{font:700 12px Arial,sans-serif;font-style:normal;letter-spacing:.8px;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--dg);color:var(--gold)}
 .pvf.ok em,.pvf em.wn{background:var(--grn);color:#fff}.pvf.no em{background:#a33;color:#fff}
-.pvt{margin-top:6px;text-align:center;color:var(--mut);font:13px/1.4 Arial,sans-serif}.pvt b{color:var(--tx)}.pvt .pt{color:var(--grn);font-weight:700}
+.pvt{margin-top:8px;text-align:center;color:var(--mut);font:15px/1.4 Arial,sans-serif}.pvt b{color:var(--tx)}.pvt .pt{color:var(--grn);font-weight:700}
 .pgf{padding:10px;margin:6px 0;border:1px solid #d3e0d7;border-radius:12px}.pgf.main{border-color:#e5cf8f;background:#fff7de66}
 .vs>div.pkd .av i{box-shadow:0 0 0 3px var(--gold),0 0 20px #f7d56acc}.vs>div.pkd>span:last-child{color:var(--grn);font-weight:700}
 .vs>div.pkn{opacity:.5}.fight.picked{border-color:var(--gold)}
@@ -393,7 +393,7 @@ details.ev .evb{padding:2px 14px 10px}
 </div>
 <div id="pgP" class="pgs" hidden role="dialog" aria-label="This week's picks"><div class="pgh"><button class="pgbk" onclick="closePage()">‹ Back</button><h2>This week's picks</h2></div><div class="pnl" id="evt"></div><div class="pgc" id="pgw"></div></div>
 <div id="pgS" class="pgs" hidden role="dialog" aria-label="Scoreboard"><div class="pgh"><button class="pgbk" onclick="closePage()">‹ Back</button><h2>Scoreboard</h2></div><div class="pgt" id="pgt"></div>
-<div id="pgp_board"><div class="pnl" id="lb"></div><div class="pgc" id="pgbw"></div></div>
+<div id="pgp_board"><div class="pnl" id="lb"></div></div>
 <div id="pgp_last" hidden><div class="pnl" id="lw"></div><div class="pgc" id="pglw"></div></div>
 <div id="pgp_recent" hidden><div class="pgc" id="pgr"></div></div></div>
 <dialog id="pk"><div class="top"><span></span><button onclick="pk.close()" aria-label="Close">✕</button></div><div id="pkb" class="body"></div></dialog>
@@ -660,8 +660,8 @@ function evBoard(fs){const rows=[];Object.keys(PICKS).forEach(id=>{const f=(PICK
 function evFights(fs){return fs.map(x=>{const r=x.w?{w:x.w,m:x.m}:res(x.id),mine=((PICKS[ME]||{}).fights||{})[x.id],f=(n)=>`<div class="pvf ${r&&nz(r.w)===nz(n)?"win":r?"lose":""}${mine&&mine.w===n?" pk":""}">${avZ(n)}<span class="pvn">${esc(n)}</span>${r&&nz(r.w)===nz(n)?'<em class="wn">Won</em>':""}</div>`;
   return `<div class="pgf${x.main?" main":""}"><div class="pvv">${f(x.a)}<b>vs</b>${f(x.b)}</div><div class="pvt">${r?`${esc(r.w)} wins${r.m?" · "+esc(nm(r.m)):""}`:"Not finished yet"}${x.main?" · Main event":""}</div></div>`}).join("")}
 function evBlock(title,sub,fs,nested){const B=evBoard(fs),nmOf=id=>esc(NAMES[id]||(PICKS[id]||{}).name||"Fight fan");
- return `<div class="${nested?"pgx":"box pgx"}">${nested?"":`<h3>${esc(title)}</h3><div class="pgs2">${esc(sub||"")}</div>`}<div class="pgl">Scoreboard · tap a player to see their picks</div>`+
- (B.length?B.map((x,i)=>`<details class="pgu${x.id===ME?" me":""}"><summary><span class="n">${i+1}</span><span class="nm">${nmOf(x.id)}${x.id===ME?" (you)":""}<small>${x.ok} of ${x.n} right</small></span><span class="c">${x.c}<i class="coin"></i></span></summary><div class="pgd">${fs.filter(f=>((PICKS[x.id]||{}).fights||{})[f.id]).map(f=>pickRow(f.id,PICKS[x.id].fights[f.id])).join("")}</div></details>`).join(""):'<div class="pfn">No picks for this card yet.</div>')+
+ return `<div class="${nested?"pgx":"box pgx"}">${nested?"":`<h3>${esc(title)}</h3><div class="pgs2">${esc(sub||"")}</div>`}<div class="pgl">Players · tap a name to see their picks</div>`+
+ (B.length?B.map((x,i)=>`<details class="pgu${x.id===ME?" me":""}"><summary><span class="n">${i+1}</span><span class="nm">${nmOf(x.id)}${x.id===ME?" (you)":""}<small>${x.ok} of ${x.n} correct</small></span><span class="c">${x.c}<i class="coin"></i></span></summary><div class="pgd">${fs.filter(f=>((PICKS[x.id]||{}).fights||{})[f.id]).map(f=>pickRow(f.id,PICKS[x.id].fights[f.id])).join("")}</div></details>`).join(""):'<div class="pfn">Other players\' picks show up here as each fight finishes.</div>')+
  `<div class="pgl">Fights</div>${evFights(fs)}</div>`}
 const curFs=()=>(EV.fights||[]).map(f=>({id:f.id,a:f.a,b:f.b,main:!!f.main}));
 const pastFs=e=>(e.fights||[]).map(f=>({id:f.id,a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m}));
@@ -671,8 +671,7 @@ function drawPage(){const P=document.getElementById("pgP"),S=document.getElement
  if(P&&!P.hidden)document.getElementById("pgw").innerHTML=evBlock("Everyone's picks this week",(EV.name||"")+(EV.when?" · "+EV.when:"")+(locked()?" · picks locked":""),curFs());
  if(S&&!S.hidden){document.getElementById("pgt").innerHTML=[["board","Scoreboard"],["last","Last week"],["recent","Recent events"]].map(([k,l])=>`<button class="${PS===k?"on":""}" onclick="pgTab('${k}')">${l}</button>`).join("");
   ["board","last","recent"].forEach(k=>{const e=document.getElementById("pgp_"+k);if(e)e.hidden=PS!==k});
-  if(PS==="board")document.getElementById("pgbw").innerHTML=evBlock("This week's card",(EV.name||"")+(EV.when?" · "+EV.when:""),curFs());
-  else if(PS==="last")document.getElementById("pglw").innerHTML=LASTX?evBlock("Last week: "+LASTX.name,LASTX.when,LASTX.fights.filter(f=>f.main||f.card).map(f=>({id:f.id,a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m}))):"";
+  if(PS==="last")document.getElementById("pglw").innerHTML=LASTX?evBlock("Last week: "+LASTX.name,LASTX.when,LASTX.fights.filter(f=>f.main||f.card).map(f=>({id:f.id,a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m}))):"";
   else document.getElementById("pgr").innerHTML=(ARCH||[]).length?(ARCH||[]).map((e,i)=>`<details class="ev pgev" data-i="${i}" ontoggle="pgLazy(this)"><summary>${esc(e.name)}<small>${esc(e.when)}</small></summary><div class="evb"></div></details>`).join(""):'<div class="box"><div class="pfn">No past events yet. They appear here after the next update runs.</div></div>'}
  PGSIG=pgSig()}
 function pgLazy(d){if(!d.open)return;const b=d.querySelector(".evb");if(b&&!b.dataset.f){b.dataset.f=1;const e=(ARCH||[])[+d.dataset.i];if(e)b.innerHTML=evBlock(e.name,e.when,pastFs(e),1)}}
