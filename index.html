@@ -373,6 +373,9 @@ details.ev .evb{padding:2px 14px 10px}
 .swc{display:flex;flex-wrap:wrap;gap:4px;padding-top:6px;border-top:1px solid #10261a14;align-content:flex-start}
 .swt{padding:3px 9px;border-radius:999px;font:12px/1.3 Arial,sans-serif;background:#e3efe7;border:1px solid #b9d3c3}.swt.g{background:#168a4e1f;border-color:#168a4e66;color:#0d5a37}.swt.r{background:#a333331a;border-color:#a3333366;color:#7d2222}.swn{color:var(--mut);font-size:12px}
 .arw .arb{margin:0 4px 8px}
+.hn{margin-top:14px}.hcard{display:flex;align-items:center;gap:14px;width:100%;margin:0 0 12px;padding:16px;text-align:left;color:inherit;font:inherit;cursor:pointer;border:1px solid #e5cf8f;border-left:6px solid var(--dg);border-radius:16px;background:linear-gradient(180deg,#fbfdfb,#e9f2ec);transition:.25s}
+.hcard:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 12px 30px #0d5a3733}.hcard i{font-size:30px;font-style:normal}.hcard span{flex:1;min-width:0}.hcard b{display:block;font:22px Impact,Arial,sans-serif;letter-spacing:1px;text-transform:uppercase;color:var(--dg)}.hcard small{display:block;margin-top:3px;color:var(--mut);font:13px/1.35 Arial,sans-serif}.hcard em{font:34px/1 Arial,sans-serif;font-style:normal;color:var(--gold)}
+.pgs>.pnl{margin-top:14px}
 </style></head><body>
 <div id="prog"></div>
 <section id="hero"><div class="hp one"><canvas id="c1" width="1920" height="1080"></canvas></div><div class="hc" id="hc"><h1>UFC <span>Fighter</span> Roster</h1><p class="sub" style="color:#ddd">Scroll to bring the fighters to life</p><span class="hint">Scroll ↓</span></div></section>
@@ -380,10 +383,7 @@ details.ev .evb{padding:2px 14px 10px}
 <div id="content">
 <h2 class="sec">Your <span>profile</span></h2><div class="pnl rv" id="acct"></div>
 <div class="arw" id="inw"><button class="arb" onclick="openInstall()">📲 Install the app</button></div>
-<h2 class="sec">This week's <span>main card</span></h2><div id="rmn"></div><div class="pnl rv" id="evt"></div>
-<h2 class="sec">Last week's <span>results</span></h2><div class="pnl rv" id="lw"></div>
-<div class="arw" id="arw"><button class="arb" onclick="openPage('this')">🏆 Picks &amp; scoreboards</button><button class="arb" onclick="openPage('recent')">🗓 Past events</button></div>
-<h2 class="sec"><span>Scoreboard</span></h2><div class="pnl rv" id="lb"></div>
+<h2 class="sec">Fight <span>night</span></h2><div id="rmn"></div><div class="pnl hn" id="hn"></div>
 <h2 class="sec" id="rh">Fighter <span>roster</span></h2>
 <div class="bar"><div class="bar-in"><button class="nv" onclick="swc(-1)" aria-label="Previous class">‹</button><nav id="nav"></nav><button class="nv" onclick="swc(1)" aria-label="Next class">›</button></div></div>
 <div class="sr"><input id="q" type="search" placeholder="Search fighter" aria-label="Search fighters" autocomplete="off"><div id="sg" class="sg" role="listbox" hidden></div></div>
@@ -391,7 +391,11 @@ details.ev .evb{padding:2px 14px 10px}
 <p class="note">Fighter details and images come from your document. Rank tags are from the UFC's official rankings (Oct 27 to Nov 3, 2026 polls).</p>
 <footer class="lf"><div>Unofficial fan project. Not affiliated with, endorsed by or sponsored by UFC or any fighter. Names, logos and images belong to their owners. Coins are virtual and have no cash value.</div><nav aria-label="Legal"><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="copyright.html">Copyright</a><a href="contact.html">Contact</a></nav><div>© 2026 UFC Fighter Roster fan site</div></footer>
 </div>
-<div id="pgs" class="pgs" hidden role="dialog" aria-label="Picks and scoreboards"><div class="pgh"><button class="pgbk" onclick="closePage()">‹ Back</button><h2>Picks &amp; scoreboards</h2></div><div class="pgt" id="pgt"></div><div class="pgc" id="pgc"></div></div>
+<div id="pgP" class="pgs" hidden role="dialog" aria-label="This week's picks"><div class="pgh"><button class="pgbk" onclick="closePage()">‹ Back</button><h2>This week's picks</h2></div><div class="pnl" id="evt"></div><div class="pgc" id="pgw"></div></div>
+<div id="pgS" class="pgs" hidden role="dialog" aria-label="Scoreboard"><div class="pgh"><button class="pgbk" onclick="closePage()">‹ Back</button><h2>Scoreboard</h2></div><div class="pgt" id="pgt"></div>
+<div id="pgp_board"><div class="pnl" id="lb"></div><div class="pgc" id="pgbw"></div></div>
+<div id="pgp_last" hidden><div class="pnl" id="lw"></div><div class="pgc" id="pglw"></div></div>
+<div id="pgp_recent" hidden><div class="pgc" id="pgr"></div></div></div>
 <dialog id="pk"><div class="top"><span></span><button onclick="pk.close()" aria-label="Close">✕</button></div><div id="pkb" class="body"></div></dialog>
 <dialog id="pf"><div class="top"><span></span><button onclick="document.getElementById('pf').close()" aria-label="Close">✕</button></div><div id="pfb" class="body"></div></dialog>
 <dialog id="st"><div class="top"><span></span><button onclick="document.getElementById('st').close()" aria-label="Close">✕</button></div><div id="stb" class="body"></div></dialog>
@@ -584,7 +588,7 @@ const coins=id=>{if((PICKS[id]||{}).hidden)return PICKS[id].sc||0;const f=(PICKS
 function board(){return Object.keys(PICKS).map(id=>({id,c:coins(id),n:(PICKS[id]||{}).hidden?(PICKS[id].n||0):Object.keys((PICKS[id]||{}).fights||{}).filter(realK).length})).sort((a,b)=>b.c-a.c||b.n-a.n)}
 function ren(){try{rmn()}catch(e){}try{pgRef()}catch(e){}
  const A=document.getElementById("acct"),B=board(),rank=B.findIndex(x=>x.id===ME)+1,mine=(PICKS[ME]||{}).fights||{};
- A.innerHTML=!READY?'<div class="box">Connecting…</div>':ME&&DB?`<div class="box"><h3>${esc(NAMES[ME]||"You")}</h3><small style="color:var(--mut)">${SB?"Logged in":"Logged in with your Claude account"}${OWNER?" · owner":""}${SB?` · <a href="#" onclick="openSettings();return false" style="color:inherit">Settings</a> · <a href="#" onclick="sbOut();return false" style="color:inherit">Log out</a> · <a href="#" onclick="sbDel();return false" style="color:inherit">Delete account</a>`:""}</small><div class="stats"><div><b>${coins(ME)}<i class="coin"></i></b><small>Coins</small></div><div class="sl" role="button" tabindex="0" onclick="openProf(ME)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openProf(ME)}"><b>${Object.keys(mine).filter(realK).length}</b><small>Picks ›</small></div><div class="sl" role="button" tabindex="0" onclick="document.getElementById('lb').scrollIntoView({behavior:'smooth',block:'start'})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('lb').scrollIntoView({behavior:'smooth',block:'start'})}"><b>${rank||"–"}</b><small>Rank ›</small></div></div></div>`:`<div class="box lg"><div class="lgh"><span class="lgi" aria-hidden="true">🥊</span><div><h3>Join the game</h3><small>Pick winners, earn coins, climb the scoreboard</small></div></div>${loginHtml()}</div>`;
+ A.innerHTML=!READY?'<div class="box">Connecting…</div>':ME&&DB?`<div class="box"><h3>${esc(NAMES[ME]||"You")}</h3><small style="color:var(--mut)">${SB?"Logged in":"Logged in with your Claude account"}${OWNER?" · owner":""}${SB?` · <a href="#" onclick="openSettings();return false" style="color:inherit">Settings</a> · <a href="#" onclick="sbOut();return false" style="color:inherit">Log out</a> · <a href="#" onclick="sbDel();return false" style="color:inherit">Delete account</a>`:""}</small><div class="stats"><div><b>${coins(ME)}<i class="coin"></i></b><small>Coins</small></div><div class="sl" role="button" tabindex="0" onclick="openProf(ME)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openProf(ME)}"><b>${Object.keys(mine).filter(realK).length}</b><small>Picks ›</small></div><div class="sl" role="button" tabindex="0" onclick="openPage('score')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openPage('score')}"><b>${rank||"–"}</b><small>Rank ›</small></div></div></div>`:`<div class="box lg"><div class="lgh"><span class="lgi" aria-hidden="true">🥊</span><div><h3>Join the game</h3><small>Pick winners, earn coins, climb the scoreboard</small></div></div>${loginHtml()}</div>`;
  document.getElementById("evt").innerHTML=`<div class="fm" style="margin:0 0 10px">${EV.name} · ${EV.when}${EV.src?` · Main card ${new Date(EV.lock).toLocaleString(undefined,{weekday:"short",hour:"2-digit",minute:"2-digit"})} your time (${EV.src==="ufc.com"?"official, ufc.com":"estimate"})`:""}${locked()?" · picks locked":` · Picks lock ${new Date(lockAt()).toLocaleString(undefined,{weekday:"short",hour:"2-digit",minute:"2-digit"})} (5 hours before the fights)`}</div>`+EV.fights.map((f,i)=>{const p=mine[f.id],r=res(f.id);let st=p?`<span class="pkl">✓ You picked <b>${esc(p.w)}</b>${p.m?" by <b>"+esc(nm(p.m))+"</b>":""}${p.r?" in <b>round "+p.r+"</b>":""}${locked()?" · 🔒 locked":` <span class="chg">Change pick</span>`}</span>`:(locked()?"Picks locked":"Tap to pick the winner");if(r)st+=` · Result: ${r.w} (${r.m}${r.r?" R"+r.r:""}) · <b class="pt">+${pts(p,r,f.main)}<i class="coin"></i></b>`;
   const av=(n,t)=>{const s=photo(n);return `<span class="av"><i style="${s?`background-image:url(${s})`:""}">${s?"":ini(n)}</i><span class="mt">${t?`<span class="tag mini ${tc(t)}">${t}</span>`:""}${(EXTRA[n]||[]).map(x=>`<span class="tag mini ${tc(x)}">${x}</span>`).join("")}</span></span>`};
   return `<button class="fight ${f.main?"main":""}${p?" picked":""}" onclick="openPick(${i})"><div class="fm">${f.cls} · ${f.tag}${f.main?" · 2x coins":""}${f.live&&!r?'<span class="lv"><i></i>LIVE</span>':""}</div><div class="vs"><div class="${p?(p.w===f.a?"pkd":"pkn"):""}">${av(f.a,f.ta)}${p&&p.w===f.a?'<span class="pkbdg">✓ Your pick</span>':""}<span>${f.a}${rc(f.a)}</span></div><em>VS</em><div class="${p?(p.w===f.b?"pkd":"pkn"):""}">${av(f.b,f.tb)}${p&&p.w===f.b?'<span class="pkbdg">✓ Your pick</span>':""}<span>${f.b}${rc(f.b)}</span></div></div><div class="st">${st}</div></button>`}).join("");
@@ -660,19 +664,26 @@ function evBlock(title,sub,fs,nested){const B=evBoard(fs),nmOf=id=>esc(NAMES[id]
  `<div class="pgl">Fights</div>${evFights(fs)}</div>`}
 const curFs=()=>(EV.fights||[]).map(f=>({id:f.id,a:f.a,b:f.b,main:!!f.main}));
 const pastFs=e=>(e.fights||[]).map(f=>({id:f.id,a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m}));
-let PG="this";
-function drawPage(){const t=document.getElementById("pgt"),c=document.getElementById("pgc");if(!t||!c)return;
- t.innerHTML=[["this","This week"],["last","Last week"],["recent","Recent events"]].map(([k,l])=>`<button class="${PG===k?"on":""}" onclick="pgTab('${k}')">${l}</button>`).join("");
- let h="";
- if(PG==="this"){h=evBlock(EV.name||"This week",(EV.when||"")+(locked()?" · picks locked":""),curFs())}
- else if(PG==="last"){h=LASTX?evBlock(LASTX.name,LASTX.when,LASTX.fights.filter(f=>f.main||f.card).map(f=>({id:f.id,a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m}))):'<div class="box"><div class="pfn">Last week\'s card isn\'t available yet.</div></div>'}
- else{h=(ARCH||[]).length?(ARCH||[]).map((e,i)=>`<details class="ev pgev" data-i="${i}" ontoggle="pgLazy(this)"><summary>${esc(e.name)}<small>${esc(e.when)}</small></summary><div class="evb"></div></details>`).join(""):'<div class="box"><div class="pfn">No past events yet. They appear here after the next update runs.</div></div>'}
- c.innerHTML=h;PGSIG=pgSig()}
+let PS="board";
+const pgEl=k=>document.getElementById(k==="picks"?"pgP":"pgS"),anyPage=()=>["pgP","pgS"].some(i=>{const e=document.getElementById(i);return e&&!e.hidden});
+function drawPage(){const P=document.getElementById("pgP"),S=document.getElementById("pgS");
+ if(P&&!P.hidden)document.getElementById("pgw").innerHTML=evBlock("Everyone's picks this week",(EV.name||"")+(EV.when?" · "+EV.when:"")+(locked()?" · picks locked":""),curFs());
+ if(S&&!S.hidden){document.getElementById("pgt").innerHTML=[["board","Scoreboard"],["last","Last week"],["recent","Recent events"]].map(([k,l])=>`<button class="${PS===k?"on":""}" onclick="pgTab('${k}')">${l}</button>`).join("");
+  ["board","last","recent"].forEach(k=>{const e=document.getElementById("pgp_"+k);if(e)e.hidden=PS!==k});
+  if(PS==="board")document.getElementById("pgbw").innerHTML=evBlock("This week's card",(EV.name||"")+(EV.when?" · "+EV.when:""),curFs());
+  else if(PS==="last")document.getElementById("pglw").innerHTML=LASTX?evBlock("Last week: "+LASTX.name,LASTX.when,LASTX.fights.filter(f=>f.main||f.card).map(f=>({id:f.id,a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m}))):"";
+  else document.getElementById("pgr").innerHTML=(ARCH||[]).length?(ARCH||[]).map((e,i)=>`<details class="ev pgev" data-i="${i}" ontoggle="pgLazy(this)"><summary>${esc(e.name)}<small>${esc(e.when)}</small></summary><div class="evb"></div></details>`).join(""):'<div class="box"><div class="pfn">No past events yet. They appear here after the next update runs.</div></div>'}
+ PGSIG=pgSig()}
 function pgLazy(d){if(!d.open)return;const b=d.querySelector(".evb");if(b&&!b.dataset.f){b.dataset.f=1;const e=(ARCH||[])[+d.dataset.i];if(e)b.innerHTML=evBlock(e.name,e.when,pastFs(e),1)}}
-function pgTab(k){PG=k;drawPage();const s=document.getElementById("pgs");if(s)s.scrollTop=0}
-function openPage(k){if(k)PG=k;const s=document.getElementById("pgs");if(!s)return;if(s.hidden){s.hidden=false;lockS();try{history.pushState({pg:1},"","#picks")}catch(e){}}drawPage();s.scrollTop=0}
-function closePage(pop){const s=document.getElementById("pgs");if(!s||s.hidden)return;s.hidden=true;unlockS();if(!pop&&history.state&&history.state.pg){try{history.back()}catch(e){}}}
-addEventListener("popstate",()=>{const s=document.getElementById("pgs");if(s&&!s.hidden&&!(history.state&&history.state.pg))closePage(true)});
+function pgTab(k){PS=k;drawPage();const s=document.getElementById("pgS");if(s)s.scrollTop=0}
+function openPage(k){const pg=k==="picks"?"picks":"score";if(pg==="score"&&k!=="score")PS=k==="recent"?"recent":k==="last"?"last":"board";
+ const was=anyPage(),tgt=pgEl(pg),oth=pgEl(pg==="picks"?"score":"picks");if(!tgt)return;oth.hidden=true;tgt.hidden=false;if(!was)lockS();
+ const h="#"+(pg==="picks"?"picks":"scoreboard");try{if(location.hash!==h){was?history.replaceState({pg:1},"",h):history.pushState({pg:1},"",h)}}catch(e){}
+ drawPage();tgt.scrollTop=0}
+function closePage(pop){if(!anyPage())return;["pgP","pgS"].forEach(i=>{document.getElementById(i).hidden=true});unlockS();if(!pop&&history.state&&history.state.pg){try{history.back()}catch(e){}}}
+addEventListener("popstate",()=>{if(anyPage()&&!/^#(picks|scoreboard)$/.test(location.hash))closePage(true)});
+function hnav(){const el=document.getElementById("hn");if(!el)return;const mine=(PICKS[ME]||{}).fights||{},t=(EV.fights||[]).length,n=(EV.fights||[]).filter(f=>mine[f.id]).length,B=board(),rank=B.findIndex(x=>x.id===ME)+1;
+ el.innerHTML=`<button class="hcard" onclick="openPage('picks')"><i>🥊</i><span><b>This week's picks</b><small>${esc(EV.name||"")} · ${ME&&DB?n+" of "+t+" picked · ":""}${locked()?"picks locked":"picks lock "+new Date(lockAt()).toLocaleString(undefined,{weekday:"short",hour:"2-digit",minute:"2-digit"})}</small></span><em>›</em></button><button class="hcard" onclick="openPage('score')"><i>🏆</i><span><b>Scoreboard, last week &amp; past events</b><small>${ME&&DB&&rank?"You're #"+rank+" · "+coins(ME)+" coins":"See who's winning"}</small></span><em>›</em></button>`}
 let SWO=false;
 function togSW(){SWO=!SWO;drawPk()}
 function swHtml(f){const get=n=>{const r=findF(n);return r?D[r[0]][r[1]]:null},A=get(f.a),B=get(f.b);
@@ -688,7 +699,7 @@ function pkSum(f,dirty,sv){const w=sel.w,m=sel.m,r=sel.r,dec=m==="DEC",
  return `<div class="pks ok">✓ <b>${esc(w)}</b> wins by <b>${esc(nm(m))}</b>${!dec&&r?" in round "+r:""}<br><small>${dirty?"Not saved yet. Tap the button below.":sv?"Saved.":""}</small>${stp}</div>`}
 const pgSig=()=>JSON.stringify([Object.keys(PICKS).map(k=>[k,Object.keys((PICKS[k]||{}).fights||{}).length]),Object.keys(AUTO).length,Object.keys(RES).length,EV.id,LASTX&&LASTX.id,Object.keys(NAMES).length]);
 let PGSIG="";
-function pgRef(){const s=document.getElementById("pgs");if(!s||s.hidden||PG==="recent")return;if(pgSig()===PGSIG)return;const c=document.getElementById("pgc"),op=[...c.querySelectorAll("details")].map(d=>d.open);drawPage();[...c.querySelectorAll("details")].forEach((d,i)=>{if(op[i])d.open=true})}
+function pgRef(){try{hnav()}catch(e){}if(!anyPage()||(PS==="recent"&&!document.getElementById("pgS").hidden))return;if(pgSig()===PGSIG)return;const c=document.querySelector(".pgs:not([hidden])"),op=[...c.querySelectorAll("details")].map(d=>d.open);drawPage();[...c.querySelectorAll("details")].forEach((d,i)=>{if(op[i])d.open=true})}
 
 /* ===== reminder banner ===== */
 function rmn(){const el=document.getElementById("rmn");if(!el)return;
@@ -696,7 +707,7 @@ function rmn(){const el=document.getElementById("rmn");if(!el)return;
  if(!(ME&&DB&&READY)||locked()||!un){el.innerHTML="";return}
  const ms=lockAt()-Date.now(),h=Math.floor(ms/3600e3),m=Math.floor(ms%3600e3/60e3),hot=ms<2*3600e3;
  const when=ms<48*3600e3?`in <b>${h?h+"h ":""}${m}m</b>`:`<b>${new Date(lockAt()).toLocaleString(undefined,{weekday:"short",hour:"2-digit",minute:"2-digit"})}</b>`;
- el.innerHTML=`<div class="rmn ${hot?"hot":""}" role="button" tabindex="0" onclick="document.getElementById('evt').scrollIntoView({behavior:'smooth',block:'start'})"><i>⏰</i><span>Picks lock ${when}. You haven't picked <b>${un} fight${un>1?"s":""}</b> yet.</span></div>`}
+ el.innerHTML=`<div class="rmn ${hot?"hot":""}" role="button" tabindex="0" onclick="openPage('picks')"><i>⏰</i><span>Picks lock ${when}. You haven't picked <b>${un} fight${un>1?"s":""}</b> yet.</span></div>`}
 setInterval(()=>{try{rmn()}catch(e){}},30000);
 
 /* ===== fighter updates (rankings, records, age, height, reach) ===== */
@@ -784,6 +795,6 @@ async function pollEvents(){LASTPOLL=Date.now();try{const j=await getEvents(true
 function schedulePoll(){clearTimeout(POLL);const n=Date.now(),live=n>EV.lock-2*3600e3&&n<EV.lock+10*3600e3;POLL=setTimeout(()=>{if(document.hidden){schedulePoll();return}pollEvents()},live?45000:600000)}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-LASTPOLL>30000&&READY)pollEvents()});
 (async()=>{await loadEvents();try{if(!window.claude){await sbInit()}else{U=await claude.use("user");DB=await claude.use("db");if(U){ME=await U.id();OWNER=await U.isOwner()}}if(DB&&ME){DB.collection("picks").onSnapshot(s=>{PICKS={};s.docs.forEach(d=>PICKS[d.id]=d.data());ren();names()},()=>{});DB.doc("results/"+EV.id).onSnapshot(s=>{RES=s.exists?((s.data()||{}).fights||{}):{};ren()},()=>{})}}catch(e){}READY=true;ren();names()})();
-setTimeout(()=>{READY=true;ren()},10000);ren();renLast();
+setTimeout(()=>{READY=true;ren()},10000);setTimeout(()=>{if(/^#(picks|scoreboard)$/.test(location.hash)&&!anyPage())openPage(location.hash==="#picks"?"picks":"score")},400);ren();renLast();
 show("Flyweight");UI=true;
 </script></body></html>
