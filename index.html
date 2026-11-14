@@ -349,7 +349,7 @@ details.ev .evb{padding:2px 14px 10px}
 .pvr{padding:10px;margin:6px 0;border:1px solid #d3e0d7;border-radius:12px;background:#ffffffaa}
 .pvr.ok{border-color:#168a4e88;background:#168a4e10}.pvr.no{border-color:#a3333355;background:#a333330a}
 .pvv{display:flex;align-items:flex-start;justify-content:center;gap:8px}.pvv>b{align-self:center;color:var(--red);font:16px Impact,Arial,sans-serif}
-.pgf.clk{cursor:pointer}.pvt.go{color:var(--dg2);font-weight:700;margin-top:4px}
+.pgf.clk,.lwf.clk{cursor:pointer}.lwgo{margin:8px 0 0;text-align:center;color:var(--dg2);font-weight:700;letter-spacing:0;text-transform:none;font-size:14px}.pvt.go{color:var(--dg2);font-weight:700;margin-top:4px}
 .fvv{display:flex;align-items:flex-start;justify-content:center;gap:6px;padding:0 14px}.fvs{align-self:center;color:var(--red);font:22px Impact,Arial,sans-serif}
 .fvc{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;min-width:0}.fvc i{width:110px;height:110px;border-radius:50%;background:#fff center top/cover;border:3px solid #d3e0d7;display:flex;align-items:center;justify-content:center;font:700 26px Arial,sans-serif;font-style:normal;color:#8d8d9b}
 .fvc b{font:700 17px/1.2 Arial,sans-serif;overflow-wrap:anywhere}.fvc small{color:var(--mut);font:14px Arial,sans-serif}.fvc.lose{opacity:.6}.fvc.win i{border-color:var(--grn)}.fvc.pk i{box-shadow:0 0 0 3px #d4a01766,0 0 16px #f7d56a88}
@@ -547,7 +547,7 @@ let LAST={name:"UFC Fight Night: Cortes Acosta vs Walker",when:"Sat, Nov 7 · Me
 ["Jose Souza","Jonny Parsons","Welterweight","KO","R1 4:16",0,0]]};
 function renLast(){const el=document.getElementById("lw");if(!el)return;
  const av=(n,m,win)=>{const s=photo(n);return `<span class="av ${win?"win":"lose"}"><i style="${s?`background-image:url(${s})`:""}">${s?"":ini(n)}</i><span class="mt">${win?`<span class="tag mini lwt">${esc(m)}</span>`:""}</span></span>`};
- el.innerHTML=`<div class="fm" style="margin:0 0 10px">${esc(LAST.name)} · ${esc(LAST.when)}</div>`+LAST.fights.filter(f=>f[6]).map(f=>{const r=(String(f[4]).match(/^R(\d)/)||[])[1],m=f[3]+(r?" · R"+r:"");return `<div class="fight lwf ${f[5]?"main":""}"><div class="fm">${esc(f[2]||"Main card")}${f[5]?" · Main event":""}</div><div class="vs"><div class="lwwin">${av(f[0],m,1)}<span>${esc(f[0])}</span></div><em>VS</em><div class="lwlose">${av(f[1],"",0)}<span>${esc(f[1])}</span></div></div></div>`}).join("")}
+ el.innerHTML=`<div class="fm" style="margin:0 0 10px">${esc(LAST.name)} · ${esc(LAST.when)}</div>`+LAST.fights.map((f,i)=>f[6]?[f,i]:null).filter(Boolean).map(([f,i])=>{const id=LASTX&&LASTX.fights[i]?LASTX.fights[i].id:"",r=(String(f[4]).match(/^R(\d)/)||[])[1],m=f[3]+(r?" · R"+r:"");return `<div class="fight lwf ${f[5]?"main":""}${id?" clk":""}"${id?` role="button" tabindex="0" data-fid="${esc(id)}"`:""}><div class="fm">${esc(f[2]||"Main card")}${f[5]?" · Main event":""}</div><div class="vs"><div class="lwwin">${av(f[0],m,1)}<span>${esc(f[0])}</span></div><em>VS</em><div class="lwlose">${av(f[1],"",0)}<span>${esc(f[1])}</span></div></div>${id?'<div class="fm lwgo">Tap to see both fighters ›</div>':""}</div>`}).join("")}
 let ARCH=[],SHOW=true,BOARDGO=null,DB=null,U=null,ME=null,OWNER=false,PICKS={},PRAW={},RES={},AUTO={},MAINF={},NAMES={},READY=false,sel={},CF=null;
 
 /* ===== Supabase mode (used when the page is NOT opened inside claude.ai) ===== */
@@ -666,7 +666,7 @@ function openFight(id){const F=fmap()[id];if(!F)return;const r=res(id)||(F.w?{w:
  const picks=Object.keys(PICKS).filter(u=>((PICKS[u]||{}).fights||{})[id]).map(u=>{const p=PICKS[u].fights[id],ok=r&&p.w===r.w,nmU=esc(NAMES[u]||PICKS[u].name||"Fight fan");return `<div class="fvp ${r?(ok?"ok":"no"):""}"><span>${nmU}${u===ME?" (you)":""}</span><span>${esc(p.w)}${p.m?" · "+esc(nm(p.m)):""}${p.r?" · R"+esc(p.r):""}</span><b>${r?(ok?"✓":"✗"):""}</b></div>`}).join("");
  document.getElementById("fvb").innerHTML=`<h2>${F.main?"Main event":"Fight"}</h2><div class="fvv">${fvSide(F.a,r,mine)}<b class="fvs">VS</b>${fvSide(F.b,r,mine)}</div><div class="pvt fvr">${r?`<b>${esc(r.w)}</b> won${r.m?" by "+esc(nm(r.m)):""}${r.r&&r.m!=="DEC"?" in round "+esc(r.r):""}`:"Not finished yet"}</div>${picks?`<div class="pgl">Players' picks</div>${picks}`:""}`;
  document.getElementById("fv").showModal()}
-document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest(".pgf[data-fid]");if(t)openFight(t.dataset.fid)});document.addEventListener("keydown",e=>{if(e.key!=="Enter")return;const t=e.target.closest&&e.target.closest(".pgf[data-fid]");if(t){e.preventDefault();openFight(t.dataset.fid)}});
+document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("[data-fid]");if(t)openFight(t.dataset.fid)});document.addEventListener("keydown",e=>{if(e.key!=="Enter")return;const t=e.target.closest&&e.target.closest("[data-fid]");if(t){e.preventDefault();openFight(t.dataset.fid)}});
 const fa=n=>findF(n)?`data-fn="${esc(n)}" role="button" tabindex="0" `:"";
 document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest(".pvf[data-fn]");if(t){e.preventDefault();openFighter(t.dataset.fn)}});document.addEventListener("keydown",e=>{if(e.key!=="Enter")return;const t=e.target.closest&&e.target.closest(".pvf[data-fn]");if(t){e.preventDefault();openFighter(t.dataset.fn)}});
 function pickRow(k,p){const F=fmap()[k]||{},r=res(k)||(F.w?{w:F.w,m:F.m,r:F.r}:null);
@@ -690,7 +690,7 @@ function drawPage(){const P=document.getElementById("pgP"),S=document.getElement
  if(P&&!P.hidden)document.getElementById("pgw").innerHTML=(!curFs().length||!curFs().every(f=>res(f.id)))?"":evBlock("Everyone's picks this week",(EV.name||"")+(EV.when?" · "+EV.when:"")+(locked()?" · picks locked":""),curFs(),false,true);
  if(S&&!S.hidden){document.getElementById("pgt").innerHTML=[["board","Scoreboard"],["last","Last week"],["recent","Recent events"]].map(([k,l])=>`<button class="${PS===k?"on":""}" onclick="pgTab('${k}')">${l}</button>`).join("");
   ["board","last","recent"].forEach(k=>{const e=document.getElementById("pgp_"+k);if(e)e.hidden=PS!==k});
-  if(PS==="last")document.getElementById("pglw").innerHTML=LASTX?evBlock("Last week: "+LASTX.name,LASTX.when,LASTX.fights.filter(f=>f.main||f.card).map(f=>({id:f.id,a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m,r:f.r}))):"";
+  if(PS==="last")document.getElementById("pglw").innerHTML=LASTX?evBlock("Last week: "+LASTX.name,LASTX.when,LASTX.fights.filter(f=>f.main||f.card).map(f=>({id:f.id,a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m,r:f.r})),false,true):"";
   else document.getElementById("pgr").innerHTML=(ARCH||[]).length?(ARCH||[]).map((e,i)=>`<details class="ev pgev" data-i="${i}" ontoggle="pgLazy(this)"><summary>${esc(e.name)}<small>${esc(e.when)}</small></summary><div class="evb"></div></details>`).join(""):'<div class="box"><div class="pfn">No past events yet. They appear here after the next update runs.</div></div>'}
  PGSIG=pgSig()}
 function pgLazy(d){if(!d.open)return;const b=d.querySelector(".evb");if(b&&!b.dataset.f){b.dataset.f=1;const e=(ARCH||[])[+d.dataset.i];if(e)b.innerHTML=evBlock(e.name,e.when,pastFs(e),1)}}
