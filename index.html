@@ -669,7 +669,7 @@ const pastFs=e=>(e.fights||[]).map(f=>({id:f.id,a:f.w,b:f.l,main:!!f.main,w:f.w,
 let PS="board";
 const pgEl=k=>document.getElementById(k==="picks"?"pgP":"pgS"),anyPage=()=>["pgP","pgS"].some(i=>{const e=document.getElementById(i);return e&&!e.hidden});
 function drawPage(){const P=document.getElementById("pgP"),S=document.getElementById("pgS");
- if(P&&!P.hidden)document.getElementById("pgw").innerHTML=evBlock("Everyone's picks this week",(EV.name||"")+(EV.when?" · "+EV.when:"")+(locked()?" · picks locked":""),curFs(),false,true);
+ if(P&&!P.hidden)document.getElementById("pgw").innerHTML=(!curFs().length||!curFs().every(f=>res(f.id)))?"":evBlock("Everyone's picks this week",(EV.name||"")+(EV.when?" · "+EV.when:"")+(locked()?" · picks locked":""),curFs(),false,true);
  if(S&&!S.hidden){document.getElementById("pgt").innerHTML=[["board","Scoreboard"],["last","Last week"],["recent","Recent events"]].map(([k,l])=>`<button class="${PS===k?"on":""}" onclick="pgTab('${k}')">${l}</button>`).join("");
   ["board","last","recent"].forEach(k=>{const e=document.getElementById("pgp_"+k);if(e)e.hidden=PS!==k});
   if(PS==="last")document.getElementById("pglw").innerHTML=LASTX?evBlock("Last week: "+LASTX.name,LASTX.when,LASTX.fights.filter(f=>f.main||f.card).map(f=>({id:f.id,a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m}))):"";
