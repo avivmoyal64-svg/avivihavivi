@@ -330,6 +330,49 @@ details.ev .evb{padding:2px 14px 10px}
 .arf{padding:9px 0;border-top:1px solid #10261a14;font:14px/1.4 Arial}
 .arf b{display:block}.arf small{display:block;color:var(--mut);font-size:13px}.arf .ok{color:var(--grn);font-weight:700}.arf .no{color:#a33}
 .ins{margin-top:6px;color:var(--mut);font:13px/1.5 Arial}
+/* picks page, highlighted picks, strengths compare */
+.pgs{position:fixed;inset:0;z-index:40;overflow:auto;background:var(--bg) radial-gradient(900px 500px at 15% -5%,#0a5a3530,transparent 60%);overscroll-behavior:contain;padding-bottom:40px}
+.pgs[hidden]{display:none}
+.pgh{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;background:var(--dg);color:var(--gold)}
+.pgh h2{margin:0;font:18px Impact,Arial,sans-serif;letter-spacing:1.5px;text-transform:uppercase}
+.pgbk{all:unset;white-space:nowrap;cursor:pointer;background:#ffffff1f;border:1px solid #d4a01799;color:var(--gold);padding:7px 14px;border-radius:999px;font:700 13px Arial,sans-serif}
+.pgt{max-width:760px;margin:14px auto 0;padding:0 16px;display:flex;gap:8px;flex-wrap:wrap}
+.pgt button{background:#e3efe7;color:var(--tx);border:1px solid #b9d3c3;border-radius:999px;padding:9px 16px;font:14px Arial,sans-serif;cursor:pointer}
+.pgt button.on{background:linear-gradient(90deg,var(--dg),var(--dg2));color:#fff;border-color:var(--gold)}
+.pgc{max-width:760px;margin:0 auto;padding:0 16px}
+.pgx{margin:14px 0}.pgs2{color:var(--mut);font:13px Arial,sans-serif;margin-bottom:6px}
+.pgl{margin:16px 0 6px;font:700 11px Arial,sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:var(--dg2)}
+.pgu{border-bottom:1px solid #10261a14}.pgu summary{list-style:none;display:flex;align-items:center;gap:12px;padding:10px 4px;cursor:pointer}.pgu summary::-webkit-details-marker{display:none}
+.pgu .n{width:28px;font:22px Impact,Arial,sans-serif;color:var(--mut)}.pgu .nm{flex:1;font:15px Arial,sans-serif}.pgu .nm small{display:block;color:var(--mut);font-size:12px}.pgu .c{font:22px Impact,Arial,sans-serif;color:var(--gold)}
+.pgu.me summary{background:#0f7a431a;border-radius:10px}.pgd{padding:4px 0 10px}
+.pvr{padding:10px;margin:6px 0;border:1px solid #d3e0d7;border-radius:12px;background:#ffffffaa}
+.pvr.ok{border-color:#168a4e88;background:#168a4e10}.pvr.no{border-color:#a3333355;background:#a333330a}
+.pvv{display:flex;align-items:flex-start;justify-content:center;gap:8px}.pvv>b{align-self:center;color:var(--red);font:16px Impact,Arial,sans-serif}
+.pvf{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;min-width:0}
+.pvf i{width:56px;height:56px;border-radius:50%;background:#fff center top/cover;display:flex;align-items:center;justify-content:center;font:700 15px Arial,sans-serif;font-style:normal;color:#8d8d9b;border:2px solid #d3e0d7}
+.pvf.np,.pvf.lose{opacity:.55}.pvf.pk i{border-color:var(--gold);box-shadow:0 0 0 3px #d4a01755,0 0 14px #f7d56a88}.pvf.pk.ok i,.pvf.win i{border-color:var(--grn)}.pvf.pk.no i{border-color:#a33;box-shadow:0 0 0 3px #a3333344}
+.pvn{font:700 13px/1.15 Arial,sans-serif;overflow-wrap:anywhere}
+.pvf em{font:700 10px Arial,sans-serif;font-style:normal;letter-spacing:.8px;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--dg);color:var(--gold)}
+.pvf.ok em,.pvf em.wn{background:var(--grn);color:#fff}.pvf.no em{background:#a33;color:#fff}
+.pvt{margin-top:6px;text-align:center;color:var(--mut);font:13px/1.4 Arial,sans-serif}.pvt b{color:var(--tx)}.pvt .pt{color:var(--grn);font-weight:700}
+.pgf{padding:10px;margin:6px 0;border:1px solid #d3e0d7;border-radius:12px}.pgf.main{border-color:#e5cf8f;background:#fff7de66}
+.vs>div.pkd .av i{box-shadow:0 0 0 3px var(--gold),0 0 20px #f7d56acc}.vs>div.pkd>span:last-child{color:var(--grn);font-weight:700}
+.vs>div.pkn{opacity:.5}.fight.picked{border-color:var(--gold)}
+.pkbdg{display:inline-block;margin-top:4px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--dg),var(--dg2));color:var(--gold);font:700 10px Arial,sans-serif;letter-spacing:.8px;text-transform:uppercase}
+.pkl{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:9px 12px;border-radius:12px;background:#0d5a3718;border:1px solid #d4a01788;color:var(--tx);font:14px/1.35 Arial,sans-serif}.pkl b{color:var(--dg)}
+.pks{margin:0 14px 12px;padding:10px 12px;border-radius:12px;background:#0d5a3714;border:1px solid #d4a01788;font:14px/1.4 Arial,sans-serif}
+.pks.ok{background:linear-gradient(90deg,#0d5a37,#13804a);color:#fff;border-color:var(--gold)}.pks small{opacity:.9}.pks.ok small{color:#e8f5ec}
+.pks .stp{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.pks .stp span{padding:3px 10px;border-radius:999px;background:#10261a14;font:700 11px Arial,sans-serif}.pks.ok .stp span{background:#ffffff26}.pks .stp span.d{background:var(--gold);color:#14210a}
+.sd.on{box-shadow:inset 0 0 0 4px #f7d56a,inset 0 0 50px #f7d56a40}
+.sd.on::after{content:"✓ YOUR PICK";position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:2;padding:4px 12px;border-radius:999px;background:linear-gradient(90deg,#f7d56a,#d4a017);color:#14210a;font:700 11px Arial,sans-serif;letter-spacing:1px;white-space:nowrap}
+.sd.off{filter:saturate(.35) brightness(.7)}
+.btn.sw{display:block;width:calc(100% - 28px);margin:12px 14px 0;background:#e3efe7;color:var(--dg);border:1px solid var(--gold)}
+.swg{display:grid;grid-template-columns:86px 1fr 1fr;gap:6px 8px;margin:10px 14px 0;font:13px Arial,sans-serif;align-items:start}
+.swh{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}.swh i{width:48px;height:48px;border-radius:50%;background:#fff center top/cover;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font:700 14px Arial,sans-serif;font-style:normal;color:#8d8d9b}.swh b{font:700 13px/1.15 Arial,sans-serif}
+.swl{font:700 10px Arial,sans-serif;letter-spacing:.4px;text-transform:uppercase;color:var(--mut);padding-top:8px;border-top:1px solid #10261a14}.swl.g{color:var(--grn)}.swl.r{color:#a33}
+.swc{display:flex;flex-wrap:wrap;gap:4px;padding-top:6px;border-top:1px solid #10261a14;align-content:flex-start}
+.swt{padding:3px 9px;border-radius:999px;font:12px/1.3 Arial,sans-serif;background:#e3efe7;border:1px solid #b9d3c3}.swt.g{background:#168a4e1f;border-color:#168a4e66;color:#0d5a37}.swt.r{background:#a333331a;border-color:#a3333366;color:#7d2222}.swn{color:var(--mut);font-size:12px}
+.arw .arb{margin:0 4px 8px}
 </style></head><body>
 <div id="prog"></div>
 <section id="hero"><div class="hp one"><canvas id="c1" width="1920" height="1080"></canvas></div><div class="hc" id="hc"><h1>UFC <span>Fighter</span> Roster</h1><p class="sub" style="color:#ddd">Scroll to bring the fighters to life</p><span class="hint">Scroll ↓</span></div></section>
@@ -339,7 +382,7 @@ details.ev .evb{padding:2px 14px 10px}
 <div class="arw" id="inw"><button class="arb" onclick="openInstall()">📲 Install the app</button></div>
 <h2 class="sec">This week's <span>main card</span></h2><div id="rmn"></div><div class="pnl rv" id="evt"></div>
 <h2 class="sec">Last week's <span>results</span></h2><div class="pnl rv" id="lw"></div>
-<div class="arw" id="arw"><button class="arb" onclick="openArchive()">🗓 Past events</button></div>
+<div class="arw" id="arw"><button class="arb" onclick="openPage('this')">🏆 Picks &amp; scoreboards</button><button class="arb" onclick="openPage('recent')">🗓 Past events</button></div>
 <h2 class="sec"><span>Scoreboard</span></h2><div class="pnl rv" id="lb"></div>
 <h2 class="sec" id="rh">Fighter <span>roster</span></h2>
 <div class="bar"><div class="bar-in"><button class="nv" onclick="swc(-1)" aria-label="Previous class">‹</button><nav id="nav"></nav><button class="nv" onclick="swc(1)" aria-label="Next class">›</button></div></div>
@@ -348,6 +391,7 @@ details.ev .evb{padding:2px 14px 10px}
 <p class="note">Fighter details and images come from your document. Rank tags are from the UFC's official rankings (Oct 27 to Nov 3, 2026 polls).</p>
 <footer class="lf"><div>Unofficial fan project. Not affiliated with, endorsed by or sponsored by UFC or any fighter. Names, logos and images belong to their owners. Coins are virtual and have no cash value.</div><nav aria-label="Legal"><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="copyright.html">Copyright</a><a href="contact.html">Contact</a></nav><div>© 2026 UFC Fighter Roster fan site</div></footer>
 </div>
+<div id="pgs" class="pgs" hidden role="dialog" aria-label="Picks and scoreboards"><div class="pgh"><button class="pgbk" onclick="closePage()">‹ Back</button><h2>Picks &amp; scoreboards</h2></div><div class="pgt" id="pgt"></div><div class="pgc" id="pgc"></div></div>
 <dialog id="pk"><div class="top"><span></span><button onclick="pk.close()" aria-label="Close">✕</button></div><div id="pkb" class="body"></div></dialog>
 <dialog id="pf"><div class="top"><span></span><button onclick="document.getElementById('pf').close()" aria-label="Close">✕</button></div><div id="pfb" class="body"></div></dialog>
 <dialog id="st"><div class="top"><span></span><button onclick="document.getElementById('st').close()" aria-label="Close">✕</button></div><div id="stb" class="body"></div></dialog>
@@ -496,12 +540,12 @@ let ARCH=[],SHOW=true,BOARDGO=null,DB=null,U=null,ME=null,OWNER=false,PICKS={},R
 const SUPA_URL="https://hauxmxemyvgbgkbholln.supabase.co",SUPA_KEY="sb_publishable_doIqm34FPpJah1gWDeQWvQ_O54mnuip";
 let SB=null,SBMSG="";
 const ORIGBOX='Open this page while signed in to claude.ai to log in, pick winners and earn coins.';
-function loginHtml(){if(!SB)return ORIGBOX;return `<div class="lgp"><span>+100 coins<small>right winner</small></span><span>+200 coins<small>right method too</small></span><span>2x<small>main event</small></span></div><form class="lgf" data-m="in" onsubmit="sbSub(event)"><div class="lgt" role="tablist"><button type="button" class="on" data-t="in" onclick="setLM('in')">Log in</button><button type="button" data-t="up" onclick="setLM('up')">Create account</button></div><label>Email<input id="le" type="email" placeholder="you@example.com" required autocomplete="email"></label><label class="lgn">Display name<input id="ln" type="text" placeholder="Shown on the scoreboard" maxlength="24" autocomplete="nickname"></label><label>Password<span class="lgw"><input id="lp" type="password" placeholder="6+ characters" required minlength="6" autocomplete="current-password"><button type="button" class="lgs" onclick="const i=document.getElementById('lp');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'Show':'Hide'">Show</button></span></label><label class="lgk"><input id="lk" type="checkbox" checked><span>Let other players see my picks<small>On by default. Untick it to keep your picks private. You can change this later in Settings.</small></span></label><button class="btn lgb" type="submit">Log in</button><div class="lgc">By creating an account you confirm you are 16 or older and agree to the <a href="terms.html" target="_blank" rel="noopener">Terms</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</div><div id="lm" class="st" role="status">${SBMSG}</div></form>`}
+function loginHtml(){if(!SB)return ORIGBOX;return `<div class="lgp"><span>+100 coins<small>right winner</small></span><span>+200 coins<small>right method too</small></span><span>2x<small>main event</small></span></div><form class="lgf" data-m="in" onsubmit="sbSub(event)"><div class="lgt" role="tablist"><button type="button" class="on" data-t="in" onclick="setLM('in')">Log in</button><button type="button" data-t="up" onclick="setLM('up')">Create account</button></div><label>Email<input id="le" type="email" placeholder="you@example.com" required autocomplete="email"></label><label class="lgn">Display name<input id="ln" type="text" placeholder="Shown on the scoreboard" maxlength="24" autocomplete="nickname"></label><label>Password<span class="lgw"><input id="lp" type="password" placeholder="6+ characters" required minlength="6" autocomplete="current-password"><button type="button" class="lgs" onclick="const i=document.getElementById('lp');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'Show':'Hide'">Show</button></span></label><button class="btn lgb" type="submit">Log in</button><div class="lgc">By creating an account you confirm you are 16 or older and agree to the <a href="terms.html" target="_blank" rel="noopener">Terms</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</div><div id="lm" class="st" role="status">${SBMSG}</div></form>`}
 function setLM(m){const f=document.querySelector(".lgf");if(!f)return;f.dataset.m=m;f.querySelectorAll(".lgt button").forEach(b=>b.classList.toggle("on",b.dataset.t===m));f.querySelector(".lgb").textContent=m==="in"?"Log in":"Create account";f.querySelector("#lp").autocomplete=m==="in"?"current-password":"new-password";lmsg("")}
 function sbSub(e){e.preventDefault();document.querySelector(".lgf").dataset.m==="up"?sbUp():sbIn(e)}
 const lmsg=t=>{const e=document.getElementById("lm");if(e)e.textContent=t};
 async function sbIn(e){e.preventDefault();const{error}=await SB.auth.signInWithPassword({email:le.value.trim(),password:lp.value});if(error)lmsg(error.message);else location.reload()}
-async function sbUp(){const em=le.value.trim(),pw=lp.value;if(!em||pw.length<6){lmsg("Enter an email and a password of 6+ characters.");return}try{localStorage.setItem("ufcname",(ln.value||em.split("@")[0]).trim().slice(0,24));localStorage.setItem("ufcshow",lk.checked?"1":"0")}catch(e){};const{data,error}=await SB.auth.signUp({email:em,password:pw});if(error)lmsg(error.message);else if(data.session)location.reload();else lmsg("Check your email to confirm your account, then log in.")}
+async function sbUp(){const em=le.value.trim(),pw=lp.value;if(!em||pw.length<6){lmsg("Enter an email and a password of 6+ characters.");return}try{localStorage.setItem("ufcname",(ln.value||em.split("@")[0]).trim().slice(0,24))}catch(e){};const{data,error}=await SB.auth.signUp({email:em,password:pw});if(error)lmsg(error.message);else if(data.session)location.reload();else lmsg("Check your email to confirm your account, then log in.")}
 async function sbDel(){if(!confirm("Delete your account permanently? Your login, display name and all your picks and coins will be erased. This cannot be undone."))return;const{error}=await SB.rpc("delete_my_account");if(error){alert("Could not delete the account: "+error.message);return}try{localStorage.removeItem("ufcname")}catch(e){}await SB.auth.signOut();location.reload()}
 async function sbOut(){await SB.auth.signOut();location.reload()}
 async function sbInit(){
@@ -513,10 +557,10 @@ async function sbInit(){
  try{const{data}=await SB.from("admins").select("user_id").eq("user_id",ME);OWNER=!!(data&&data.length)}catch(e){}
  let nm="";try{nm=localStorage.getItem("ufcname")||""}catch(e){}nm=(nm||(session.user.email||"").split("@")[0]).slice(0,24);
  U={id:async()=>ME,isOwner:async()=>OWNER,profiles:async ids=>{const o={};ids.forEach(i=>o[i]={name:((PICKS[i]||{}).name)||(i===ME?nm:"")});return o}};
- try{SHOW=localStorage.getItem("ufcshow")!=="0"}catch(e){}
+ SHOW=true;
  const pick=r=>({fights:r.fights||{},t:r.t,name:r.name,hidden:r.fights==null,n:r.n,sc:r.coins,show:!!r.show_picks});
  DB={
-  collection:()=>({onSnapshot:(cb)=>{const go=async()=>{let{data,error}=await SB.rpc("board");if(error){const q=await SB.from("picks").select("*");data=q.data}(data||[]).forEach(r=>{if(r.user_id===ME)SHOW=!!r.show_picks});cb({docs:(data||[]).map(r=>({id:r.user_id,data:()=>pick(r)}))})};BOARDGO=go;go();SB.channel("p").on("postgres_changes",{event:"*",schema:"public",table:"picks"},go).subscribe()}}),
+  collection:()=>({onSnapshot:(cb)=>{const go=async()=>{let{data,error}=await SB.rpc("board");if(error){const q=await SB.from("picks").select("*");data=q.data}cb({docs:(data||[]).map(r=>({id:r.user_id,data:()=>pick(r)}))})};BOARDGO=go;go();SB.channel("p").on("postgres_changes",{event:"*",schema:"public",table:"picks"},go).subscribe()}}),
   doc:path=>{const[t,id]=path.split("/");return{
    onSnapshot:(cb)=>{const go=async()=>{const{data}=await SB.from("results").select("*").eq("event_id",id).maybeSingle();cb({exists:!!data,data:()=>data||{}})};go();SB.channel("r").on("postgres_changes",{event:"*",schema:"public",table:"results"},go).subscribe()},
    set:async v=>{let{error}=t==="picks"?await SB.from("picks").upsert({user_id:ME,name:nm,fights:v.fights,t:v.t,show_picks:SHOW}):await SB.from("results").upsert({event_id:id,fights:v.fights});if(error&&t==="picks"&&/show_picks/.test(error.message||"")){({error}=await SB.from("picks").upsert({user_id:ME,name:nm,fights:v.fights,t:v.t}))}if(error)throw error}}}
@@ -538,19 +582,19 @@ const LOCKH=5,lockAt=()=>EV.lock-LOCKH*3600e3,locked=()=>Date.now()>=lockAt();
 const realK=k=>/^e\d+-/.test(k)||(EV.fights||[]).some(x=>x.id===k);
 const coins=id=>{if((PICKS[id]||{}).hidden)return PICKS[id].sc||0;const f=(PICKS[id]||{}).fights||{};return Object.keys(f).reduce((s,k)=>s+pts(f[k],res(k),mainOf(k)),0)};
 function board(){return Object.keys(PICKS).map(id=>({id,c:coins(id),n:(PICKS[id]||{}).hidden?(PICKS[id].n||0):Object.keys((PICKS[id]||{}).fights||{}).filter(realK).length})).sort((a,b)=>b.c-a.c||b.n-a.n)}
-function ren(){try{rmn()}catch(e){}
+function ren(){try{rmn()}catch(e){}try{pgRef()}catch(e){}
  const A=document.getElementById("acct"),B=board(),rank=B.findIndex(x=>x.id===ME)+1,mine=(PICKS[ME]||{}).fights||{};
  A.innerHTML=!READY?'<div class="box">Connecting…</div>':ME&&DB?`<div class="box"><h3>${esc(NAMES[ME]||"You")}</h3><small style="color:var(--mut)">${SB?"Logged in":"Logged in with your Claude account"}${OWNER?" · owner":""}${SB?` · <a href="#" onclick="openSettings();return false" style="color:inherit">Settings</a> · <a href="#" onclick="sbOut();return false" style="color:inherit">Log out</a> · <a href="#" onclick="sbDel();return false" style="color:inherit">Delete account</a>`:""}</small><div class="stats"><div><b>${coins(ME)}<i class="coin"></i></b><small>Coins</small></div><div class="sl" role="button" tabindex="0" onclick="openProf(ME)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openProf(ME)}"><b>${Object.keys(mine).filter(realK).length}</b><small>Picks ›</small></div><div class="sl" role="button" tabindex="0" onclick="document.getElementById('lb').scrollIntoView({behavior:'smooth',block:'start'})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('lb').scrollIntoView({behavior:'smooth',block:'start'})}"><b>${rank||"–"}</b><small>Rank ›</small></div></div></div>`:`<div class="box lg"><div class="lgh"><span class="lgi" aria-hidden="true">🥊</span><div><h3>Join the game</h3><small>Pick winners, earn coins, climb the scoreboard</small></div></div>${loginHtml()}</div>`;
- document.getElementById("evt").innerHTML=`<div class="fm" style="margin:0 0 10px">${EV.name} · ${EV.when}${EV.src?` · Main card ${new Date(EV.lock).toLocaleString(undefined,{weekday:"short",hour:"2-digit",minute:"2-digit"})} your time (${EV.src==="ufc.com"?"official, ufc.com":"estimate"})`:""}${locked()?" · picks locked":` · Picks lock ${new Date(lockAt()).toLocaleString(undefined,{weekday:"short",hour:"2-digit",minute:"2-digit"})} (5 hours before the fights)`}</div>`+EV.fights.map((f,i)=>{const p=mine[f.id],r=res(f.id);let st=p?`Your pick: <b>${p.w}</b> · ${p.m}${p.r?" · R"+p.r:""}${locked()?" · 🔒 locked":` <span class="chg">Change pick</span>`}`:(locked()?"Picks locked":"Tap to pick the winner");if(r)st+=` · Result: ${r.w} (${r.m}${r.r?" R"+r.r:""}) · <b class="pt">+${pts(p,r,f.main)}<i class="coin"></i></b>`;
+ document.getElementById("evt").innerHTML=`<div class="fm" style="margin:0 0 10px">${EV.name} · ${EV.when}${EV.src?` · Main card ${new Date(EV.lock).toLocaleString(undefined,{weekday:"short",hour:"2-digit",minute:"2-digit"})} your time (${EV.src==="ufc.com"?"official, ufc.com":"estimate"})`:""}${locked()?" · picks locked":` · Picks lock ${new Date(lockAt()).toLocaleString(undefined,{weekday:"short",hour:"2-digit",minute:"2-digit"})} (5 hours before the fights)`}</div>`+EV.fights.map((f,i)=>{const p=mine[f.id],r=res(f.id);let st=p?`<span class="pkl">✓ You picked <b>${esc(p.w)}</b>${p.m?" by <b>"+esc(nm(p.m))+"</b>":""}${p.r?" in <b>round "+p.r+"</b>":""}${locked()?" · 🔒 locked":` <span class="chg">Change pick</span>`}</span>`:(locked()?"Picks locked":"Tap to pick the winner");if(r)st+=` · Result: ${r.w} (${r.m}${r.r?" R"+r.r:""}) · <b class="pt">+${pts(p,r,f.main)}<i class="coin"></i></b>`;
   const av=(n,t)=>{const s=photo(n);return `<span class="av"><i style="${s?`background-image:url(${s})`:""}">${s?"":ini(n)}</i><span class="mt">${t?`<span class="tag mini ${tc(t)}">${t}</span>`:""}${(EXTRA[n]||[]).map(x=>`<span class="tag mini ${tc(x)}">${x}</span>`).join("")}</span></span>`};
-  return `<button class="fight ${f.main?"main":""}" onclick="openPick(${i})"><div class="fm">${f.cls} · ${f.tag}${f.main?" · 2x coins":""}${f.live&&!r?'<span class="lv"><i></i>LIVE</span>':""}</div><div class="vs"><div>${av(f.a,f.ta)}<span>${f.a}${rc(f.a)}</span></div><em>VS</em><div>${av(f.b,f.tb)}<span>${f.b}${rc(f.b)}</span></div></div><div class="st">${st}</div></button>`}).join("");
+  return `<button class="fight ${f.main?"main":""}${p?" picked":""}" onclick="openPick(${i})"><div class="fm">${f.cls} · ${f.tag}${f.main?" · 2x coins":""}${f.live&&!r?'<span class="lv"><i></i>LIVE</span>':""}</div><div class="vs"><div class="${p?(p.w===f.a?"pkd":"pkn"):""}">${av(f.a,f.ta)}${p&&p.w===f.a?'<span class="pkbdg">✓ Your pick</span>':""}<span>${f.a}${rc(f.a)}</span></div><em>VS</em><div class="${p?(p.w===f.b?"pkd":"pkn"):""}">${av(f.b,f.tb)}${p&&p.w===f.b?'<span class="pkbdg">✓ Your pick</span>':""}<span>${f.b}${rc(f.b)}</span></div></div><div class="st">${st}</div></button>`}).join("");
  document.getElementById("lb").innerHTML=`<div class="box">${B.length?B.map((x,i)=>`<div class="lb ${x.id===ME?"me":""}" role="button" tabindex="0" onclick="openProf('${x.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openProf('${x.id}')}"><span class="n">${i+1}</span><span class="nm">${esc(NAMES[x.id]||"Fight fan")}${x.id===ME?" (you)":""}<br><small style="color:var(--mut)">${x.n} pick${x.n===1?"":"s"}</small></span><span class="c">${x.c}<i class="coin"></i></span></div>`).join(""):"No picks yet. Be the first to pick a winner."}<div class="st" style="margin-top:10px">Winner right: 100 coins · winner and method right: 200 · main event pays double.</div></div>`}
 const OREC={},OTHER_REC={"Ciryl Gane":"14-2","Josh Hokit":"10-0","Kayla Harrison":"19-1","Amanda Nunes":"23-5","Luis Gurule":"11-4"};
 const rc=n=>{const r=findF(n),k=x=>String(x).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();let rec=r?D[r[0]][r[1]].rec:"";if(!rec)for(const cl in D){const f=D[cl].find(x=>k(x.n)===k(n));if(f){rec=f.rec;break}}if(!rec)rec=OREC[n]||OTHER_REC[n]||"";return rec?` <span class="rec">${rec}</span>`:""};
 const findF=n=>{for(const k in D){const i=D[k].findIndex(x=>x.n===n);if(i>=0)return[k,i]}return null};
 function openFighter(n){const r=findF(n);if(!r)return;if(cur!==r[0])show(r[0]);open_(r[1])}
 const prof=n=>findF(n)?`<button class="pl" onclick="openFighter(decodeURIComponent('${encodeURIComponent(n)}'))">View profile</button>`:'<span class="pl off">No profile yet</span>';
-function openPick(i){CF=EV.fights[i];const m=((PICKS[ME]||{}).fights||{})[CF.id]||{};sel={w:m.w||"",m:nm(m.m||""),r:m.r||0};drawPk();document.getElementById("pk").showModal()}
+function openPick(i){SWO=false;CF=EV.fights[i];const m=((PICKS[ME]||{}).fights||{})[CF.id]||{};sel={w:m.w||"",m:nm(m.m||""),r:m.r||0};drawPk();document.getElementById("pk").showModal()}
 const isDone=()=>locked();
 function setW(k){if(isDone())return;sel.w=[CF.a,CF.b][k];drawPk()}function setM(m){if(isDone())return;sel.m=m;if(m==="DEC")sel.r=0;drawPk()}function setR(r){if(isDone())return;sel.r=r;drawPk()}
 const WK={},wkLoad=()=>{try{Object.assign(WK,JSON.parse(localStorage.getItem("ufcwk")||"{}"))}catch(e){}};wkLoad();
@@ -570,29 +614,81 @@ function setSide(k,m){if(isDone())return;const n=[CF.a,CF.b][k];if(sel.w!==n){se
 function drawPk(){const f=CF,ok=sel.w&&sel.m&&(sel.m==="DEC"||sel.r),sv=((PICKS[ME]||{}).fights||{})[f.id],dirty=!sv||sel.w!==sv.w||nm(sel.m||"")!==nm(sv.m||"")||(sel.r||0)!==(sv.r||0),done=isDone(),can=ME&&DB&&!locked()&&!done,ch=(l,on,fn)=>`<button class="ch sm ${on?"on":""}" onclick="${fn}">${l}</button>`;
  const side=(n,t,k)=>{const on=sel.w===n,s=photo(n),tg=[t].concat(EXTRA[n]||[]).filter(Boolean).map(x=>`<span class="tag mini ${tc(x)}">${esc(x)}</span>`).join("");
   return `<div class="sd ${on?"on":sel.w?"off":""}" style="--ph:${s?`url(${s})`:"none"}">${s?"":`<div class="sdi">${esc(ini(n))}</div>`}<button class="sdp" onclick="setSide(${k})" aria-label="Pick ${esc(n)}"><span class="sdt">${tg}</span><span class="sdn">${esc(n)}${rc(n)}</span><span class="sdy">${on?"✓ Your pick":"Tap to pick"}</span></button>${prof(n)}<div class="sdl">How?</div><div class="chs">${["DEC","KO/TKO","SUB"].map(m=>ch(m,on&&sel.m===m,`setSide(${k},'${m}')`)).join("")}</div>${on&&sel.m&&sel.m!=="DEC"?`<div class="sdl">Round</div><div class="chs">${Array.from({length:f.rounds},(_,i)=>ch("R"+(i+1),sel.r===i+1,`setR(${i+1})`)).join("")}</div>`:""}</div>`};
- document.getElementById("pkb").innerHTML=`<div class="pkh"><h2>${esc(f.a)} vs ${esc(f.b)}</h2><small>${esc(f.cls)} · ${esc(f.tag)}${f.main?" · 2x coins":""}</small></div><div class="spl">${side(f.a,f.ta,0)}${side(f.b,f.tb,1)}</div><div class="pkf"><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" ${ok&&can&&dirty?"":"disabled"} onclick="savePick()">${done?"Picks are locked":((PICKS[ME]||{}).fights||{})[f.id]?"Update my pick":"Lock in my pick"}</button><button class="btn wk" onclick="wakeUp()">⏰ Wake me up</button></div><details class="wkh"><summary>How "Wake me up" works</summary><p><b>iPhone:</b> sets a real Clock alarm that rings even on silent. One-time setup:</p><ol><li>Open the <b>Shortcuts</b> app, tap <b>+</b> and name the shortcut exactly <b>UFC Alarm</b>.</li><li>Add the action <b>Get Dates from Input</b>.</li><li>Add the action <b>Create Alarm</b>, set its time to the <b>Dates</b> result from the step above, and turn its label on.</li><li>Done. You get one alarm: on time for the first main-card fight, and 20 minutes before the estimated start for every other fight.</li></ol><p><b>Android and other phones:</b> downloads a calendar file with one alarm, timed the same way. Open it to add it to your calendar.</p><p>Start times are estimates. Edit the alarm if the schedule changes.</p></details><div class="st">${!ME?"Log in to save picks.":done?"Picks are locked for this event (they lock 5 hours before the fights).":"Pick a side, then how it ends. Round is saved but doesn't score coins yet. You can change your pick until 5 hours before the fights."}</div></div>`}
+ document.getElementById("pkb").innerHTML=`<div class="pkh"><h2>${esc(f.a)} vs ${esc(f.b)}</h2><small>${esc(f.cls)} · ${esc(f.tag)}${f.main?" · 2x coins":""}</small></div>${pkSum(f,dirty,sv)}<div class="spl">${side(f.a,f.ta,0)}${side(f.b,f.tb,1)}</div><button class="btn sw" type="button" onclick="togSW()">${SWO?"Hide":"⚖ Compare"} strengths &amp; weaknesses</button>${SWO?swHtml(f):""}<div class="pkf"><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" ${ok&&can&&dirty?"":"disabled"} onclick="savePick()">${done?"Picks are locked":((PICKS[ME]||{}).fights||{})[f.id]?"Update my pick":"Lock in my pick"}</button><button class="btn wk" onclick="wakeUp()">⏰ Wake me up</button></div><details class="wkh"><summary>How "Wake me up" works</summary><p><b>iPhone:</b> sets a real Clock alarm that rings even on silent. One-time setup:</p><ol><li>Open the <b>Shortcuts</b> app, tap <b>+</b> and name the shortcut exactly <b>UFC Alarm</b>.</li><li>Add the action <b>Get Dates from Input</b>.</li><li>Add the action <b>Create Alarm</b>, set its time to the <b>Dates</b> result from the step above, and turn its label on.</li><li>Done. You get one alarm: on time for the first main-card fight, and 20 minutes before the estimated start for every other fight.</li></ol><p><b>Android and other phones:</b> downloads a calendar file with one alarm, timed the same way. Open it to add it to your calendar.</p><p>Start times are estimates. Edit the alarm if the schedule changes.</p></details><div class="st">${!ME?"Log in to save picks.":done?"Picks are locked for this event (they lock 5 hours before the fights).":"Pick a side, then how it ends. Round is saved but doesn't score coins yet. You can change your pick until 5 hours before the fights."}</div></div>`}
 
 function fightNm(id){const f=(EV.fights||[]).find(x=>x.id===id);if(f)return f.a+" vs "+f.b;
  const tc=s=>s.split("-").map(w=>w?w[0].toUpperCase()+w.slice(1):"").join(" ");return String(id).replace(/^e\d+-/,"").split("-vs-").map(tc).join(" vs ")}
 function openProf(id){const P=PICKS[id]||{},mine=id===ME,hid=!!P.hidden,B=board(),rank=B.findIndex(x=>x.id===id)+1,f=P.fights||{};
  const keys=Object.keys(f).filter(realK).sort((a,b)=>((parseInt((b.match(/^e(\d+)/)||[])[1])||0)-(parseInt((a.match(/^e(\d+)/)||[])[1])||0)));
- const rows=keys.map(k=>{const p=f[k],r=res(k),pt=r?pts(p,r,mainOf(k)):0;
-  return `<div class="pfr"><b>${esc(fightNm(k))}</b><small>Pick: <b style="display:inline">${esc(p.w)}</b>${p.m?" · "+esc(nm(p.m)):""}${p.r?" · R"+esc(p.r):""}</small><small>${r?`Result: ${esc(r.w)}${r.m?" ("+esc(nm(r.m))+")":""} · <span class="pt">+${pt}<i class="coin"></i></span>`:"Waiting for the result"}</small></div>`}).join("");
+ const rows=keys.map(k=>pickRow(k,f[k])).join("");
  document.getElementById("pfb").innerHTML=`<h2>${esc(NAMES[id]||P.name||"Fight fan")}${mine?" (you)":""}</h2><div class="pfs"><div><b>${coins(id)}<i class="coin"></i></b><small>Coins</small></div><div><b>${hid?(P.n||0):keys.length}</b><small>Picks</small></div><div><b>${rank||"–"}</b><small>Rank</small></div></div>`+
  (hid?'<div class="pfn">This player keeps their picks private.</div>':keys.length?rows:'<div class="pfn">No picks yet.</div>');
  document.getElementById("pf").showModal()}
 function openSettings(){if(!SB||!ME)return;
- document.getElementById("stb").innerHTML=`<h2>Settings</h2><div class="stx"><label class="ck"><input type="checkbox" id="stshow" ${SHOW?"checked":""} onchange="setShow(this.checked)"><span>Let other players see my picks<small>Your coins and rank always show on the scoreboard. When this is off, others can't open your picks.</small></span></label><h3>Change password</h3><input type="password" id="stp1" placeholder="New password (6+ characters)" autocomplete="new-password" minlength="6"><input type="password" id="stp2" placeholder="Repeat new password" autocomplete="new-password"><button class="btn" type="button" onclick="chgPw()">Change password</button><div class="st" id="stm" role="status"></div><h3>Install the app</h3><div id="stinst">${instHtml()}</div></div>`;
+ document.getElementById("stb").innerHTML=`<h2>Settings</h2><div class="stx"><h3>Change password</h3><input type="password" id="stp1" placeholder="New password (6+ characters)" autocomplete="new-password" minlength="6"><input type="password" id="stp2" placeholder="Repeat new password" autocomplete="new-password"><button class="btn" type="button" onclick="chgPw()">Change password</button><div class="st" id="stm" role="status"></div><h3>Install the app</h3><div id="stinst">${instHtml()}</div></div>`;
  document.getElementById("st").showModal()}
 const stmsg=t=>{const e=document.getElementById("stm");if(e)e.textContent=t};
-async function setShow(v){const cb=document.getElementById("stshow");try{
-  const q=PICKS[ME]?SB.from("picks").update({show_picks:v}).eq("user_id",ME):SB.from("picks").insert({user_id:ME,name:ren_nm(),fights:{},show_picks:v});
-  const{error}=await q;if(error)throw error;SHOW=v;stmsg(v?"Other players can now see your picks.":"Your picks are now private.");BOARDGO&&BOARDGO()}catch(e){if(cb)cb.checked=SHOW;stmsg("Couldn't save that setting. Try again.")}}
 function ren_nm(){let n="";try{n=localStorage.getItem("ufcname")||""}catch(e){}return(n||NAMES[ME]||"Fight fan").slice(0,24)}
 async function chgPw(){const a=document.getElementById("stp1").value,b=document.getElementById("stp2").value;
  if(a.length<6){stmsg("Use at least 6 characters.");return}if(a!==b){stmsg("The two passwords don't match.");return}
  const{error}=await SB.auth.updateUser({password:a});if(error){stmsg(error.message);return}
  document.getElementById("stp1").value="";document.getElementById("stp2").value="";stmsg("Password changed.")}
+
+/* ===== picks with fighter images, picks page, strengths compare ===== */
+const nz=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+const photoZ=n=>{let s=photo(n);if(s)return s;const k=nz(n);for(const c in D){const f=D[c].find(x=>nz(x.n)===k);if(f&&f.pic)return f.pic}return ""};
+const avZ=n=>{const s=photoZ(n);return `<i style="${s?`background-image:url(${s})`:""}">${s?"":esc(ini(n))}</i>`};
+const slugName=s=>String(s).split("-").map(w=>w?w[0].toUpperCase()+w.slice(1):"").join(" ");
+let LASTX=null;
+function fmap(){const m={};
+ if(LASTX)LASTX.fights.forEach(f=>{m[f.id]={a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m}});
+ (ARCH||[]).forEach(e=>(e.fights||[]).forEach(f=>{m[f.id]={a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m}}));
+ (EV.fights||[]).forEach(f=>{m[f.id]={a:f.a,b:f.b,main:!!f.main}});
+ return m}
+function pickRow(k,p){const F=fmap()[k]||{},r=res(k)||(F.w?{w:F.w,m:F.m}:null);
+ let a=F.a,b=F.b;if(!a){const pp=String(k).replace(/^e\d+-/,"").split("-vs-").map(slugName);a=pp[0]||"";b=pp[1]||""}
+ const pw=String(p.w||""),aIs=nz(pw)===nz(a),bIs=nz(pw)===nz(b),unk=!aIs&&!bIs,L=unk?pw:a,R=unk?"":b;
+ const main=F.main!==undefined?F.main:!!mainOf(k),done=!!r,ok=done&&p.w===r.w,pt=done?pts(p,r,main):0;
+ const side=(n,picked)=>`<div class="pvf ${picked?"pk":"np"}${done&&picked?(ok?" ok":" no"):""}">${avZ(n)}<span class="pvn">${esc(n)}</span>${picked?`<em>${done?(ok?"✓ Correct":"✗ Wrong"):"✓ Pick"}</em>`:done&&r&&nz(n)===nz(r.w)?'<em class="wn">Won</em>':""}</div>`;
+ return `<div class="pvr${done?(ok?" ok":" no"):""}"><div class="pvv">${side(L,aIs||unk)}<b>vs</b>${R?side(R,bIs):'<div class="pvf np"><i></i><span class="pvn">?</span></div>'}</div><div class="pvt">Pick: <b>${esc(pw)}</b>${p.m?" · "+esc(nm(p.m)):""}${p.r?" · R"+esc(p.r):""}${main?" · 2x":""}</div>${done?`<div class="pvt">Result: ${esc(r.w)}${r.m?" ("+esc(nm(r.m))+")":""} · ${pt?`<span class="pt">+${pt}<i class="coin"></i></span>`:"no coins"}</div>`:'<div class="pvt">Waiting for the result</div>'}</div>`}
+function evBoard(fs){const rows=[];Object.keys(PICKS).forEach(id=>{const f=(PICKS[id]||{}).fights||{};let n=0,ok=0,c=0;fs.forEach(x=>{const p=f[x.id];if(!p)return;n++;const r=x.w?{w:x.w,m:x.m}:res(x.id);if(r&&p.w===r.w){ok++;c+=pts(p,r,x.main)}});if(n)rows.push({id,n,ok,c})});return rows.sort((a,b)=>b.c-a.c||b.ok-a.ok||b.n-a.n)}
+function evFights(fs){return fs.map(x=>{const r=x.w?{w:x.w,m:x.m}:res(x.id),mine=((PICKS[ME]||{}).fights||{})[x.id],f=(n)=>`<div class="pvf ${r&&nz(r.w)===nz(n)?"win":r?"lose":""}${mine&&mine.w===n?" pk":""}">${avZ(n)}<span class="pvn">${esc(n)}</span>${r&&nz(r.w)===nz(n)?'<em class="wn">Won</em>':""}</div>`;
+  return `<div class="pgf${x.main?" main":""}"><div class="pvv">${f(x.a)}<b>vs</b>${f(x.b)}</div><div class="pvt">${r?`${esc(r.w)} wins${r.m?" · "+esc(nm(r.m)):""}`:"Not finished yet"}${x.main?" · Main event":""}</div></div>`}).join("")}
+function evBlock(title,sub,fs,nested){const B=evBoard(fs),nmOf=id=>esc(NAMES[id]||(PICKS[id]||{}).name||"Fight fan");
+ return `<div class="${nested?"pgx":"box pgx"}">${nested?"":`<h3>${esc(title)}</h3><div class="pgs2">${esc(sub||"")}</div>`}<div class="pgl">Scoreboard · tap a player to see their picks</div>`+
+ (B.length?B.map((x,i)=>`<details class="pgu${x.id===ME?" me":""}"><summary><span class="n">${i+1}</span><span class="nm">${nmOf(x.id)}${x.id===ME?" (you)":""}<small>${x.ok} of ${x.n} right</small></span><span class="c">${x.c}<i class="coin"></i></span></summary><div class="pgd">${fs.filter(f=>((PICKS[x.id]||{}).fights||{})[f.id]).map(f=>pickRow(f.id,PICKS[x.id].fights[f.id])).join("")}</div></details>`).join(""):'<div class="pfn">No picks for this card yet.</div>')+
+ `<div class="pgl">Fights</div>${evFights(fs)}</div>`}
+const curFs=()=>(EV.fights||[]).map(f=>({id:f.id,a:f.a,b:f.b,main:!!f.main}));
+const pastFs=e=>(e.fights||[]).map(f=>({id:f.id,a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m}));
+let PG="this";
+function drawPage(){const t=document.getElementById("pgt"),c=document.getElementById("pgc");if(!t||!c)return;
+ t.innerHTML=[["this","This week"],["last","Last week"],["recent","Recent events"]].map(([k,l])=>`<button class="${PG===k?"on":""}" onclick="pgTab('${k}')">${l}</button>`).join("");
+ let h="";
+ if(PG==="this"){h=evBlock(EV.name||"This week",(EV.when||"")+(locked()?" · picks locked":""),curFs())}
+ else if(PG==="last"){h=LASTX?evBlock(LASTX.name,LASTX.when,LASTX.fights.filter(f=>f.main||f.card).map(f=>({id:f.id,a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m}))):'<div class="box"><div class="pfn">Last week\'s card isn\'t available yet.</div></div>'}
+ else{h=(ARCH||[]).length?(ARCH||[]).map((e,i)=>`<details class="ev pgev" data-i="${i}" ontoggle="pgLazy(this)"><summary>${esc(e.name)}<small>${esc(e.when)}</small></summary><div class="evb"></div></details>`).join(""):'<div class="box"><div class="pfn">No past events yet. They appear here after the next update runs.</div></div>'}
+ c.innerHTML=h;PGSIG=pgSig()}
+function pgLazy(d){if(!d.open)return;const b=d.querySelector(".evb");if(b&&!b.dataset.f){b.dataset.f=1;const e=(ARCH||[])[+d.dataset.i];if(e)b.innerHTML=evBlock(e.name,e.when,pastFs(e),1)}}
+function pgTab(k){PG=k;drawPage();const s=document.getElementById("pgs");if(s)s.scrollTop=0}
+function openPage(k){if(k)PG=k;const s=document.getElementById("pgs");if(!s)return;if(s.hidden){s.hidden=false;lockS();try{history.pushState({pg:1},"","#picks")}catch(e){}}drawPage();s.scrollTop=0}
+function closePage(pop){const s=document.getElementById("pgs");if(!s||s.hidden)return;s.hidden=true;unlockS();if(!pop&&history.state&&history.state.pg){try{history.back()}catch(e){}}}
+addEventListener("popstate",()=>{const s=document.getElementById("pgs");if(s&&!s.hidden&&!(history.state&&history.state.pg))closePage(true)});
+let SWO=false;
+function togSW(){SWO=!SWO;drawPk()}
+function swHtml(f){const get=n=>{const r=findF(n);return r?D[r[0]][r[1]]:null},A=get(f.a),B=get(f.b);
+ const chips=(x,c)=>x&&x.length?x.map(z=>`<span class="swt ${c}">${esc(z)}</span>`).join(""):'<span class="swn">—</span>';
+ const head=(n,X)=>`<div class="swh">${avZ(n)}<b>${esc(n)}</b></div>`;
+ const row=(l,k,c)=>`<div class="swl ${c||""}">${l}</div><div class="swc">${A?chips(A[k],c):'<span class="swn">No profile data yet</span>'}</div><div class="swc">${B?chips(B[k],c):'<span class="swn">No profile data yet</span>'}</div>`;
+ return `<div class="swg"><div></div>${head(f.a,A)}${head(f.b,B)}${row("Style","base","st")}${row("Strengths","s","g")}${row("Weaknesses","w","r")}</div>`}
+function pkSum(f,dirty,sv){const w=sel.w,m=sel.m,r=sel.r,dec=m==="DEC",
+ stp=`<div class="stp"><span class="${w?"d":""}">1 · Winner${w?" ✓":""}</span><span class="${m?"d":""}">2 · How${m?" ✓":""}</span><span class="${dec||(m&&r)?"d":""}">3 · Round${dec?" (n/a)":r?" ✓":""}</span></div>`;
+ if(!w)return `<div class="pks">👆 Tap the fighter you think will win.${stp}</div>`;
+ if(!m)return `<div class="pks">Now choose <b>how</b> ${esc(w)} wins.${stp}</div>`;
+ if(!dec&&!r)return `<div class="pks">Almost done: choose the <b>round</b>.${stp}</div>`;
+ return `<div class="pks ok">✓ <b>${esc(w)}</b> wins by <b>${esc(nm(m))}</b>${!dec&&r?" in round "+r:""}<br><small>${dirty?"Not saved yet. Tap the button below.":sv?"Saved.":""}</small>${stp}</div>`}
+const pgSig=()=>JSON.stringify([Object.keys(PICKS).map(k=>[k,Object.keys((PICKS[k]||{}).fights||{}).length]),Object.keys(AUTO).length,Object.keys(RES).length,EV.id,LASTX&&LASTX.id,Object.keys(NAMES).length]);
+let PGSIG="";
+function pgRef(){const s=document.getElementById("pgs");if(!s||s.hidden||PG==="recent")return;if(pgSig()===PGSIG)return;const c=document.getElementById("pgc"),op=[...c.querySelectorAll("details")].map(d=>d.open);drawPage();[...c.querySelectorAll("details")].forEach((d,i)=>{if(op[i])d.open=true})}
 
 /* ===== reminder banner ===== */
 function rmn(){const el=document.getElementById("rmn");if(!el)return;
@@ -675,6 +771,7 @@ async function getEvents(poll){const ac=new AbortController(),t=setTimeout(()=>a
 function applyEv(j){
  if(j.next&&j.next.fights&&j.next.fights.length>=3){EV={id:j.next.id,name:j.next.name,when:j.next.when,lock:j.next.lock,src:j.next.source,fights:j.next.fights.map(f=>Object.assign({},f,{ta:tagOf(f.a),tb:tagOf(f.b)}))}}
  if(j.last&&j.last.fights&&j.last.fights.length){LAST={name:j.last.name,when:j.last.when,fights:j.last.fights.map(f=>[f.w,f.l,f.cls,f.method,f.detail,f.main?1:0,f.card?1:0])}}
+ if(j.last&&j.last.fights&&j.last.fights.length){LASTX={id:j.last.id,name:j.last.name,when:j.last.when,fights:j.last.fights.map(f=>({id:f.id,w:f.w,l:f.l,m:f.m||"",main:f.main?1:0,card:f.card?1:0}))}}
  try{(j.next&&j.next.fights||[]).forEach(f=>{if(f.ra)OREC[f.a]=f.ra;if(f.rb)OREC[f.b]=f.rb})}catch(e){}
  try{const hs=[];(j.next&&j.next.fights||[]).forEach(f=>{hs.push([f.a,f.ia,f.cls],[f.b,f.ib,f.cls])});(j.last&&j.last.fights||[]).forEach(f=>{hs.push([f.w,f.wi,f.cls],[f.l,f.li,f.cls])});headshots(hs)}catch(e){}
  ARCH=j.archive||[];AUTO=j.history||{};MAINF={};EV.fights.forEach(f=>MAINF[f.id]=f.main?1:0)}
