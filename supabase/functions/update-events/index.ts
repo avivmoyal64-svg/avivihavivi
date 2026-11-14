@@ -52,7 +52,7 @@ async function resultOf(ev, c) {
   const full = clk === "5:00" || clk === "5:00.0";
   if (!m) m = full ? "DEC" : "KO/TKO";
   const detail = m === "DEC" ? (/split/i.test(JSON.stringify(r)) ? "Split" : /majority/i.test(JSON.stringify(r)) ? "Majority" : /unan/i.test(JSON.stringify(r)) ? "Unanimous" : "") : (rd ? `R${rd}${clk ? " " + clk : ""}` : "");
-  return { method: m === "NC" ? "NC/DRAW" : m, m, detail, raw: r };
+  return { method: m === "NC" ? "NC/DRAW" : m, m, rd: m === "DEC" ? 0 : (Number(rd) || 0), detail, raw: r };
 }
 
 function comps(ev) {
@@ -160,7 +160,7 @@ if (upcoming.length) {
       const id = fid(ev, name(w), name(l));
       if (out.history[id]) continue;
       const mo = await resultOf(ev, x.c);
-      out.history[id] = { w: name(w), m: mo.m === "NC" || mo.m === "DQ" ? "" : mo.m, main: x === main[main.length - 1] ? 1 : 0 };
+      out.history[id] = { w: name(w), m: mo.m === "NC" || mo.m === "DQ" ? "" : mo.m, r: mo.rd, main: x === main[main.length - 1] ? 1 : 0 };
     }
   }
 }
@@ -172,11 +172,11 @@ if (past.length) {
     const x = rev[k], cs = ORD(x.c), w = cs.find(c => c.winner), l = cs.find(c => c !== w);
     if (!w) continue;
     const mo = await resultOf(ev, x.c);
-    rows.push({ id: fid(ev, name(w), name(l)), w: name(w), l: name(l), wi: w.athlete?.id || w.id, li: l.athlete?.id || l.id, cls: clsOf(x.c), method: mo.method, m: mo.m, detail: mo.detail, main: k === 0 ? 1 : 0, card: x.main ? 1 : 0 });
+    rows.push({ id: fid(ev, name(w), name(l)), w: name(w), l: name(l), wi: w.athlete?.id || w.id, li: l.athlete?.id || l.id, cls: clsOf(x.c), method: mo.method, m: mo.m, r: mo.rd, detail: mo.detail, main: k === 0 ? 1 : 0, card: x.main ? 1 : 0 });
   }
   if (rows.length) {
     out.last = { id: evId(ev), name: ev.name, when: fmtWhen(ev.date, venueOf(ev)), fights: rows };
-    rows.forEach(r => { out.history[r.id] = { w: r.w, m: r.m === "NC" || r.m === "DQ" ? "" : r.m, main: r.main }; });
+    rows.forEach(r => { out.history[r.id] = { w: r.w, m: r.m === "NC" || r.m === "DQ" ? "" : r.m, r: r.r, main: r.main }; });
   }
 }
 // archive of earlier cards (main card only). Only cards not saved yet are fetched, max 3 per run.
@@ -190,13 +190,13 @@ if (past.length) {
       const x = L[k], cs = ORD(x.c), w = cs.find(c => c.winner), l = cs.find(c => c !== w);
       if (!w || !l) continue;
       const mo = await resultOf(ev, x.c);
-      rows.push({ id: fid(ev, name(w), name(l)), w: name(w), l: name(l), m: mo.m === "NC" || mo.m === "DQ" ? "" : mo.m, d: mo.detail, main: k === 0 ? 1 : 0 });
+      rows.push({ id: fid(ev, name(w), name(l)), w: name(w), l: name(l), m: mo.m === "NC" || mo.m === "DQ" ? "" : mo.m, r: mo.rd, d: mo.detail, main: k === 0 ? 1 : 0 });
     }
     if (rows.length >= 3) added.push({ id: evId(ev), name: String(ev.name), when: fmtWhen(ev.date, venueOf(ev)), ts: Date.parse(ev.date), fights: rows });
   }
   if (added.length) {
     out.archive = (out.archive || []).concat(added).sort((a, b) => b.ts - a.ts).slice(0, 40);
-    added.forEach(e => e.fights.forEach(r => { if (!out.history[r.id]) out.history[r.id] = { w: r.w, m: r.m, main: r.main }; }));
+    added.forEach(e => e.fights.forEach(r => { if (!out.history[r.id]) out.history[r.id] = { w: r.w, m: r.m, r: r.r, main: r.main }; }));
   }
 }
 const strip = o => JSON.stringify({ ...o, updated: 0 });
