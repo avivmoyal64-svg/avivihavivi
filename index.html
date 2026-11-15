@@ -386,6 +386,33 @@ details.ev .evb{padding:2px 14px 10px}
 .hn{margin-top:14px}.hcard{display:flex;align-items:center;gap:14px;width:100%;margin:0 0 12px;padding:16px;text-align:left;color:inherit;font:inherit;cursor:pointer;border:1px solid #ff3b3b;border-left:6px solid var(--dg);border-radius:16px;background:linear-gradient(180deg,#41424a,#41424a);transition:.25s}
 .hcard:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 12px 30px #d20a0a33}.hcard i{font-size:30px;font-style:normal}.hcard span{flex:1;min-width:0}.hcard b{display:block;font:700 22px "Barlow Condensed","Oswald",Impact,"Arial Narrow",Arial,sans-serif;letter-spacing:1px;text-transform:uppercase;color:var(--tx)}.hcard small{display:block;margin-top:3px;color:var(--mut);font:13px/1.35 Barlow,Arial,sans-serif}.hcard em{font:34px/1 Barlow,Arial,sans-serif;font-style:normal;color:var(--gold)}
 .pgs>.pnl{margin-top:14px}
+
+/* ===== UFC broadcast look: cut corners, slanted tags, lower-third name plates ===== */
+:root{--cut:16px;--para:10px}
+body{background:var(--bg) repeating-linear-gradient(115deg,transparent 0 46px,#ffffff07 46px 48px),radial-gradient(900px 500px at 15% -5%,#d20a0a30,transparent 60%),radial-gradient(800px 500px at 100% 0,#d20a0a24,transparent 60%)}
+.card,.fight,.hcard,.box,.pgf,.pvr,.fvp,.pnl .lb,.lgp span,.stats>div{border-radius:0}
+.card,.fight,.hcard,.box,.pgf,.pvr{clip-path:polygon(var(--cut) 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%,0 var(--cut))}
+nav button,.btn,.pgt button,.pgbk,.chip,.swt,.cpr,.rmn,.hn .hcard em{border-radius:0}
+nav button,.btn,.pgt button,.pgbk,.chip,.swt{clip-path:polygon(var(--para) 0,100% 0,calc(100% - var(--para)) 100%,0 100%);padding-left:calc(var(--padl,16px) + 4px);padding-right:calc(var(--padl,16px) + 4px);font-style:italic;font-weight:700}
+.chip,.swt{--padl:8px}.pgt button{--padl:10px}.btn{--padl:20px}
+.tag{border-radius:0;clip-path:polygon(7px 0,100% 0,calc(100% - 7px) 100%,0 100%);padding:4px 13px;font-style:italic;font-weight:800;letter-spacing:.8px}
+.tag.mini{padding:2px 11px}
+.sec{font-style:italic;font-weight:800;font-size:36px;letter-spacing:1px}
+.sec::before{content:"";display:inline-block;width:12px;height:30px;background:var(--red);transform:skewX(-20deg);margin-right:14px;vertical-align:-3px;box-shadow:8px 0 0 #fff}
+.sec::after{width:100%!important;max-width:520px;height:2px!important;border-radius:0!important;background:linear-gradient(90deg,var(--red),transparent)!important}
+#hero h1,.pgh h2,#fvb h2,dialog h2,.fvc b,.sdn{font-style:italic}
+.fm{display:inline-block;background:var(--red);color:#fff;padding:3px 18px 3px 10px;clip-path:polygon(0 0,100% 0,calc(100% - 10px) 100%,0 100%);font-weight:700;font-style:italic;letter-spacing:1.2px}
+.fight.main .fm{background:#fff;color:var(--red)}
+.vs em{font-style:italic;font-weight:800;font-size:24px;color:#fff;background:var(--red);padding:1px 14px;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%)}
+.vs>div>span:last-child,.pvn,.lwwin>span,.lwlose>span{font-family:"Barlow Condensed","Oswald",Impact,"Arial Narrow",Arial,sans-serif;font-style:italic;text-transform:uppercase;font-weight:800;letter-spacing:.4px;font-size:19px}
+.card .info{background:#f3f3f5;color:#16171a;border-top:4px solid var(--red);padding-top:12px}
+.card .info b{color:#16171a;font-style:italic;text-transform:uppercase;font-weight:800;font-size:21px;letter-spacing:.4px;line-height:1.05}
+.card .info small{color:#55565e}
+.card .chip{background:#e3e3e8;border-color:#c9c9d0;color:#25262b}
+.card .info .rec{background:#16171a;color:#fff;clip-path:polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%);border-radius:0}
+.hcard b,.hcard small{font-style:italic}.hcard b{font-weight:800;letter-spacing:.8px}
+.stats>div b,.lb b{font-style:italic}
+#evt>.fm,.pnl>.fm{display:block;background:none;clip-path:none;color:var(--red2);padding:0;font-weight:600}
 </style></head><body>
 <div id="prog"></div>
 <section id="hero"><div class="hp one"><canvas id="c1" width="1920" height="1080"></canvas></div><div class="hc" id="hc"><h1>UFC <span>Fighter</span> Roster</h1><p class="sub" style="color:#ddd">Scroll to bring the fighters to life</p><span class="hint">Scroll ↓</span></div></section>
