@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Barlow:wght@400;700&display=swap');
-:root{--bg:#121315;--tx:#f2f2f2;--mut:#a1a1a8;--dg:#111214;--dg2:#ff3b3b;--gold:#d20a0a}
+:root{--bg:#1f2024;--tx:#f2f2f2;--mut:#b9b9c0;--dg:#232428;--dg2:#ff3b3b;--gold:#d20a0a}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--tx);font:17px/1.65 Barlow,Arial,sans-serif}
 header{background:var(--dg);border-bottom:3px solid var(--gold);padding:14px 16px}
@@ -10,7 +10,7 @@ h1::after{content:"";display:block;width:70px;height:4px;margin-top:8px;border-r
 h2{color:var(--tx);font-size:19px;margin:28px 0 6px;border-left:5px solid var(--gold);padding-left:10px}
 p,li{color:var(--tx)}small,.mut{color:var(--mut)}
 a{color:var(--dg2)}
-.box{background:#1c1d20;border:1px solid #38393e;border-top:4px solid var(--gold);border-radius:12px;padding:16px;margin:16px 0}
+.box{background:#2b2c31;border:1px solid #4d4e55;border-top:4px solid var(--gold);border-radius:12px;padding:16px;margin:16px 0}
 input,textarea{width:100%;padding:11px;border:2px solid var(--dg);border-radius:10px;font:inherit;margin:6px 0;background:#fff}
 button{background:linear-gradient(90deg,var(--dg),var(--dg2));color:#fff;border:1px solid #d20a0a;border-radius:10px;padding:11px 20px;font:700 15px Arial;cursor:pointer}
 .hp{position:absolute;left:-9999px}
