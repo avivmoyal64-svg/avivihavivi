@@ -583,7 +583,7 @@ async function sbInit(){
 }
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const ini=n=>n.split(" ").map(x=>x[0]).slice(0,2).join("");
-const photo=n=>{for(const k in D){const f=D[k].find(x=>x.n===n);if(f&&f.pic)return f.pic}return RP[n]||""};
+const photo=n=>{for(const k in D){const f=D[k].find(x=>x.n===n);if(f&&f.pic)return f.pic}const r=findF(n);if(r&&D[r[0]][r[1]].pic)return D[r[0]][r[1]].pic;return RP[n]||""};
 const RP={};
 function headshots(list){/* list: [name,athleteId,class] - for every class that exists on the site (D) plus all women's classes; shown only once the image really loads */
  list.forEach(([n,id,c])=>{if(!n||!id||RP[n])return;if(Object.values(D).some(a=>a.some(f=>f.n===n&&f.pic)))return;
@@ -608,7 +608,14 @@ function ren(){try{filt()}catch(e){PICKS=PRAW}try{rmn()}catch(e){}try{pgRef()}ca
  document.getElementById("lb").innerHTML=`<div class="box">${B.length?B.map((x,i)=>`<div class="lb ${x.id===ME?"me":""}" role="button" tabindex="0" onclick="openProf('${x.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openProf('${x.id}')}"><span class="n">${i+1}</span><span class="nm">${esc(NAMES[x.id]||"Fight fan")}${x.id===ME?" (you)":""}<br><small style="color:var(--mut)">${x.n} pick${x.n===1?"":"s"}</small></span><span class="c">${x.c}<i class="coin"></i></span></div>`).join(""):"No picks yet. Be the first to pick a winner."}<div class="st" style="margin-top:10px">Right winner: 100 coins · right method: +50 · right round: +50 (a right decision pick gets the round bonus too) · main event pays double.</div></div>`}
 const OREC={},OTHER_REC={"Ciryl Gane":"14-2","Josh Hokit":"10-0","Kayla Harrison":"19-1","Amanda Nunes":"23-5","Luis Gurule":"11-4"};
 const rc=n=>{const r=findF(n),k=x=>String(x).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();let rec=r?D[r[0]][r[1]].rec:"";if(!rec)for(const cl in D){const f=D[cl].find(x=>k(x.n)===k(n));if(f){rec=f.rec;break}}if(!rec)rec=OREC[n]||OTHER_REC[n]||"";return rec?` <span class="rec">${rec}</span>`:""};
-const findF=n=>{for(const k in D){const i=D[k].findIndex(x=>x.n===n);if(i>=0)return[k,i]}return null};
+const FQ=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+let FFC={};
+const findF=n=>{for(const k in D){const i=D[k].findIndex(x=>x.n===n);if(i>=0)return[k,i]}
+ /* names from ESPN can differ a little (middle names, Jr., accents): match them by words */
+ const q=FQ(n);if(!q)return null;if(FFC[q]!==undefined){const c=FFC[q];return c&&D[c[0]]&&D[c[0]][c[1]]&&FQ(D[c[0]][c[1]].n)===c[2]?[c[0],c[1]]:(FFC[q]=undefined,findF(n))}
+ const w=q.split(" ");let hit=null;
+ for(const k in D){D[k].forEach((x,i)=>{if(hit)return;const t=FQ(x.n);if(t===q){hit=[k,i,t];return}const v=t.split(" ");if(w.length<2||v.length<2)return;const [sm,lg]=w.length<=v.length?[w,v]:[v,w];if(sm.every(z=>lg.includes(z))&&sm[sm.length-1]===lg[lg.length-1]||sm.every(z=>lg.includes(z))&&sm[0]===lg[0])hit=[k,i,t]})}
+ FFC[q]=hit;return hit?[hit[0],hit[1]]:null};
 function openFighter(n){const r=findF(n);if(!r)return;if(cur!==r[0])show(r[0]);open_(r[1])}
 const prof=n=>findF(n)?`<button class="pl" onclick="openFighter(decodeURIComponent('${encodeURIComponent(n)}'))">View profile</button>`:'<span class="pl off">No profile yet</span>';
 function openPick(i){SWO=false;CF=EV.fights[i];const m=((PICKS[ME]||{}).fights||{})[CF.id]||{};sel={w:m.w||"",m:nm(m.m||""),r:m.r||0};drawPk();document.getElementById("pk").showModal()}
