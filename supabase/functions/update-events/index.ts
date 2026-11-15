@@ -44,10 +44,12 @@ function parseMethod(t) {
   if (/ko|tko|stop|doctor|retire|punch|kick|knee|elbow/.test(t)) return "KO/TKO";
   return null;
 }
-async function resultOf(ev, c) {
+async function resultOf(ev, c, nowin = false) {
   const rd = c.status?.period, clk = c.status?.displayClock;
   const st = await core(ev, c, "/status");
   const r = st?.result || c.status?.result || {};
+  // finished with no winner: a draw or a no contest (shown greyed out, no coins)
+  if (nowin) { const dm = /draw/i.test(JSON.stringify([r, st?.type])) ? "DRAW" : "NC"; return { method: dm === "DRAW" ? "Draw" : "No contest", m: dm, rd: 0, detail: "", raw: r }; }
   let m = parseMethod([r.name, r.displayName, r.shortDisplayName, r.description, st?.type?.detail, st?.type?.description].filter(Boolean).join(" "));
   const full = clk === "5:00" || clk === "5:00.0";
   if (!m) m = full ? "DEC" : "KO/TKO";
@@ -156,7 +158,17 @@ if (upcoming.length) {
     for (const x of main) {
       const cs = ORD(x.c), w = cs.find(c => c.winner), l = cs.find(c => c !== w);
       const fin = x.c.status?.type?.completed || x.c.status?.type?.state === "post";
-      if (!fin || !w || !l) continue;
+      if (!fin) continue;
+      if (!w) {
+        const na = name(cs[0]), nb = name(cs[1]);
+        if (!na || !nb) continue;
+        const nid = fid(ev, na, nb);
+        if (out.history[nid]) continue;
+        const nmo = await resultOf(ev, x.c, true);
+        out.history[nid] = { w: "", m: nmo.m, nc: 1, main: x === main[main.length - 1] ? 1 : 0 };
+        continue;
+      }
+      if (!l) continue;
       const id = fid(ev, name(w), name(l));
       if (out.history[id]) continue;
       const mo = await resultOf(ev, x.c);
@@ -170,13 +182,19 @@ if (past.length) {
   const rev = L.slice().reverse();
   for (let k = 0; k < rev.length; k++) {
     const x = rev[k], cs = ORD(x.c), w = cs.find(c => c.winner), l = cs.find(c => c !== w);
-    if (!w) continue;
+    if (!w) {
+      const fin = x.c.status?.type?.completed || x.c.status?.type?.state === "post";
+      if (!fin || cs.length < 2 || !name(cs[0]) || !name(cs[1])) continue;
+      const nmo = await resultOf(ev, x.c, true);
+      rows.push({ id: fid(ev, name(cs[0]), name(cs[1])), w: name(cs[0]), l: name(cs[1]), wi: cs[0].athlete?.id || cs[0].id, li: cs[1].athlete?.id || cs[1].id, cls: clsOf(x.c), method: nmo.method, m: nmo.m, nc: 1, r: 0, detail: "", main: k === 0 ? 1 : 0, card: x.main ? 1 : 0 });
+      continue;
+    }
     const mo = await resultOf(ev, x.c);
     rows.push({ id: fid(ev, name(w), name(l)), w: name(w), l: name(l), wi: w.athlete?.id || w.id, li: l.athlete?.id || l.id, cls: clsOf(x.c), method: mo.method, m: mo.m, r: mo.rd, detail: mo.detail, main: k === 0 ? 1 : 0, card: x.main ? 1 : 0 });
   }
   if (rows.length) {
     out.last = { id: evId(ev), name: ev.name, when: fmtWhen(ev.date, venueOf(ev)), fights: rows };
-    rows.forEach(r => { out.history[r.id] = { w: r.w, m: r.m === "NC" || r.m === "DQ" ? "" : r.m, r: r.r, main: r.main }; });
+    rows.forEach(r => { out.history[r.id] = r.nc ? { w: "", m: r.m, nc: 1, main: r.main } : { w: r.w, m: r.m === "NC" || r.m === "DQ" ? "" : r.m, r: r.r, main: r.main }; });
   }
 }
 // archive of earlier cards (main card only). Only cards not saved yet are fetched, max 3 per run.
@@ -188,6 +206,11 @@ if (past.length) {
     const L = comps(ev).filter(x => x.main).reverse(), rows: any[] = [];
     for (let k = 0; k < L.length; k++) {
       const x = L[k], cs = ORD(x.c), w = cs.find(c => c.winner), l = cs.find(c => c !== w);
+      if (!w && cs.length >= 2 && name(cs[0]) && name(cs[1]) && (x.c.status?.type?.completed || x.c.status?.type?.state === "post")) {
+        const nmo = await resultOf(ev, x.c, true);
+        rows.push({ id: fid(ev, name(cs[0]), name(cs[1])), w: name(cs[0]), l: name(cs[1]), wi: cs[0].athlete?.id || cs[0].id, li: cs[1].athlete?.id || cs[1].id, m: nmo.m, nc: 1, r: 0, d: "", main: k === 0 ? 1 : 0 });
+        continue;
+      }
       if (!w || !l) continue;
       const mo = await resultOf(ev, x.c);
       rows.push({ id: fid(ev, name(w), name(l)), w: name(w), l: name(l), wi: w.athlete?.id || w.id, li: l.athlete?.id || l.id, m: mo.m === "NC" || mo.m === "DQ" ? "" : mo.m, r: mo.rd, d: mo.detail, main: k === 0 ? 1 : 0 });
@@ -196,7 +219,7 @@ if (past.length) {
   }
   if (added.length) {
     out.archive = (out.archive || []).filter(e => !added.some(a => a.id === e.id)).concat(added).sort((a, b) => b.ts - a.ts).slice(0, 40);
-    added.forEach(e => e.fights.forEach(r => { if (!out.history[r.id]) out.history[r.id] = { w: r.w, m: r.m, r: r.r, main: r.main }; }));
+    added.forEach(e => e.fights.forEach(r => { if (!out.history[r.id]) out.history[r.id] = r.nc ? { w: "", m: r.m, nc: 1, main: r.main } : { w: r.w, m: r.m, r: r.r, main: r.main }; }));
   }
 }
 const strip = o => JSON.stringify({ ...o, updated: 0 });
