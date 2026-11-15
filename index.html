@@ -424,6 +424,7 @@ nav button,.btn,.pgt button,.pgbk,.chip,.swt{clip-path:polygon(var(--para) 0,100
 .card:has(.pic .tag.g){border-color:#ffd54a}
 .rt .tag.g,.rks .tag.g{font-size:13px}
 @media(prefers-reduced-motion:reduce){.tag.g{animation:none}}
+.card{isolation:isolate}.card::after{z-index:-1!important}
 </style></head><body>
 <div id="prog"></div>
 <section id="hero"><div class="hp one"><canvas id="c1" width="1920" height="1080"></canvas></div><div class="hc" id="hc"><h1>UFC <span>Fighter</span> Roster</h1><p class="sub" style="color:#ddd">Scroll to bring the fighters to life</p><span class="hint">Scroll ↓</span></div></section>
