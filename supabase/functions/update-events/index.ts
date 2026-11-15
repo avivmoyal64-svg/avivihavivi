@@ -113,7 +113,7 @@ if (new URL(req.url).searchParams.get("live")) {
   const near = events.some(e => { const d = now - Date.parse(e.date); return d > -2 * 3600e3 && d < 10 * 3600e3; });
   if (!near) return new Response(JSON.stringify({ ok: true, idle: true }), { headers: { "content-type": "application/json" } });
 }
-const out: any = { updated: new Date().toISOString(), next: prev.next, last: prev.last, history: prev.history || {}, archive: prev.archive || [] };
+const out: any = { updated: new Date().toISOString(), next: prev.next, after: prev.after, last: prev.last, history: prev.history || {}, archive: prev.archive || [] };
 
 const evId = ev => "e" + ev.id;
 const fid = (ev, a, b) => evId(ev) + "-" + [slug(a), slug(b)].sort().join("-vs-");
@@ -176,6 +176,16 @@ if (upcoming.length) {
     }
   }
 }
+// the card after next: shown read-only on the "Next week" tab
+if (upcoming.length > 1) {
+  const ev2 = upcoming[1], L2 = comps(ev2), M2 = L2.filter(x => x.main), use = (M2.length ? M2 : L2).slice().reverse(), af: any[] = [];
+  for (let k = 0; k < use.length; k++) {
+    const x = use[k], cs = ORD(x.c), a = name(cs[0]), b = name(cs[1]);
+    if (!a || !b) continue;
+    af.push({ id: fid(ev2, a, b), a, b, ia: cs[0].athlete?.id || cs[0].id, ib: cs[1].athlete?.id || cs[1].id, cls: clsOf(x.c), main: af.length === 0 ? 1 : 0 });
+  }
+  out.after = af.length ? { id: evId(ev2), name: String(ev2.name).split(":")[0].trim() || ev2.shortName, when: fmtWhen(ev2.date, venueOf(ev2)), ts: Date.parse(ev2.date), fights: af.slice(0, 8) } : null;
+} else out.after = null;
 if (past.length) {
   const ev = past[past.length - 1], L = comps(ev);
   const rows = [];

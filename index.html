@@ -656,8 +656,9 @@ const nz=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().
 const photoZ=n=>{let s=photo(n);if(s)return s;const k=nz(n);for(const c in D){const f=D[c].find(x=>nz(x.n)===k);if(f&&f.pic)return f.pic}return ""};
 const avZ=n=>{const s=photoZ(n);return `<i style="${s?`background-image:url(${s})`:""}">${s?"":esc(ini(n))}</i>`};
 const slugName=s=>String(s).split("-").map(w=>w?w[0].toUpperCase()+w.slice(1):"").join(" ");
-let LASTX=null;
+let LASTX=null,AFTER=null;
 function fmap(){const m={};
+ if(AFTER)(AFTER.fights||[]).forEach(f=>{m[f.id]={a:f.a,b:f.b,main:!!f.main}});
  if(LASTX)LASTX.fights.forEach(f=>{m[f.id]={a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m,r:f.r,nc:f.nc}});
  (ARCH||[]).forEach(e=>(e.fights||[]).forEach(f=>{m[f.id]={a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m,r:f.r,nc:f.nc}}));
  (EV.fights||[]).forEach(f=>{m[f.id]={a:f.a,b:f.b,main:!!f.main}});
@@ -693,7 +694,7 @@ function drawPage(){const P=document.getElementById("pgP"),S=document.getElement
  if(S&&!S.hidden){document.getElementById("pgt").innerHTML=[["board","Scoreboard"],["last","Last week"],["next","Next week"],["recent","Recent events"]].map(([k,l])=>`<button class="${PS===k?"on":""}" onclick="pgTab('${k}')">${l}</button>`).join("");
   ["board","last","next","recent"].forEach(k=>{const e=document.getElementById("pgp_"+k);if(e)e.hidden=PS!==k});
   if(PS==="last")document.getElementById("pglw").innerHTML=LASTX?evBlock("Last week: "+LASTX.name,LASTX.when,LASTX.fights.filter(f=>f.main||f.card).map(f=>({id:f.id,a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m,r:f.r,nc:f.nc})),false,true):"";
-  else if(PS==="next")document.getElementById("pgn").innerHTML=`<div class="pgl" style="margin-top:6px">${esc(EV.name||"Next event")}</div><div class="pgs2">${esc(EV.when||"")}</div>${evFights(curFs())}<button class="btn pgpk" onclick="openPage('picks')">Make your picks ›</button>`;
+  else if(PS==="next")document.getElementById("pgn").innerHTML=AFTER?`<div class="pgl" style="margin-top:6px">${esc(AFTER.name)}</div><div class="pgs2">${esc(AFTER.when||"")}</div>${evFights(AFTER.fights.map(f=>({id:f.id,a:f.a,b:f.b,main:!!f.main})))}<div class="pgs2" style="text-align:center;margin-top:12px">Picks for this card open once it becomes the week's event.</div>`:'<div class="box"><div class="pfn">The card after this week is not announced yet. It shows up here as soon as it is.</div></div>';
   else document.getElementById("pgr").innerHTML=(ARCH||[]).length?(ARCH||[]).map((e,i)=>`<details class="ev pgev" data-i="${i}" ontoggle="pgLazy(this)"><summary>${esc(e.name)}<small>${esc(e.when)}</small></summary><div class="evb"></div></details>`).join(""):'<div class="box"><div class="pfn">No past events yet. They appear here after the next update runs.</div></div>'}
  PGSIG=pgSig()}
 function pgLazy(d){if(!d.open)return;const b=d.querySelector(".evb");if(b&&!b.dataset.f){b.dataset.f=1;const e=(ARCH||[])[+d.dataset.i];if(e)b.innerHTML=evBlock(e.name,e.when,pastFs(e),1)}}
@@ -723,7 +724,7 @@ function pkSum(f,dirty,sv){const w=sel.w,m=sel.m,r=sel.r,dec=m==="DEC",
  if(!m)return `<div class="pks">Now choose <b>how</b> ${esc(w)} wins.${stp}</div>`;
  if(!dec&&!r)return `<div class="pks">Almost done: choose the <b>round</b>.${stp}</div>`;
  return `<div class="pks ok">✓ <b>${esc(w)}</b> wins by <b>${esc(nm(m))}</b>${!dec&&r?" in round "+r:""}<br><small>${dirty?"Not saved yet. Tap the button below.":sv?"Saved.":""}</small>${stp}</div>`}
-const pgSig=()=>JSON.stringify([Object.keys(PICKS).map(k=>[k,Object.keys((PICKS[k]||{}).fights||{}).length]),Object.keys(AUTO).length,Object.keys(RES).length,EV.id,LASTX&&LASTX.id,Object.keys(NAMES).length,Object.keys(RP).length]);
+const pgSig=()=>JSON.stringify([Object.keys(PICKS).map(k=>[k,Object.keys((PICKS[k]||{}).fights||{}).length]),Object.keys(AUTO).length,Object.keys(RES).length,EV.id,LASTX&&LASTX.id,AFTER&&AFTER.id,Object.keys(NAMES).length,Object.keys(RP).length]);
 let PGSIG="";
 function pgRef(){try{hnav()}catch(e){}if(!anyPage()||(PS==="recent"&&!document.getElementById("pgS").hidden))return;if(pgSig()===PGSIG)return;const c=document.querySelector(".pgs:not([hidden])"),op=[...c.querySelectorAll("details")].map(d=>d.open);drawPage();[...c.querySelectorAll("details")].forEach((d,i)=>{if(op[i])d.open=true})}
 
@@ -810,8 +811,8 @@ function applyEv(j){
  if(j.last&&j.last.fights&&j.last.fights.length){LAST={name:j.last.name,when:j.last.when,fights:j.last.fights.map(f=>[f.w,f.l,f.cls,f.method,f.detail,f.main?1:0,f.card?1:0,f.nc?1:0])}}
  if(j.last&&j.last.fights&&j.last.fights.length){LASTX={id:j.last.id,name:j.last.name,when:j.last.when,fights:j.last.fights.map(f=>({id:f.id,w:f.w,l:f.l,m:f.m||"",r:f.r,nc:f.nc?1:0,main:f.main?1:0,card:f.card?1:0}))}}
  try{(j.next&&j.next.fights||[]).forEach(f=>{if(f.ra)OREC[f.a]=f.ra;if(f.rb)OREC[f.b]=f.rb})}catch(e){}
- try{const hs=[];(j.next&&j.next.fights||[]).forEach(f=>{hs.push([f.a,f.ia,f.cls],[f.b,f.ib,f.cls])});(j.last&&j.last.fights||[]).forEach(f=>{hs.push([f.w,f.wi,f.cls],[f.l,f.li,f.cls])});(ARCH||[]).forEach(e=>(e.fights||[]).forEach(f=>{hs.push([f.w,f.wi],[f.l,f.li])}));headshots(hs)}catch(e){}
- ARCH=j.archive||[];AUTO=j.history||{};MAINF={};EV.fights.forEach(f=>MAINF[f.id]=f.main?1:0)}
+ try{const hs=[];(j.next&&j.next.fights||[]).forEach(f=>{hs.push([f.a,f.ia,f.cls],[f.b,f.ib,f.cls])});(j.last&&j.last.fights||[]).forEach(f=>{hs.push([f.w,f.wi,f.cls],[f.l,f.li,f.cls])});(ARCH||[]).forEach(e=>(e.fights||[]).forEach(f=>{hs.push([f.w,f.wi],[f.l,f.li])}));(AFTER?AFTER.fights:[]).forEach(f=>{hs.push([f.a,f.ia],[f.b,f.ib])});headshots(hs)}catch(e){}
+ AFTER=j.after&&j.after.fights&&j.after.fights.length?j.after:null;ARCH=j.archive||[];AUTO=j.history||{};MAINF={};EV.fights.forEach(f=>MAINF[f.id]=f.main?1:0)}
 const sigOf=j=>JSON.stringify([j.next,j.last,j.history]);let SIG="",POLL=null,LASTPOLL=0;
 async function loadEvents(){try{const j=await getEvents(false);if(j){applyEv(j);SIG=sigOf(j)}}catch(e){}
  MAINF={};EV.fights.forEach(f=>MAINF[f.id]=f.main?1:0);renLast();arvis();instvis();schedulePoll();loadFighters()}
