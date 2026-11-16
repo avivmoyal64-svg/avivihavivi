@@ -17,6 +17,7 @@ const rnd = a => a[Math.floor(Math.random() * a.length)];
 const shuf = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const uniq = a => [...new Set(a.filter(Boolean))];
 const clean = s => !!s && !/[()?]|maybe|\bvs\b/i.test(s) && s.length <= 22;
+const GRK = "Greco-Roman Wrestling", gb = f => uniq((f.base || []).map(s => s === "Greco-Roman" ? GRK : s));
 const base = n => String(n).replace(/\s+\d+$/, "");
 const last = n => String(n).trim().split(/\s+/).pop();
 const nm = id => NAMES[id] || "Player";
@@ -36,7 +37,7 @@ function ctx() {
   for (const k in RES) RN[nz(k)] = RES[k];
   return CTX = {
     ALL, names, RN, DIV: Object.keys(D),
-    STY: uniq(ALL.flatMap(x => x.f.base || [])).filter(clean), STR: uniq(ALL.flatMap(x => x.f.s || [])).filter(clean),
+    STY: uniq(ALL.flatMap(x => gb(x.f))).filter(clean), STR: uniq(ALL.flatMap(x => x.f.s || [])).filter(clean),
     NK: uniq(ALL.map(x => x.f.nick)).filter(clean), sur: uniq(names.map(last))
   };
 }
@@ -49,7 +50,7 @@ const SDESC = {
   BJJ: "Ground fighting built on submissions", Wrestling: "Takedowns and controlling the opponent", Boxing: "Striking with punches",
   "Muay Thai": "Striking with fists, elbows, knees and shins", Kickboxing: "Striking with punches and kicks", Judo: "Throws, pins and chokes",
   Sambo: "Russian grappling with throws and leg locks", Karate: "Striking art built on straight-line punches and kicks", Taekwondo: "Kicking art known for fast, high kicks",
-  "Greco-Roman": "Wrestling with holds only above the waist", "Greco-Roman Wrestling": "Wrestling with holds only above the waist",
+  "Greco-Roman Wrestling": "Wrestling with holds only above the waist",
   "Dirty Boxing": "Close-range punching from the clinch", "Well-rounded": "Skilled in both striking and grappling"
 };
 const SORIG = { BJJ: "Brazil", "Muay Thai": "Thailand", Judo: "Japan", Karate: "Japan", Taekwondo: "Korea", Sambo: "Russia" };
@@ -85,10 +86,10 @@ function slotQs(x, C) {
   S.div = mk(`Which weight class does ${n} fight in?`, c, C.DIV);
   if (LIM[c]) S.limit = mk(`${n} fights at ${c}. What is the weight limit of that division?`, lim(c), C.DIV.map(lim));
   if (clean(f.nick)) S.nick = mk(`Which nickname belongs to ${n}?`, f.nick, C.NK);
-  const arts = (f.base || []).filter(s => clean(s) && SDESC[s] && s !== "Well-rounded"), all = f.base || [];
+  const arts = (gb(f)).filter(s => clean(s) && SDESC[s] && s !== "Well-rounded"), all = gb(f);
   if (arts.length) {
     const b = rnd(arts);
-    S.base = mk(`Which of these did ${n} train in?`, b, Object.keys(SDESC).filter(s => s !== "Well-rounded" && !all.includes(s) && !(s === "Greco-Roman" && all.includes("Greco-Roman Wrestling")) && !(s === "Greco-Roman Wrestling" && all.includes("Greco-Roman"))));
+    S.base = mk(`Which of these did ${n} train in?`, b, Object.keys(SDESC).filter(s => s !== "Well-rounded" && !all.includes(s)));
     const other = arts.filter(s => s !== b && SDESC[s] !== SDESC[b]);
     if (other.length) S.sdef = sdesc(other[0], `${n}'s background includes ${other[0]}. What is ${other[0]}?`);
     const og = arts.filter(s => SORIG[s]); if (og.length) S.orig = sorig(rnd(og));
@@ -193,8 +194,8 @@ function genClass(cls) {
   const aT = [`Which of these fighters is in the ${cls} division?`, `Which of these fighters competes at ${cls}?`];
   mem.slice(0, 2).forEach((x, k) => M.push(mk(aT[k], x.f.n, outside)));
   mem.filter(x => clean(x.f.nick)).slice(0, 2).forEach(x => M.push(mk(`Who is known as “${x.f.nick}”?`, x.f.n, names)));
-  uniq(mem.flatMap(x => (x.f.base || []).filter(b => SDESC[b] && b !== "Well-rounded"))).slice(0, 8).forEach(b => {
-    const has = mem.filter(x => (x.f.base || []).includes(b)), no = mem.filter(x => !(x.f.base || []).includes(b));
+  uniq(mem.flatMap(x => (gb(x.f)).filter(b => SDESC[b] && b !== "Well-rounded"))).slice(0, 8).forEach(b => {
+    const has = mem.filter(x => (gb(x.f)).includes(b)), no = mem.filter(x => !(gb(x.f)).includes(b));
     if (has.length === 1 && no.length >= 3) S.push(mk(`Which of these ${cls} fighters has a ${b} background?`, has[0].f.n, no.map(x => x.f.n)));
   });
   const withRec = mem.map(x => ({ x, r: recOf(C, x.f) })).filter(z => z.r);
@@ -225,7 +226,7 @@ function genCard() {
     if (ra != null && rb != null && ra !== rb) RK.push({ q: `Who is ranked higher: ${f.a} or ${f.b}?`, o: [f.a, f.b], a: ra < rb ? 0 : 1, alt: [] });
   });
   L.filter(x => clean(x.f.nick)).forEach(x => NK.push(mk(`Which fighter on this card is known as “${x.f.nick}”?`, x.f.n, L.filter(y => y !== x).map(y => y.f.n))));
-  uniq(L.flatMap(x => (x.f.base || []).filter(b => SDESC[b] && b !== "Well-rounded"))).forEach(b => { const has = L.filter(x => (x.f.base || []).includes(b)), no = L.filter(x => !(x.f.base || []).includes(b)); if (has.length === 1 && no.length >= 3) ST.push(mk(`Which fighter on this card has a ${b} background?`, has[0].f.n, no.map(x => x.f.n))); });
+  uniq(L.flatMap(x => (gb(x.f)).filter(b => SDESC[b] && b !== "Well-rounded"))).forEach(b => { const has = L.filter(x => (gb(x.f)).includes(b)), no = L.filter(x => !(gb(x.f)).includes(b)); if (has.length === 1 && no.length >= 3) ST.push(mk(`Which fighter on this card has a ${b} background?`, has[0].f.n, no.map(x => x.f.n))); });
   const byC = {}; L.forEach(x => { const c = ctryOf(x.f.n); if (c) (byC[c] = byC[c] || []).push(x); });
   Object.keys(byC).filter(c => byC[c].length === 1).forEach(c => { const rest = L.filter(x => ctryOf(x.f.n) && ctryOf(x.f.n) !== c); if (rest.length >= 3) CT.push(mk(`Which fighter on this card is from ${c}?`, byC[c][0].f.n, rest.map(x => x.f.n))); });
   const lab = f => `${f.a} vs ${f.b}`, main = fs.find(f => f.main), title = fs.filter(f => /title/i.test(f.tag || ""));
@@ -242,7 +243,7 @@ window.guessFacts = function (name) {
   const C = ctx(), x = entry(C, name); if (!x) return null;
   const f = x.f, n = f.n, c = x.c, r = C.RN[nz(n)], rc = recOf(C, f), parts = n.trim().split(/\s+/), first = parts[0], lastN = parts.slice(1).join(" ") || first;
   const F = [];
-  const arts = (f.base || []).filter(s => clean(s));
+  const arts = (gb(f)).filter(s => clean(s));
   if (arts.length) F.push(arts.length > 1 ? `Their training background includes ${arts.slice(0, 3).join(", ")}.` : `Their training background is ${arts[0]}.`);
   const ct = ctryOf(n); if (ct) F.push(`They represent ${ct}.`);
   if (rc && rc.W > 0) F.push(rc.W >= 10 ? `They have more than ${Math.floor((rc.W - 1) / 5) * 5} pro wins.` : `They have ${rc.W} pro wins.`);
@@ -355,7 +356,7 @@ window.duelShow = () => {
     : `<div class="dlr"><div><b>${esc(nm(id))}</b></div><button class="fvb" type="button" ${open.has(id) || BUSY || lockLeft() ? "disabled" : ""} onclick="duelCf('${esc(id)}')">${lockLeft() && !open.has(id) ? "Wait " + lockLeft() + "s" : "⚔️ Challenge"}</button></div>`).join("");
   const todo = G.filter(g => (g.status === "invited" || g.status === "active")).map(row).join("");
   const done = G.filter(g => g.status === "done").slice(0, 8).map(row).join("");
-  el.innerHTML = `<div class="dlbox"><b>1v1 Trivia duel</b><p>10 easy questions. The player with the most right answers wins the coins. A tie goes to whoever answered faster. Pick a duel type when you challenge someone: random fighter, weight class, a specific fighter, this week's card, or fighter swap. The winner gets 5 coins.</p></div>
+  el.innerHTML = `<div class="dlbox"><b>1v1 Trivia duel</b><p>10 easy questions. The player with the most right answers wins the coins. A tie is a draw and nobody gets coins. Pick a duel type when you challenge someone: random fighter, weight class, a specific fighter, this week's card, or fighter swap. The winner gets 5 coins.</p></div>
 ${MSG ? `<div class="dlm" role="status">${esc(MSG)}</div>` : ""}
 ${todo ? `<h3 class="dlh3">Your games</h3>${todo}` : ""}
 <h3 class="dlh3">Challenge a player</h3>${players || '<div class="pfn">No other players yet.</div>'}

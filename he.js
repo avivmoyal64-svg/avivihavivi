@@ -176,7 +176,7 @@ var X={
 
 "Challenge a player · winner gets 5 coins":"אתגרו שחקן · המנצח מקבל 5 מטבעות",
 "Your coins":"המטבעות שלכם",
-"10 easy questions. The player with the most right answers wins the coins. A tie goes to whoever answered faster. Pick a duel type when you challenge someone: random fighter, weight class, a specific fighter, this week's card, or fighter swap. The winner gets 5 coins.":"10 שאלות קלות. מי שענה נכון על הכי הרבה שאלות מקבל את המטבעות. בתיקו מנצח מי שענה מהר יותר. בוחרים סוג דו-קרב כשמאתגרים: לוחם אקראי, קטגוריית משקל, לוחם מסוים, הקלף של השבוע או החלפת לוחמים. המנצח מקבל 5 מטבעות.",
+"10 easy questions. The player with the most right answers wins the coins. A tie is a draw and nobody gets coins. Pick a duel type when you challenge someone: random fighter, weight class, a specific fighter, this week's card, or fighter swap. The winner gets 5 coins.":"10 שאלות קלות. מי שענה נכון על הכי הרבה שאלות מקבל את המטבעות. בתיקו אף אחד לא מקבל מטבעות. בוחרים סוג דו-קרב כשמאתגרים: לוחם אקראי, קטגוריית משקל, לוחם מסוים, הקלף של השבוע או החלפת לוחמים. המנצח מקבל 5 מטבעות.",
 "Ground fighting built on submissions":"קרב קרקע שמבוסס על הגשות",
 "Takedowns and controlling the opponent":"הפלות ושליטה ביריב",
 "Striking with punches":"מכות באגרופים",
