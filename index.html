@@ -448,9 +448,14 @@ html[dir=rtl] *{font-style:normal!important}
 .gplus{font:300 34px/1 Barlow,Arial,sans-serif;color:#fff;opacity:.28}
 .gi{font:800 22px "Barlow Condensed",Arial,sans-serif;color:var(--mut)}
 .gname{position:absolute;inset:auto 0 0 0;padding:14px 2px 3px;background:linear-gradient(transparent,rgba(20,20,24,.92));font:700 11px/1.05 "Barlow Condensed",Arial,sans-serif;text-transform:uppercase;text-align:center;color:#fff;overflow-wrap:anywhere}
-.gnum{margin-top:3px;font:800 26px/1 "Barlow Condensed",Arial,sans-serif;color:#fff;opacity:.3}
+.gnum{margin-top:3px;font:800 26px/1 "Barlow Condensed",Arial,sans-serif;color:rgba(255,255,255,.3)}
 .ggrid.sm{gap:8px 6px}.ggrid.sm .gnum{font-size:20px}.ggrid.sm .gname{font-size:9px}.ggrid.sm .gq{border-radius:9px}
 .gt.ro{cursor:default}
+#gp{height:62dvh;max-height:none;margin-top:5dvh;margin-bottom:auto}
+.gps{position:sticky;top:0;z-index:2;background:var(--panel);padding:2px 0 8px}
+.gnum em{font-style:normal;font-size:.62em;margin-inline-start:3px;opacity:1;vertical-align:.1em}
+.gedit{display:block;margin:6px auto 0;padding:9px 22px;border-radius:999px;border:1px solid var(--red);background:#2c2d32;color:#fff;font:700 15px "Barlow Condensed",Arial,sans-serif;cursor:pointer}
+.gedit.on{background:var(--red)}
 .gact{display:flex;gap:6px;margin:6px 0 12px}
 .gact button{flex:1;padding:10px 6px;border-radius:10px;border:1px solid #5a5b63;background:#2c2d32;color:var(--tx);font:700 14px "Barlow Condensed",Arial,sans-serif;cursor:pointer}
 .gact button.rm{border-color:var(--red);color:var(--red2)}
@@ -926,7 +931,7 @@ setTimeout(()=>{READY=true;ren()},10000);setTimeout(()=>{if(/^#(picks|scoreboard
 show("Flyweight");UI=true;
 
 /* ===== GOAT list: 20 spots per player ===== */
-const GN=20;let GOAT={},GOATOK=false,GSLOT=0;
+const GN=20;let GEDIT=false,GOAT={},GOATOK=false,GSLOT=0;
 const gcl=a=>Array.from({length:GN},(_,i)=>String((a||[])[i]||"").slice(0,40));
 function gRefresh(){try{if(!document.getElementById("pgG").hidden)drawPage()}catch(e){}try{const p=document.getElementById("pf");if(p.open&&p.dataset.id)openProf(p.dataset.id,1)}catch(e){}}
 async function goatLoad(){
@@ -938,12 +943,12 @@ async function goatSave(){
  let ok=false;if(SB&&ME){try{const{error}=await SB.from("goat_lists").upsert({user_id:ME,list:l,updated_at:new Date().toISOString()});ok=!error}catch(e){}}
  GOATOK=ok;gRefresh();return ok}
 function gTile(n,i,ro){const z=String(n||""),ph=z&&photoZ(z),fo=z&&findF(z);
- const att=ro?(fo?` data-n="${esc(z)}" onclick="openFighter(this.dataset.n)"`:""):` onclick="goatPick(${i})"`;
- return `<div class="gt${z?" f":""}${ro?" ro":""}"${att}><div class="gq"${ph?` style="background-image:url(${ph})"`:""}>${z?(ph?"":`<b class="gi">${esc(ini(z))}</b>`)+`<span class="gname">${esc(z)}</span>`:'<span class="gplus">+</span>'}</div><span class="gnum">${i+1}</span></div>`}
+ const att=(ro||!GEDIT)?(fo?` data-n="${esc(z)}" onclick="openFighter(this.dataset.n)"`:""):` onclick="goatPick(${i})"`;
+ return `<div class="gt${z?" f":""}${ro?" ro":""}"${att}><div class="gq"${ph?` style="background-image:url(${ph})"`:""}>${z?(ph?"":`<b class="gi">${esc(ini(z))}</b>`)+`<span class="gname">${esc(z)}</span>`:'<span class="gplus">+</span>'}</div><span class="gnum">${i+1}${i===0?"<em>🐐</em>":""}</span></div>`}
 function goatHtml(){
  if(!ME||!SB)return '<div class="box"><div class="pfn">Log in to build your GOAT list: your top 20 fighters of all time.</div></div>';
  const l=gcl(GOAT[ME]),n=l.filter(Boolean).length;
- return `<div class="gnote" style="margin-top:4px">Your top 20 fighters of all time. ${n} of ${GN} filled. Other players can see your list on your profile. Tap a square to add or change a fighter.</div><div class="ggrid">${l.map((x,i)=>gTile(x,i)).join("")}</div>`}
+ return `<div class="gnote" style="margin-top:4px">Your top 20 fighters of all time. ${n} of ${GN} filled. Other players can see your list on your profile.</div><button type="button" class="gedit${GEDIT?" on":""}" onclick="GEDIT=!GEDIT;drawPage()">${GEDIT?"Done":"✎ Edit list"}</button><div class="gnote" style="margin:8px 0 0">${GEDIT?"Tap a square to add or change a fighter.":"Tap a fighter to open their profile."}</div><div class="ggrid">${l.map((x,i)=>gTile(x,i)).join("")}</div>`}
 function goatBlock(id){const l=gcl(GOAT[id]),n=l.filter(Boolean).length;
  if(!n)return id===ME?'<div class="pfg"><h3>GOAT list</h3><div class="pfn">You have not built your GOAT list yet. Open the GOAT list page from the home screen.</div></div>':'<div class="pfg"><h3>GOAT list</h3><div class="pfn">No GOAT list yet.</div></div>';
  return `<div class="pfg"><h3>GOAT list</h3><div class="ggrid sm">${l.map((x,i)=>gTile(x,i,1)).join("")}</div></div>`}
@@ -951,7 +956,7 @@ function goatSet(i,n){const l=gcl(GOAT[ME]);if(n){const j=l.findIndex(x=>nz(x)==
 function goatMove(i,d){const l=gcl(GOAT[ME]),j=i+d;if(j<0||j>=GN)return;[l[i],l[j]]=[l[j],l[i]];GOAT[ME]=l;goatSave().then(ok=>{if(!ok)goatWarn()});drawPage();goatPick(j)}
 function goatWarn(){const e=document.querySelector("#pgg .gnote");if(e&&!e.dataset.w){e.dataset.w=1;e.insertAdjacentHTML("afterend",'<div class="gnote" style="color:var(--red2)">Saved on this device only for now. Other players cannot see your list yet.</div>')}}
 function goatPick(i){GSLOT=i;const cur=gcl(GOAT[ME])[i];
- document.getElementById("gpb").innerHTML=`<h2>Spot #${i+1}</h2>${cur?`<div class="gact"><button type="button" ${i?"":"disabled"} onclick="goatMove(${i},-1)">Move earlier</button><button type="button" ${i<GN-1?"":"disabled"} onclick="goatMove(${i},1)">Move later</button><button type="button" class="rm" onclick="document.getElementById('gp').close();goatSet(${i},'')">Remove</button></div>`:""}<input class="gpq" id="gpq" type="search" placeholder="Search a fighter" autocomplete="off" oninput="goatList(this.value)"><div class="gpl" id="gpl"></div>`;
+ document.getElementById("gpb").innerHTML=`<h2>Spot #${i+1}</h2>${cur?`<div class="gact"><button type="button" ${i?"":"disabled"} onclick="goatMove(${i},-1)">Move earlier</button><button type="button" ${i<GN-1?"":"disabled"} onclick="goatMove(${i},1)">Move later</button><button type="button" class="rm" onclick="document.getElementById('gp').close();goatSet(${i},'')">Remove</button></div>`:""}<div class="gps"><input class="gpq" id="gpq" type="search" placeholder="Search a fighter" autocomplete="off" oninput="goatList(this.value)"></div><div class="gpl" id="gpl"></div>`;
  const d=document.getElementById("gp");if(!d.open)d.showModal();goatList("")}
 function goatList(q){const k=nz(q),all=[];for(const c in D)D[c].forEach(f=>all.push([f.n,c]));
  const seen=new Set();let r=all.filter(x=>{const z=nz(x[0]);if(seen.has(z))return false;seen.add(z);return !k||z.includes(k)}).sort((a,b)=>a[0].localeCompare(b[0])).slice(0,30);
