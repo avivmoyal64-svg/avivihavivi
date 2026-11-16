@@ -429,6 +429,8 @@ nav button,.btn,.pgt button,.pgbk,.chip,.swt{clip-path:polygon(var(--para) 0,100
 /* Hebrew option */
 .lgtg{border:1px solid rgba(255,255,255,.28);border-radius:17px;background:rgba(40,40,44,.88);color:#fff;font:700 14px/1 "Barlow Condensed","Heebo",Arial,sans-serif;cursor:pointer}
 .lgtg.top{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));left:12px;z-index:30;min-width:40px;height:34px;padding:0 12px}
+.lgrow{display:flex;justify-content:center;margin:10px 0 0}
+.lgtg.ac{height:32px;padding:0 16px}
 .lgtg.ft{height:28px;padding:0 12px;margin-inline-start:8px}
 .lgtg:hover{border-color:var(--red)}
 html[dir=rtl] body,html[dir=rtl] button,html[dir=rtl] input,html[dir=rtl] dialog{font-family:"Barlow Condensed","Heebo","Oswald",Arial,sans-serif}
@@ -436,6 +438,26 @@ html[dir=rtl] *{letter-spacing:0!important}
 html[dir=rtl] .sd.on::after{content:"✓ הבחירה שלכם"}
 html[dir=rtl] .lgtg.top{left:auto;right:12px}
 html[dir=rtl] *{font-style:normal!important}
+
+/* GOAT list */
+.gl{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);gap:6px}.gl>li{min-width:0}
+.gr{display:flex;align-items:center;gap:10px;background:#41424a;border-inline-start:4px solid var(--red);padding:7px 10px;min-height:52px}
+.gr.em{border-inline-start-color:#6b6c74;background:#34353b;cursor:pointer}
+.gr .gn{flex:0 0 28px;font:800 20px/1 "Barlow Condensed",Arial,sans-serif;color:var(--red2);text-align:center}
+.gr:nth-child(-n+3) .gn{color:#fff}
+.gr i.ga{flex:0 0 38px;width:38px;height:38px;border-radius:50%;background:#2c2d32 center top/cover no-repeat;display:grid;place-items:center;font:700 13px Barlow,Arial,sans-serif;color:var(--mut);font-style:normal;border:2px solid #5a5b63}
+.gr .gm{flex:1;min-width:0;font:700 17px/1.15 "Barlow Condensed",Arial,sans-serif;text-transform:uppercase;color:var(--tx);overflow-wrap:anywhere;background:none;border:0;text-align:start;padding:0;cursor:pointer}
+.gr.em .gm{color:var(--mut);text-transform:none;font-weight:600;cursor:pointer}
+.gr .gb{display:flex;gap:4px}
+.gr .gb button{width:30px;height:30px;border:1px solid #5a5b63;background:#2c2d32;color:var(--tx);border-radius:8px;font-size:14px;line-height:1;cursor:pointer;padding:0}
+.gr .gb button:disabled{opacity:.3}
+.gnote{margin:10px 0;color:var(--mut);font:14px/1.45 Barlow,Arial,sans-serif;text-align:center}
+.gpq{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:12px;border:1px solid #5a5b63;background:#2c2d32;color:var(--tx);font:16px Barlow,Arial,sans-serif}
+.gpl{display:grid;gap:6px;margin-top:10px}
+.gpl button{display:flex;align-items:center;gap:10px;width:100%;text-align:start;background:#41424a;border:0;border-inline-start:4px solid var(--red);padding:7px 10px;color:var(--tx);font:700 17px "Barlow Condensed",Arial,sans-serif;text-transform:uppercase;cursor:pointer}
+.gpl button small{margin-inline-start:auto;color:var(--mut);font:13px Barlow,Arial,sans-serif;text-transform:none}
+.pfg{margin:6px 0 14px}.pfg h3{margin:10px 0 8px;font:700 13px Barlow,Arial,sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:var(--red2)}
+.gr.ro{cursor:default}
 </style></head><body>
 <div id="prog"></div>
 <section id="hero"><div class="hp one"><canvas id="c1" width="1920" height="1080"></canvas></div><div class="hc" id="hc"><h1>UFC <span>Fighter</span> Roster</h1><p class="sub" style="color:#ddd">Scroll to bring the fighters to life</p><span class="hint">Scroll ↓</span></div></section>
@@ -456,13 +478,15 @@ html[dir=rtl] *{font-style:normal!important}
 <div id="pgp_board"><div class="pnl" id="lb"></div></div>
 <div id="pgp_last" hidden><div class="pnl" id="lw"></div><div class="pgc" id="pglw"></div></div>
 <div id="pgp_next" hidden><div class="pgc" id="pgn"></div></div>
-<div id="pgp_recent" hidden><div class="pgc" id="pgr"></div></div></div>
+<div id="pgp_recent" hidden><div class="pgc" id="pgr"></div></div>
+<div id="pgp_goat" hidden><div class="pgc" id="pgg"></div></div></div>
 <dialog id="pk"><div class="top"><span></span><button onclick="pk.close()" aria-label="Close">✕</button></div><div id="pkb" class="body"></div></dialog>
 <dialog id="pf"><div class="top"><span></span><button onclick="document.getElementById('pf').close()" aria-label="Close">✕</button></div><div id="pfb" class="body"></div></dialog>
 <dialog id="fv"><div class="top"><span></span><button onclick="document.getElementById('fv').close()" aria-label="Close">✕</button></div><div id="fvb" class="body"></div></dialog>
 <dialog id="st"><div class="top"><span></span><button onclick="document.getElementById('st').close()" aria-label="Close">✕</button></div><div id="stb" class="body"></div></dialog>
 <dialog id="cp"><div class="top"><span></span><button onclick="document.getElementById('cp').close()" aria-label="Close">✕</button></div><div id="cpb" class="body"></div></dialog>
 <dialog id="ar"><div class="top"><span></span><button onclick="document.getElementById('ar').close()" aria-label="Close">✕</button></div><div id="arb2" class="body"></div></dialog>
+<dialog id="gp"><div class="top"><span></span><button onclick="document.getElementById('gp').close()" aria-label="Close">✕</button></div><div id="gpb" class="body"></div></dialog>
 <dialog id="zm"><button id="zx" aria-label="Close zoom">✕</button><img id="zi" alt="Zoomed resume" draggable="false"><div class="zt">Pinch or scroll to zoom · drag to move · double-tap to reset</div></dialog>
 <dialog id="dlg"><div class="top"><button onclick="step(-1)" aria-label="Previous fighter">‹</button><button onclick="step(1)" aria-label="Next fighter">›</button><button onclick="closeDlg()" aria-label="Close">✕</button></div><div id="dbody"></div></dialog>
 <script src="he.js"></script>
@@ -698,8 +722,8 @@ function openProf(id){const P=PICKS[id]||{},mine=id===ME,hid=!!P.hidden,B=board(
  const keys=Object.keys(f).filter(realK).sort((a,b)=>((parseInt((b.match(/^e(\d+)/)||[])[1])||0)-(parseInt((a.match(/^e(\d+)/)||[])[1])||0)));
  const rows=keys.map(k=>pickRow(k,f[k])).join("");
  document.getElementById("pfb").innerHTML=`<h2>${esc(NAMES[id]||P.name||"Fight fan")}${mine?" (you)":""}</h2><div class="pfs"><div><b>${coins(id)}<i class="coin"></i></b><small>Coins</small></div><div><b>${hid||(!mine&&P.n!=null)?(P.n||0):keys.length}</b><small>Picks</small></div><div><b>${rank||"–"}</b><small>Rank</small></div></div>`+
- (hid?'<div class="pfn">This player keeps their picks private.</div>':(keys.length?rows:'<div class="pfn">'+(!mine&&P.n?'Their picks stay hidden until each fight is over.':'No picks yet.')+'</div>')+(!mine&&P.n>keys.length&&keys.length?'<div class="pfn">Picks for fights that are not over yet stay hidden.</div>':''));
- document.getElementById("pf").showModal()}
+ goatBlock(id)+(hid?'<div class="pfn">This player keeps their picks private.</div>':(keys.length?rows:'<div class="pfn">'+(!mine&&P.n?'Their picks stay hidden until each fight is over.':'No picks yet.')+'</div>')+(!mine&&P.n>keys.length&&keys.length?'<div class="pfn">Picks for fights that are not over yet stay hidden.</div>':''));
+ document.getElementById("pf").dataset.id=id;if(!arguments[1])document.getElementById("pf").showModal()}
 function openSettings(){if(!SB||!ME)return;
  document.getElementById("stb").innerHTML=`<h2>Settings</h2><div class="stx"><h3>Change password</h3><input type="password" id="stp1" placeholder="New password (6+ characters)" autocomplete="new-password" minlength="6"><input type="password" id="stp2" placeholder="Repeat new password" autocomplete="new-password"><button class="btn" type="button" onclick="chgPw()">Change password</button><div class="st" id="stm" role="status"></div><h3>Install the app</h3><div id="stinst">${instHtml()}</div></div>`;
  document.getElementById("st").showModal()}
@@ -750,14 +774,15 @@ let PS="board";
 const pgEl=k=>document.getElementById(k==="picks"?"pgP":"pgS"),anyPage=()=>["pgP","pgS"].some(i=>{const e=document.getElementById(i);return e&&!e.hidden});
 function drawPage(){const P=document.getElementById("pgP"),S=document.getElementById("pgS");
  if(P&&!P.hidden)document.getElementById("pgw").innerHTML=(!curFs().length||!curFs().every(f=>res(f.id)))?"":evBlock("Everyone's picks this week",(EV.name||"")+(EV.when?" · "+EV.when:"")+(locked()?" · picks locked":""),curFs(),false,true);
- if(S&&!S.hidden){document.getElementById("pgt").innerHTML=[["board","Scoreboard"],["last","Last week"],["next","Next week"],["recent","Recent events"]].map(([k,l])=>`<button class="${PS===k?"on":""}" onclick="pgTab('${k}')">${l}</button>`).join("");
-  ["board","last","next","recent"].forEach(k=>{const e=document.getElementById("pgp_"+k);if(e)e.hidden=PS!==k});
+ if(S&&!S.hidden){document.getElementById("pgt").innerHTML=[["board","Scoreboard"],["last","Last week"],["next","Next week"],["recent","Recent events"],["goat","GOAT list"]].map(([k,l])=>`<button class="${PS===k?"on":""}" onclick="pgTab('${k}')">${l}</button>`).join("");
+  ["board","last","next","recent","goat"].forEach(k=>{const e=document.getElementById("pgp_"+k);if(e)e.hidden=PS!==k});
   if(PS==="last")document.getElementById("pglw").innerHTML=LASTX?evBlock("Last week: "+LASTX.name,LASTX.when,LASTX.fights.filter(f=>f.main||f.card).map(f=>({id:f.id,a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m,r:f.r,nc:f.nc})),false,true):"";
   else if(PS==="next")document.getElementById("pgn").innerHTML=AFTER?`<div class="pgl" style="margin-top:6px">${esc(AFTER.name)}</div><div class="pgs2">${esc(AFTER.when||"")}</div>${evFights(AFTER.fights.map(f=>({id:f.id,a:f.a,b:f.b,main:!!f.main})))}<div class="pgs2" style="text-align:center;margin-top:12px">Picks for this card open once it becomes the week's event.</div>`:'<div class="box"><div class="pfn">The card after this week is not announced yet. It shows up here as soon as it is.</div></div>';
+  else if(PS==="goat")document.getElementById("pgg").innerHTML=goatHtml();
   else document.getElementById("pgr").innerHTML=(ARCH||[]).length?(ARCH||[]).map((e,i)=>`<details class="ev pgev" data-i="${i}" ontoggle="pgLazy(this)"><summary>${esc(e.name)}<small>${esc(e.when)}</small></summary><div class="evb"></div></details>`).join(""):'<div class="box"><div class="pfn">No past events yet. They appear here after the next update runs.</div></div>'}
  PGSIG=pgSig()}
 function pgLazy(d){if(!d.open)return;const b=d.querySelector(".evb");if(b&&!b.dataset.f){b.dataset.f=1;const e=(ARCH||[])[+d.dataset.i];if(e)b.innerHTML=evBlock(e.name,e.when,pastFs(e),1)}}
-const PGO=["board","last","next","recent"];
+const PGO=["board","last","next","recent","goat"];
 function pgTab(k,dir){const old=PS;PS=k;drawPage();const s=document.getElementById("pgS");if(s)s.scrollTop=0;const pn=document.getElementById("pgp_"+k);if(pn&&dir&&old!==k&&pn.animate){try{pn.animate([{transform:"translateX("+(dir>0?"24px":"-24px")+")",opacity:.4},{transform:"none",opacity:1}],{duration:180,easing:"ease-out"})}catch(e){}}}
 (function(){const s=document.getElementById("pgS");if(!s)return;let x0=0,y0=0,t0=0,ok=false;
 s.addEventListener("touchstart",e=>{const t=e.touches[0];x0=t.clientX;y0=t.clientY;t0=Date.now();ok=e.touches.length===1&&!e.target.closest("input,textarea,button.pgbk")},{passive:true});
@@ -883,4 +908,43 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now(
 (async()=>{await loadEvents();try{if(!window.claude){await sbInit()}else{U=await claude.use("user");DB=await claude.use("db");if(U){ME=await U.id();OWNER=await U.isOwner()}}if(DB&&ME){DB.collection("picks").onSnapshot(s=>{PRAW={};s.docs.forEach(d=>PRAW[d.id]=d.data());ren();names()},()=>{});DB.doc("results/"+EV.id).onSnapshot(s=>{RES=s.exists?((s.data()||{}).fights||{}):{};ren()},()=>{})}}catch(e){}READY=true;ren();names()})();
 setTimeout(()=>{READY=true;ren()},10000);setTimeout(()=>{if(/^#(picks|scoreboard)$/.test(location.hash)&&!anyPage())openPage(location.hash==="#picks"?"picks":"score")},400);ren();renLast();
 show("Flyweight");UI=true;
+
+/* ===== GOAT list: 20 spots per player ===== */
+const GN=20;let GOAT={},GOATOK=false,GSLOT=0;
+const gcl=a=>Array.from({length:GN},(_,i)=>String((a||[])[i]||"").slice(0,40));
+function gRefresh(){try{if(!document.getElementById("pgS").hidden&&PS==="goat")drawPage()}catch(e){}try{const p=document.getElementById("pf");if(p.open&&p.dataset.id)openProf(p.dataset.id,1)}catch(e){}}
+async function goatLoad(){
+ if(SB){try{const{data,error}=await SB.from("goat_lists").select("user_id,list");if(!error&&data){GOATOK=true;data.forEach(r=>{GOAT[r.user_id]=gcl(r.list)})}}catch(e){}}
+ if(ME&&!(GOAT[ME]||[]).some(Boolean)){try{const l=JSON.parse(localStorage.getItem("ufcgoat")||"null");if(Array.isArray(l))GOAT[ME]=gcl(l)}catch(e){}}
+ gRefresh()}
+async function goatSave(){
+ const l=gcl(GOAT[ME]);GOAT[ME]=l;try{localStorage.setItem("ufcgoat",JSON.stringify(l))}catch(e){}
+ let ok=false;if(SB&&ME){try{const{error}=await SB.from("goat_lists").upsert({user_id:ME,list:l,updated_at:new Date().toISOString()});ok=!error}catch(e){}}
+ GOATOK=ok;gRefresh();return ok}
+function gRow(n,i,mode){const nm2=String(n||"");const fo=nm2&&findF(nm2);
+ const av=nm2?`<i class="ga" style="${photoZ(nm2)?`background-image:url(${photoZ(nm2)})`:""}">${photoZ(nm2)?"":esc(ini(nm2))}</i>`:'<i class="ga">+</i>';
+ if(mode==="ro")return `<li class="gr ro"><span class="gn">${i+1}</span>${av}${fo?`<button class="gm" data-n="${esc(nm2)}" onclick="openFighter(this.dataset.n)">${esc(nm2)}</button>`:`<span class="gm">${esc(nm2)}</span>`}</li>`;
+ if(!nm2)return `<li class="gr em" onclick="goatPick(${i})"><span class="gn">${i+1}</span>${av}<span class="gm">Add a fighter</span></li>`;
+ return `<li class="gr"><span class="gn">${i+1}</span>${av}<button class="gm" onclick="goatPick(${i})">${esc(nm2)}</button><span class="gb"><button aria-label="Move up" ${i?"":"disabled"} onclick="goatMove(${i},-1)">▲</button><button aria-label="Move down" ${i<GN-1?"":"disabled"} onclick="goatMove(${i},1)">▼</button><button aria-label="Remove" onclick="goatSet(${i},'')">✕</button></span></li>`}
+function goatHtml(){
+ if(!ME||!SB)return '<div class="box"><div class="pfn">Log in to build your GOAT list: your top 20 fighters of all time.</div></div>';
+ const l=gcl(GOAT[ME]),n=l.filter(Boolean).length;
+ return `<div class="pgl" style="margin-top:6px">My GOAT list</div><div class="gnote" style="margin-top:0">Your top 20 fighters of all time. ${n} of ${GN} filled. Other players can see your list on your profile.</div><ul class="gl">${l.map((x,i)=>gRow(x,i)).join("")}</ul>`}
+function goatBlock(id){const l=gcl(GOAT[id]),n=l.filter(Boolean).length;
+ if(!n)return id===ME?'<div class="pfg"><h3>GOAT list</h3><div class="pfn">You have not built your GOAT list yet. Open Scoreboard, then the GOAT list tab.</div></div>':'<div class="pfg"><h3>GOAT list</h3><div class="pfn">No GOAT list yet.</div></div>';
+ return `<div class="pfg"><h3>GOAT list</h3><ul class="gl">${l.map((x,i)=>x?gRow(x,i,"ro"):"").join("")}</ul></div>`}
+function goatSet(i,n){const l=gcl(GOAT[ME]);if(n){const j=l.findIndex(x=>nz(x)===nz(n));if(j>-1&&j!==i)l[j]=""}l[i]=n;GOAT[ME]=l;goatSave().then(ok=>{if(!ok)goatWarn()});drawPage()}
+function goatMove(i,d){const l=gcl(GOAT[ME]),j=i+d;if(j<0||j>=GN)return;[l[i],l[j]]=[l[j],l[i]];GOAT[ME]=l;goatSave().then(ok=>{if(!ok)goatWarn()});drawPage()}
+function goatWarn(){const e=document.querySelector("#pgg .gnote");if(e&&!e.dataset.w){e.dataset.w=1;e.insertAdjacentHTML("afterend",'<div class="gnote" style="color:var(--red2)">Saved on this device only for now. Other players cannot see your list yet.</div>')}}
+function goatPick(i){GSLOT=i;document.getElementById("gpb").innerHTML=`<h2>Spot #${i+1}</h2><input class="gpq" id="gpq" type="search" placeholder="Search a fighter" autocomplete="off" oninput="goatList(this.value)"><div class="gpl" id="gpl"></div>`;document.getElementById("gp").showModal();goatList("")}
+function goatList(q){const k=nz(q),all=[];for(const c in D)D[c].forEach(f=>all.push([f.n,c]));
+ const seen=new Set();let r=all.filter(x=>{const z=nz(x[0]);if(seen.has(z))return false;seen.add(z);return !k||z.includes(k)}).sort((a,b)=>a[0].localeCompare(b[0])).slice(0,30);
+ const used={};gcl(GOAT[ME]).forEach((x,i)=>{if(x)used[nz(x)]=i+1});
+ let o=r.map(x=>`<button type="button" data-n="${esc(x[0])}" onclick="goatChoose(this.dataset.n)">${avZ(x[0]).replace("<i ",'<i class="ga" ')}<span>${esc(x[0])}</span>${used[nz(x[0])]?`<small>now #${used[nz(x[0])]}</small>`:`<small>${esc(x[1])}</small>`}</button>`).join("");
+ const t=String(q||"").trim().slice(0,40);if(t&&!r.some(x=>nz(x[0])===k))o+=`<button type="button" data-n="${esc(t)}" onclick="goatChoose(this.dataset.n)"><i class="ga">+</i><span>Add "${esc(t)}"</span><small>not on the site</small></button>`;
+ document.getElementById("gpl").innerHTML=o||'<div class="pfn">No match.</div>'}
+function goatChoose(n){document.getElementById("gp").close();goatSet(GSLOT,n)}
+
+/* load after login */
+(function w(n){try{if(ME){goatLoad();return}}catch(e){}if(n<40)setTimeout(()=>w(n+1),400)})(0);
 </script></body></html>
