@@ -46,21 +46,21 @@ window.shopLoad = shopLoad;
 
 /* ---------- shop page ---------- */
 function cardEm(id) { const it = IT[id], pr = SHOP.price[id], has = owned(id);
-  return `<div class="sc${has ? " own" : ""}"><div class="sg">${it.g}</div><b>${it.n}</b>${has ? '<span class="sb on">Owned</span>' : `<button type="button" class="sb" data-i="${id}" onclick="shopAct(this.dataset.i)">${pr} <i class="coin"></i></button>`}</div>`; }
+  return `<div class="shc${has ? " own" : ""}"><div class="shg">${it.g}</div><b>${it.n}</b>${has ? '<span class="shb on">Owned</span>' : `<button type="button" class="shb" data-i="${id}" onclick="shopAct(this.dataset.i)">${pr} <i class="coin"></i></button>`}</div>`; }
 function cardTh(id) { const it = IT[id], pr = SHOP.price[id], has = owned(id), on = (SHOP.prof[ME] || {}).theme === id;
-  return `<div class="sc${has ? " own" : ""}"><div class="sg"><span class="sw" style="background:${it.c}"></span></div><b>${it.n}</b>${!has ? `<button type="button" class="sb" data-i="${id}" onclick="shopAct(this.dataset.i)">${pr} <i class="coin"></i></button>` : on ? '<span class="sb on">In use</span>' : `<button type="button" class="sb use" data-i="${id}" onclick="shopAct(this.dataset.i)">Use</button>`}</div>`; }
+  return `<div class="shc${has ? " own" : ""}"><div class="shg"><span class="shw" style="background:${it.c}"></span></div><b>${it.n}</b>${!has ? `<button type="button" class="shb" data-i="${id}" onclick="shopAct(this.dataset.i)">${pr} <i class="coin"></i></button>` : on ? '<span class="shb on">In use</span>' : `<button type="button" class="shb use" data-i="${id}" onclick="shopAct(this.dataset.i)">Use</button>`}</div>`; }
 function cardSt(id) { const pr = SHOP.price[id], has = owned(id), on = (SHOP.prof[ME] || {}).sticker === id;
-  return `<div class="sc wide${has ? " own" : ""}"><div class="sg"><span class="stk ${id}">${IT[id].i} ${IT[id].n}</span></div>${!has ? `<button type="button" class="sb" data-i="${id}" onclick="shopAct(this.dataset.i)">${pr} <i class="coin"></i></button>` : on ? `<button type="button" class="sb use" data-i="" data-k="sticker" onclick="shopOff(this.dataset.k)">Remove</button>` : `<button type="button" class="sb use" data-i="${id}" onclick="shopAct(this.dataset.i)">Use</button>`}</div>`; }
+  return `<div class="shc wide${has ? " own" : ""}"><div class="shg"><span class="stk ${id}">${IT[id].i} ${IT[id].n}</span></div>${!has ? `<button type="button" class="shb" data-i="${id}" onclick="shopAct(this.dataset.i)">${pr} <i class="coin"></i></button>` : on ? `<button type="button" class="shb use" data-i="" data-k="sticker" onclick="shopOff(this.dataset.k)">Remove</button>` : `<button type="button" class="shb use" data-i="${id}" onclick="shopAct(this.dataset.i)">Use</button>`}</div>`; }
 window.shopHtml = function () {
   if (!ME || !SB) return '<div class="box"><div class="pfn">Log in to use the shop.</div></div>';
   if (!SHOP.ok) return '<div class="box"><div class="pfn">The shop is not open yet.</div></div>';
   const ids = Object.keys(IT).filter(i => SHOP.price[i] !== undefined), by = k => ids.filter(i => kind(i) === k);
   const th = (SHOP.prof[ME] || {}).theme;
-  return `<div class="wal"><span>Your wallet</span><b>${SHOP.wallet} <i class="coin"></i></b></div>
+  return `<div class="shwal"><span>Your wallet</span><b>${SHOP.wallet} <i class="coin"></i></b></div>
   <div class="gnote" style="margin-top:6px">Spending coins does not lower your rank.</div>${SHOP.msg ? `<div class="gnote" style="color:#fff;font-weight:700">${SHOP.msg}</div>` : ""}
-  <div class="pgl">Reaction emojis</div><div class="gnote" style="margin:0 0 8px">Use them to react to other players' picks.</div><div class="sgrid">${by("emoji").map(cardEm).join("")}</div>
-  <div class="pgl">Color themes</div><div class="sgrid"><div class="sc own"><div class="sg"><span class="sw" style="background:#d20a0a"></span></div><b>Red</b>${!th ? '<span class="sb on">In use</span>' : '<button type="button" class="sb use" data-k="theme" onclick="shopOff(this.dataset.k)">Use</button>'}</div>${by("theme").map(cardTh).join("")}</div>
-  <div class="pgl">Stickers</div><div class="gnote" style="margin:0 0 8px">A sticker sits next to your name for everyone to see.</div><div class="sgrid one">${by("sticker").map(cardSt).join("")}</div>`;
+  <div class="pgl">Reaction emojis</div><div class="gnote" style="margin:0 0 8px">Use them to react to other players' picks.</div><div class="shgrid">${by("emoji").map(cardEm).join("")}</div>
+  <div class="pgl">Color themes</div><div class="shgrid"><div class="shc own"><div class="shg"><span class="shw" style="background:#d20a0a"></span></div><b>Red</b>${!th ? '<span class="shb on">In use</span>' : '<button type="button" class="shb use" data-k="theme" onclick="shopOff(this.dataset.k)">Use</button>'}</div>${by("theme").map(cardTh).join("")}</div>
+  <div class="pgl">Stickers</div><div class="gnote" style="margin:0 0 8px">A sticker sits next to your name for everyone to see.</div><div class="shgrid shone">${by("sticker").map(cardSt).join("")}</div>`;
 };
 
 /* ---------- buy / use ---------- */
