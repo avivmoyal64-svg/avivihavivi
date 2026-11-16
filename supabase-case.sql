@@ -3,8 +3,8 @@
 --
 -- Once a day (Israel time) each player opens one free case. The draw is made here on the server:
 --   1% free pick | 2% 500 coins | 8% 250 coins | 10% 100 coins | 5% free theme | 5% free sticker | 10% free emoji
---   10% 25 coins | 49% nothing (try again tomorrow)
--- (the percentages you gave added up to 101, so "nothing" is 49 instead of 50)
+--   10% 25 coins | 15% another spin (spin again right away) | 34% nothing (try again tomorrow)
+-- (the percentages you gave added up to 101, so "nothing" + "another spin" together are 49 instead of 50)
 -- If you already own every item of the kind you won, you get coins instead (emoji 100, theme/sticker 250).
 -- A free pick lets a player change one locked pick for a fight of this week's event that is not over yet.
 
@@ -79,7 +79,7 @@ begin
   if uid is null then raise exception 'not logged in'; end if;
   select * into o from public.case_opens where user_id = uid and day = d;
   return jsonb_build_object(
-    'opened', found,
+    'opened', (found and o.prize <> 'spin'),
     'prize', o.prize, 'item', o.item, 'amount', coalesce(o.amount, 0),
     'free_picks', coalesce((select free_picks from public.user_tokens where user_id = uid), 0),
     'next_at', (((d + 1)::timestamp) at time zone 'Asia/Jerusalem'));
@@ -88,10 +88,11 @@ end $$;
 create or replace function public.open_case() returns jsonb
 language plpgsql security definer set search_path = public as $$
 declare uid uuid := auth.uid(); d date := (now() at time zone 'Asia/Jerusalem')::date;
-        r numeric := random() * 100; pr text; it text; amt int := 0; pat text;
+        r numeric := random() * 100; pr text; it text; amt int := 0; pat text; ex text;
 begin
   if uid is null then raise exception 'not logged in'; end if;
-  if exists (select 1 from public.case_opens where user_id = uid and day = d) then raise exception 'already opened today'; end if;
+  select prize into ex from public.case_opens where user_id = uid and day = d;
+  if ex is not null and ex <> 'spin' then raise exception 'already opened today'; end if;
   if r < 1 then pr := 'pick';
   elsif r < 3 then pr := 'coins'; amt := 500;
   elsif r < 11 then pr := 'coins'; amt := 250;
@@ -100,6 +101,7 @@ begin
   elsif r < 31 then pr := 'sticker';
   elsif r < 41 then pr := 'emoji';
   elsif r < 51 then pr := 'coins'; amt := 25;
+  elsif r < 66 then pr := 'spin';
   else pr := 'none';
   end if;
 
@@ -119,8 +121,12 @@ begin
     on conflict (user_id) do update set free_picks = public.user_tokens.free_picks + 1;
   end if;
 
-  insert into public.case_opens(user_id, day, prize, item, amount) values (uid, d, pr, it, amt);
-  return jsonb_build_object('opened', true, 'prize', pr, 'item', it, 'amount', amt,
+  if ex is null then
+    insert into public.case_opens(user_id, day, prize, item, amount) values (uid, d, pr, it, amt);
+  else
+    update public.case_opens set prize = pr, item = it, amount = amt, created_at = now() where user_id = uid and day = d;
+  end if;
+  return jsonb_build_object('opened', pr <> 'spin', 'prize', pr, 'item', it, 'amount', amt,
     'free_picks', coalesce((select free_picks from public.user_tokens where user_id = uid), 0),
     'next_at', (((d + 1)::timestamp) at time zone 'Asia/Jerusalem'));
 end $$;

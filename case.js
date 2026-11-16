@@ -14,10 +14,11 @@ const PR = {
   sticker: { r: "purple", i: "⭐", t: "Free sticker",        odds: 5 },
   emoji:   { r: "blue",   i: "😎", t: "Free emoji",          odds: 10 },
   c25:     { r: "grey",   i: "COIN", t: "25 coins",            odds: 10 },
-  none:    { r: "grey",   i: "😴", t: "Try again tomorrow",  odds: 49 }
+  spin:    { r: "blue",   i: "🔄", t: "Another spin",        odds: 15 },
+  none:    { r: "grey",   i: "😴", t: "Try again tomorrow",  odds: 34 }
 };
 /* what the reel SHOWS is skewed toward the good colours so it looks like a better chance than it is */
-const POOL = { gold: ["pick"], red: ["c500"], pink: ["c250", "theme"], purple: ["c100", "sticker"], blue: ["emoji"], grey: ["c25", "none"] };
+const POOL = { gold: ["pick"], red: ["c500"], pink: ["c250", "theme"], purple: ["c100", "sticker"], blue: ["emoji", "spin"], grey: ["c25", "none"] };
 const VIS = [["gold", 6], ["red", 10], ["pink", 17], ["purple", 20], ["blue", 22], ["grey", 25]];
 const pickR = () => { let x = Math.random() * 100; for (const [r, w] of VIS) { if ((x -= w) < 0) return r; } return "grey"; };
 const rnd = a => a[Math.floor(Math.random() * a.length)];
@@ -63,8 +64,8 @@ window.caseLoad = load;
 const left = () => { const ms = ST && ST.next_at ? Date.parse(ST.next_at) - Date.now() : 0; if (ms <= 0) return ""; const m = Math.ceil(ms / 60000), h = Math.floor(m / 60); return h ? h + "h " + (m % 60) + "m" : (m % 60) + "m"; };
 window.caseCard = () => {
   if (!CASEOK || !ME) return "";
-  const open = ST && ST.opened;
-  return `<button class="hcard${open ? "" : " cshot"}" onclick="openPage('case')"><i>🎁</i><span><b>Daily case</b><small>${open ? "Next free case in " + esc(left() || "a moment") : "Your free case is ready!"}</small></span><em>›</em></button>`;
+  const open = ST && ST.opened, again = !!(ST && !ST.opened && ST.prize === "spin");
+  return `<button class="hcard${open ? "" : " cshot"}" onclick="openPage('case')"><i>🎁</i><span><b>Daily case</b><small>${open ? "Next free case in " + esc(left() || "a moment") : again ? "You have another spin!" : "Your free case is ready!"}</small></span><em>›</em></button>`;
 };
 
 /* ---------- page ---------- */
@@ -75,20 +76,22 @@ const MEAN = {
   theme: "Unlocks a color theme for the whole site. Use it in the Shop.",
   sticker: "Unlocks a sticker next to your name. Use it in the Shop.",
   emoji: "Unlocks a reaction emoji for other players' picks.",
+  spin: "Spin the case again right away.",
   none: "Nothing this time. A new free case opens tomorrow."
 };
 function prizes() {
-  const order = ["pick", "c500", "c250", "theme", "c100", "sticker", "emoji", "c25", "none"];
+  const order = ["pick", "c500", "c250", "theme", "c100", "sticker", "emoji", "spin", "c25", "none"];
   return `<div class="cspz"><h3>Possible prizes</h3>${order.map(k => `<div class="cspr r-${PR[k].r}">${ic(PR[k].i)}<div><b>${esc(PR[k].t)}</b><span>${esc(MEAN[k])}</span></div></div>`).join("")}</div>`;
 }
 function resultCard(r) {
   const k = keyOf(r), p = PR[k], o = real(k, r && r.item) || p;
   let msg;
   if (k === "none") msg = "Nothing this time. Come back tomorrow for another free case.";
+  else if (k === "spin") msg = "You get to spin the case again right now.";
   else if (k === "pick") msg = "You can now change one locked pick, as long as that fight is not over. Open the pick and tap “Change this pick”.";
   else if (r.prize === "coins") msg = "+" + r.amount + " coins were added to your total.";
   else msg = "It is yours now. Find it in the Shop to use it.";
-  const head = k === "none" ? "Try again tomorrow" : k === "pick" ? "Free pick!" : r.prize === "coins" ? r.amount + " coins" : o.t;
+  const head = k === "none" ? "Try again tomorrow" : k === "pick" ? "Free pick!" : k === "spin" ? "Another spin!" : r.prize === "coins" ? r.amount + " coins" : o.t;
   return `<div class="csres r-${p.r}" role="status">${ic(o.i)}<div><small>${k === "none" ? "Today's case" : "You won"}</small><b>${esc(head)}</b><span>${esc(msg)}</span></div></div>`;
 }
 function stripKeys(final, item) {
@@ -108,12 +111,12 @@ const stripHtml = (keys, W, o) => keys.map((k, i) => tile(k, i === W ? o : null)
 
 function html() {
   if (!ME) return '<div class="box"><div class="pfn">Log in to open your free daily case.</div></div>';
-  const open = ST && ST.opened, idle = stripKeys(randKey(), null);
+  const open = ST && ST.opened, again = !!(ST && !ST.opened && ST.prize === "spin"), idle = stripKeys(randKey(), null);
   const fp = window.FPN > 0 ? `<div class="csfp">🎟️ Free picks: <b>${window.FPN}</b></div>` : "";
   return `<div class="csh"><div class="csn">Free daily case</div><small>One free spin every day</small></div>
   <div class="cswrap" dir="ltr"><div class="csstrip" id="csr">${stripHtml(idle.keys, -1, null)}</div><div class="cspt"></div></div>
-  ${open ? resultCard(ST) : ""}
-  <div class="csact">${open ? `<button class="btn csb" type="button" disabled id="csb">Come back tomorrow</button><div class="csnext" id="csnx">Next free case in ${esc(left() || "a moment")}</div>` : `<button class="btn csb" type="button" id="csb" onclick="caseOpen()">Open free case</button><div class="csnext" id="csnx"></div>`}</div>
+  ${open || again ? resultCard(ST) : ""}
+  <div class="csact">${open ? `<button class="btn csb" type="button" disabled id="csb">Come back tomorrow</button><div class="csnext" id="csnx">Next free case in ${esc(left() || "a moment")}</div>` : `<button class="btn csb" type="button" id="csb" onclick="caseOpen()">${again ? "Spin again" : "Open free case"}</button><div class="csnext" id="csnx"></div>`}</div>
   ${fp}${prizes()}`;
 }
 window.caseShow = function () {
@@ -149,6 +152,7 @@ window.caseOpen = async function () {
   if (busy || !SB || !ME) return;
   const btn = $("csb"), strip = $("csr"); if (!btn || !strip) return;
   busy = true; btn.disabled = true; btn.textContent = "Opening…";
+  { const old = strip.parentNode.parentNode.querySelector(".csres"); if (old) old.remove(); }
   let r;
   try { const x = await SB.rpc("open_case"); if (x.error) throw x.error; r = x.data; }
   catch (e) {
@@ -166,11 +170,12 @@ window.caseOpen = async function () {
   await spin(strip, vw, target, reduced() ? 1400 : 7000);
   const tiles = strip.children; for (let i = 0; i < tiles.length; i++) tiles[i].classList.add(i === S.W ? "win" : "dim");
   try { navigator.vibrate && navigator.vibrate(k === "none" ? [60] : [40, 50, 40, 50, 140]); } catch (e) {}
-  LAST = r; ST = Object.assign({}, ST || {}, r, { opened: true });
+  const again = r.prize === "spin";
+  LAST = r; ST = Object.assign({}, ST || {}, r, { opened: !again });
   window.FPN = r.free_picks != null ? r.free_picks : window.FPN;
   const act = wrap.parentNode.querySelector(".csact");
   wrap.insertAdjacentHTML("afterend", resultCard(r));
-  if (act) act.innerHTML = '<button class="btn csb" type="button" disabled>Come back tomorrow</button><div class="csnext" id="csnx">Next free case in ' + esc(left() || "a moment") + "</div>";
+  if (act) act.innerHTML = again ? '<button class="btn csb" type="button" id="csb" onclick="caseOpen()">Spin again</button><div class="csnext" id="csnx"></div>' : '<button class="btn csb" type="button" disabled id="csb">Come back tomorrow</button><div class="csnext" id="csnx">Next free case in ' + esc(left() || "a moment") + "</div>";
   busy = false; KEEP = true;
   if (r.prize === "coins") { try { CASEC[ME] = (CASEC[ME] || 0) + (r.amount || 0); } catch (e) {} }
   try { window.shopLoad && window.shopLoad(); } catch (e) {}
