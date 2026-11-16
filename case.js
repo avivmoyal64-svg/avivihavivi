@@ -7,13 +7,13 @@ const RC = { gold: "#ffcc33", red: "#ff3b3b", pink: "#f253b8", purple: "#9b5cff"
 /* prizes: r = rarity colour, odds = the real chance in % (the server does the draw) */
 const PR = {
   pick:    { r: "gold",   i: "🎟️", t: "Free pick",           odds: 1 },
-  c500:    { r: "red",    i: "💰", t: "500 coins",           odds: 2 },
-  c250:    { r: "pink",   i: "💰", t: "250 coins",           odds: 8 },
+  c500:    { r: "red",    i: "COIN", t: "500 coins",           odds: 2 },
+  c250:    { r: "pink",   i: "COIN", t: "250 coins",           odds: 8 },
   theme:   { r: "pink",   i: "🎨", t: "Free theme",          odds: 5 },
-  c100:    { r: "purple", i: "🪙", t: "100 coins",           odds: 10 },
+  c100:    { r: "purple", i: "COIN", t: "100 coins",           odds: 10 },
   sticker: { r: "purple", i: "⭐", t: "Free sticker",        odds: 5 },
   emoji:   { r: "blue",   i: "😎", t: "Free emoji",          odds: 10 },
-  c25:     { r: "grey",   i: "🪙", t: "25 coins",            odds: 10 },
+  c25:     { r: "grey",   i: "COIN", t: "25 coins",            odds: 10 },
   none:    { r: "grey",   i: "😴", t: "Try again tomorrow",  odds: 49 }
 };
 /* what the reel SHOWS is skewed toward the good colours so it looks like a better chance than it is */
@@ -40,7 +40,8 @@ function real(k, item) {   /* the winning tile shows the real item that was won 
   if (k === "emoji") return { i: it.g, t: it.n + " emoji" };
   return null;
 }
-const tile = (k, o) => { const p = PR[k], x = o || p; return `<div class="cst r-${p.r}" style="width:${TW}px"><i>${x.i}</i><b>${esc(x.t)}</b></div>`; };
+const ic = i => i === "COIN" ? '<i class="coin cc"></i>' : "<i>" + i + "</i>";
+const tile = (k, o) => { const p = PR[k], x = o || p; return `<div class="cst r-${p.r}" style="width:${TW}px">${ic(x.i)}<b>${esc(x.t)}</b></div>`; };
 
 /* ---------- data ---------- */
 async function load() {
@@ -75,7 +76,7 @@ function resultCard(r) {
   else if (r.prize === "coins") msg = "+" + r.amount + " coins were added to your total.";
   else msg = "It is yours now. Find it in the Shop to use it.";
   const head = k === "none" ? "Try again tomorrow" : k === "pick" ? "Free pick!" : r.prize === "coins" ? r.amount + " coins" : o.t;
-  return `<div class="csres r-${p.r}" role="status"><i>${o.i}</i><div><small>${k === "none" ? "Today's case" : "You won"}</small><b>${esc(head)}</b><span>${esc(msg)}</span></div></div>`;
+  return `<div class="csres r-${p.r}" role="status">${ic(o.i)}<div><small>${k === "none" ? "Today's case" : "You won"}</small><b>${esc(head)}</b><span>${esc(msg)}</span></div></div>`;
 }
 function stripKeys(final, item) {
   const W = 46, N = W + 9, keys = [];
