@@ -85,7 +85,12 @@ var X={
 ". If nothing happens, finish the one-time setup below first.":". אם לא קורה כלום, סיימו קודם את ההגדרה החד-פעמית למטה.",
 "Players · tap a name to see their picks":"שחקנים · לחצו על שם כדי לראות את הבחירות","Players' picks":"הבחירות של השחקנים","Players":"שחקנים",
 "No picks yet. Be the first to pick a winner.":"אין בחירות עדיין. היו הראשונים לבחור מנצח.",
-"Right winner: 100 coins · right method: +50 · right round: +50 (a right decision pick gets the round bonus too) · main event pays double.":"מנצח נכון: 100 מטבעות · שיטה נכונה: עוד 50 · סיבוב נכון: עוד 50 (בחירה נכונה של הכרעה מקבלת גם את בונוס הסיבוב) · הקרב הראשי משלם כפול.",
+"Right winner: 100 coins · right method: +50 · right round: +50 (a right decision pick gets the round bonus too) · put a bet on a fight and every right answer on it pays double.":"מנצח נכון: 100 מטבעות · שיטה נכונה: עוד 50 · סיבוב נכון: עוד 50 (בחירה נכונה של הכרעה מקבלת גם את בונוס הסיבוב) · שמים הימור על קרב וכל תשובה נכונה בו משלמת כפול.",
+"Favorite fighter":"הלוחם האהוב","Not chosen yet":"עדיין לא נבחר","Choose":"בחירה","Change":"שינוי","Could not save your favorite fighter. Try again.":"לא הצלחנו לשמור את הלוחם האהוב. נסו שוב.",
+"🎲 Bet placed":"🎲 ההימור נקבע","100 coins":"100 מטבעות","🎲 Bet 100":"🎲 הימור 100","🎲 Bet 100 coins on this fight":"🎲 מהמרים 100 מטבעות על הקרב הזה","Bet 100 coins":"להמר 100 מטבעות","Take my bet back":"לבטל את ההימור",
+"Every right answer pays double: winner, method and round. If your winner is wrong you lose the 100 coins. A no contest or a draw gives them back.":"כל תשובה נכונה משלמת כפול: מנצח, שיטה וסיבוב. אם המנצח שבחרתם שגוי, מפסידים את 100 המטבעות. ללא תוצאה או תיקו מחזירים אותם.",
+"Every right answer on this fight pays double. A wrong winner loses the 100 coins. A no contest or a draw gives them back.":"כל תשובה נכונה בקרב הזה משלמת כפול. מנצח שגוי מפסיד את 100 המטבעות. ללא תוצאה או תיקו מחזירים אותם.",
+"Lock in your pick first, then you can bet on it.":"קודם נועלים את הבחירה, ואז אפשר להמר עליה.","You need 100 free coins to bet.":"צריך 100 מטבעות פנויים כדי להמר.","Lock in your pick first.":"קודם נועלים את הבחירה.","Picks are locked, so bets can't change any more.":"הבחירות נעולות, אז אי אפשר לשנות הימורים.","Could not change the bet. Try again.":"לא הצלחנו לשנות את ההימור. נסו שוב.",
 "This player keeps their picks private.":"השחקן הזה שומר את הבחירות שלו בפרטיות.","Their picks stay hidden until each fight is over.":"הבחירות שלו נשארות מוסתרות עד שכל קרב מסתיים.","No picks yet.":"אין בחירות עדיין.","Picks for fights that are not over yet stay hidden.":"בחירות לקרבות שעדיין לא הסתיימו נשארות מוסתרות.",
 "made · hidden until the fights are over":"בוצעו · מוסתרות עד שהקרבות מסתיימים","Other players' picks show up here as each fight finishes.":"הבחירות של שחקנים אחרים יופיעו כאן עם סיום כל קרב.",
 "Picks for this card open once it becomes the week's event.":"הבחירות לקלף הזה ייפתחו כשהוא יהפוך לאירוע השבוע.","The card after this week is not announced yet. It shows up here as soon as it is.":"הקלף שאחרי השבוע הזה עדיין לא הוכרז. הוא יופיע כאן ברגע שיוכרז.","No past events yet. They appear here after the next update runs.":"אין אירועים קודמים עדיין. הם יופיעו כאן אחרי העדכון הבא.",
@@ -108,6 +113,8 @@ function dateFix(s){
 /* ---------- patterns ---------- */
 function ord(n){return n}
 var P=[
+ [/^You need 100 free coins to bet \((you have (\d+))\)\.$/,function(m){return "צריך 100 מטבעות פנויים כדי להמר (יש לכם "+m[2]+")."}],
+ [/^You have (\d+) coins to bet with\.$/,function(m){return "יש לכם "+m[1]+" מטבעות להמרות."}],
  [/^(.+) \(you\)$/,function(m){return m[1]+" (אתם)"}],
  [/^Buy (.+) for (\d+) coins\?$/,function(m){return "לקנות "+m[1]+" ב-"+m[2]+" מטבעות?"}],
  [/^🎉 (.+) is yours!$/,function(m){return "🎉 "+m[1]+" שלכם!"}],
