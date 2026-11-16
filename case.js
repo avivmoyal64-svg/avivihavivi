@@ -67,10 +67,6 @@ window.caseCard = () => {
 };
 
 /* ---------- page ---------- */
-function odds() {
-  const order = ["pick", "c500", "c250", "theme", "c100", "sticker", "emoji", "c25", "none"];
-  return `<details class="cso"><summary>Drop chances</summary>${order.map(k => `<div class="csor"><span class="csd" style="background:${RC[PR[k].r]}"></span><i>${PR[k].i}</i><b>${esc(PR[k].t)}</b><em>${PR[k].odds}%</em></div>`).join("")}<p>The reel is only for show. The real chances are the ones listed here, and the draw is made on the server.</p></details>`;
-}
 function resultCard(r) {
   const k = keyOf(r), p = PR[k], o = real(k, r && r.item) || p;
   let msg;
@@ -104,7 +100,7 @@ function html() {
   <div class="cswrap" dir="ltr"><div class="csstrip" id="csr">${stripHtml(idle.keys, -1, null)}</div><div class="cspt"></div></div>
   ${open ? resultCard(ST) : ""}
   <div class="csact">${open ? `<button class="btn csb" type="button" disabled id="csb">Come back tomorrow</button><div class="csnext" id="csnx">Next free case in ${esc(left() || "a moment")}</div>` : `<button class="btn csb" type="button" id="csb" onclick="caseOpen()">Open free case</button><div class="csnext" id="csnx"></div>`}</div>
-  ${fp}${odds()}`;
+  ${fp}`;
 }
 window.caseShow = function () {
   const el = $("pgcs"); if (!el || busy) return;
