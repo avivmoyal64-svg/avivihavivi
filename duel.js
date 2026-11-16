@@ -237,6 +237,33 @@ function genCard() {
 }
 window.duelGen = genRandom; window.duelGenFighter = genFighter; window.duelGenClass = genClass; window.duelGenCard = genCard;
 
+/* ---------- facts for the "Guess the fighter" game (no name, easiest clues last) ---------- */
+window.guessFacts = function (name) {
+  const C = ctx(), x = entry(C, name); if (!x) return null;
+  const f = x.f, n = f.n, c = x.c, r = C.RN[nz(n)], rc = recOf(C, f), parts = n.trim().split(/\s+/), first = parts[0], lastN = parts.slice(1).join(" ") || first;
+  const F = [];
+  const arts = (f.base || []).filter(s => clean(s));
+  if (arts.length) F.push(arts.length > 1 ? `Their training background includes ${arts.slice(0, 3).join(", ")}.` : `Their training background is ${arts[0]}.`);
+  const ct = ctryOf(n); if (ct) F.push(`They represent ${ct}.`);
+  if (rc && rc.W > 0) F.push(rc.W >= 10 ? `They have more than ${Math.floor((rc.W - 1) / 5) * 5} pro wins.` : `They have ${rc.W} pro wins.`);
+  if (LIM[c]) F.push(`Their division's weight limit is ${lim(c)}.`);
+  const st = (f.s || []).filter(clean); if (st.length) F.push(`Known strength: ${rnd(st)}.`);
+  if (r && r.ko != null) { const m = [["knockout", r.ko], ["submission", r.sub], ["decision", r.dec]].sort((p, q) => q[1] - p[1]); if (m[0][1] > m[1][1]) F.push(`Most of their wins come by ${m[0][0]}.`); }
+  const rk = rankNum(f.tag); if (rk === 0) F.push("They are a champion."); else if (rk != null) F.push(`They are ranked #${rk} in their division.`); else if (/legend/i.test(f.tag || "")) F.push("They are considered a legend of the sport.");
+  const opp = uniq((f.ff || []).concat(f.hl || []).map(o => { const p = String(o).split(/\s+vs\.?\s+/i); return base(p.length > 1 ? (p.find(z => nz(base(z)) !== nz(n)) || "") : o); })).filter(o => o && nz(o) !== nz(n));
+  if (opp.length) F.push(`They have fought ${rnd(opp)}.`); else if (r && (r.beat || []).length) F.push(`They have beaten ${rnd(r.beat)}.`);
+  if (clean(f.nick)) F.push(`Their nickname starts with “${f.nick.trim()[0].toUpperCase()}”.`);
+  F.push(`They fight in the ${c} division.`);
+  if (rc) F.push(rc.L === 0 ? "They are undefeated." : `They have ${rc.L} loss${rc.L === 1 ? "" : "es"}.`);
+  const H = [`Their first name has ${first.replace(/[^\p{L}]/gu, "").length} letters.`, `Their last name starts with “${lastN[0].toUpperCase()}”.`, clean(f.nick) ? `Their nickname is “${f.nick.trim()}”.` : `Their last name has ${lastN.replace(/[^\p{L}]/gu, "").length} letters.`, `Their first name starts with “${first[0].toUpperCase()}”.`];
+  const out = uniq(F).slice(0, 10 - 3);
+  const pad = uniq(F).slice(out.length, out.length + 10);
+  while (out.length < 7 && pad.length) out.push(pad.shift());
+  H.forEach(h => { if (out.length < 10) out.push(h); });
+  return out.length >= 10 ? { name: n, cls: c, facts: out.slice(0, 10) } : null;
+};
+window.guessNames = () => ctx().names.slice();
+
 /* ---------- data ---------- */
 async function load() {
   if (!SB || !ME) return;
