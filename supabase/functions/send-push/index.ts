@@ -20,12 +20,14 @@ const T = {
     remind: (n: string, done: number, tot: number) => ({ title: "Picks lock in about 1 hour", body: n + ": you picked " + done + " of " + tot + " fights." }),
     results: (n: string) => ({ title: "Results are in", body: n + " is over. See how you did on the scoreboard." }),
     test: () => ({ title: "Notifications work", body: "This is a test message." }),
+    nudge: (f: number) => ({ title: "Your GOAT list is waiting 🐐", body: "You are at " + f + " of 20. Finish it and get 100 coins!", tag: "goat-nudge" }),
   },
   he: {
     open: (n: string) => ({ title: "הבחירות נפתחו", body: n + ": בחרו מנצחים והרוויחו מטבעות." }),
     remind: (n: string, done: number, tot: number) => ({ title: "הבחירות ננעלות בעוד כשעה", body: n + ": בחרתם " + done + " מתוך " + tot + " קרבות." }),
     results: (n: string) => ({ title: "התוצאות מוכנות", body: n + " הסתיים. בדקו בלוח התוצאות איך הלך לכם." }),
     test: () => ({ title: "ההתראות עובדות", body: "זו הודעת בדיקה." }),
+    nudge: (f: number) => ({ title: "רשימת ה-GOAT שלכם מחכה 🐐", body: "אתם ב-" + f + " מתוך 20. סיימו אותה וקבלו 100 מטבעות!", tag: "goat-nudge" }),
   },
 };
 
@@ -98,6 +100,21 @@ Deno.serve(async (req) => {
     if (!first && (last.fights || []).length) log.push("results:" + await send(subs, (s) => L(s).results(last.name), dead));
     st.results = last.id;
   }
+  // 4) GOAT list nudge: started but not finished, one day after the last edit (at most 2 times per person, once per edit)
+  try {
+    const gl = await get("goat_lists?select=user_id,list,updated_at,bonus");
+    st.nudge = st.nudge || {};
+    for (const row of gl) {
+      const filled = (Array.isArray(row.list) ? row.list : []).filter((x: any) => String(x || "").trim()).length;
+      const age = now - Date.parse(row.updated_at);
+      if (row.bonus || filled < 1 || filled >= 20 || !(age >= 24 * 3600e3 && age < 7 * 24 * 3600e3)) continue;
+      const rec = st.nudge[row.user_id] || { u: "", n: 0 };
+      if (rec.u === row.updated_at || rec.n >= 2) continue;
+      const mine = subs.filter((s: any) => s.user_id === row.user_id);
+      if (!first && mine.length) log.push("nudge:" + await send(mine, (s) => L(s).nudge(filled), dead));
+      st.nudge[row.user_id] = { u: row.updated_at, n: first ? rec.n : rec.n + 1 };
+    }
+  } catch (e) {}
   await writeKey("push_state", st);
   if (dead.length) await fetch(SB_URL + "/rest/v1/push_subs?endpoint=in.(" + dead.map(encodeURIComponent).join(",") + ")", { method: "DELETE", headers: dbH });
   return new Response(JSON.stringify({ first, subscribers: subs.length, log, removed: dead.length }), { headers: { "content-type": "application/json" } });

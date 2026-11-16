@@ -560,6 +560,22 @@ button.rx{cursor:pointer}.rx small{font:700 13px Barlow,Arial,sans-serif;color:v
 .rx.me{box-shadow:inset 0 0 0 2px var(--red);background:rgba(var(--rgb),.25)}
 .rpg button{border-radius:0;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));border:0;background:linear-gradient(160deg,#4b4c55,#383941)}
 .rpg button.me{box-shadow:inset 0 0 0 3px var(--red)}
+
+/* hot take + comments */
+.ghot{position:absolute;left:-6px;right:-6px;top:0;z-index:2;padding:2px 0 3px;background:var(--red);color:#fff;text-align:center;font:italic 900 11px/1 "Barlow Condensed","Heebo",Arial,sans-serif;letter-spacing:1px;text-transform:uppercase;transform:skewX(-12deg);box-shadow:0 2px 6px rgba(0,0,0,.5)}
+.gt.hot .gq{border-color:var(--red2)}
+.ggrid.sm .ghot{font-size:9px;padding:2px 0}
+.gcm{margin-top:18px}
+.gcm h3{margin:0 0 8px}
+.gcr{padding:9px 12px;margin:0 0 8px;background:#34353b;border-inline-start:3px solid var(--red)}
+.gch{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
+.gch b{font:800 16px "Barlow Condensed","Heebo",Arial,sans-serif;text-transform:uppercase;color:#fff}
+.gch small{margin-inline-start:auto;color:var(--mut);font:12px Barlow,Arial,sans-serif}
+.gcx{border:0;background:none;color:var(--mut);font-size:14px;cursor:pointer;padding:2px 6px}
+.gcr p{margin:4px 0 0;color:var(--tx);font:15px/1.4 Barlow,"Heebo",Arial,sans-serif;overflow-wrap:anywhere;white-space:pre-wrap}
+.gcf{display:flex;gap:8px;margin-top:10px}
+.gcf input{flex:1;min-width:0;padding:11px 14px;border-radius:0;border:1px solid #5a5b63;background:#2c2d32;color:var(--tx);font:16px Barlow,"Heebo",Arial,sans-serif}
+.gcf .btn{flex:0 0 auto;width:auto;margin:0;padding:0 20px}
 </style></head><body>
 <div id="prog"></div>
 <section id="hero"><div class="hp one"><canvas id="c1" width="1920" height="1080"></canvas></div><div class="hc" id="hc"><h1>UFC <span>Fighter</span> Roster</h1><p class="sub" style="color:#ddd">Scroll to bring the fighters to life</p><span class="hint">Scroll ↓</span></div></section>
@@ -1022,6 +1038,14 @@ setTimeout(()=>{READY=true;ren()},10000);setTimeout(()=>{if(/^#(picks|scoreboard
 show("Flyweight");UI=true;
 
 /* ===== GOAT list: 20 spots per player ===== */
+
+/* GOAT tiers (hidden from players): 1-10, 11-15 and free spots 16-20. A fighter outside his tier at spots 1-15 gets a HOT TAKE label. */
+const GTA=["georges st pierre","gsp","jon jones","anderson silva","khabib nurmagomedov","demetrious johnson","amanda nunes","islam makhachev","alexander volkanovski","kamaru usman","jose aldo"],
+ GTB=["valentina shevchenko","max holloway","daniel cormier","charles oliveira","israel adesanya"],
+ GTC=["randy couture","ilia topuria","alex pereira","matt hughes","stipe miocic"];
+const gTier=n=>{const k=nz(n);return GTA.includes(k)?0:GTB.includes(k)?1:GTC.includes(k)?2:3};
+const gSlotTier=i=>i<10?0:i<15?1:2;
+const gHot=(n,i)=>!!n&&i<15&&gTier(n)!==gSlotTier(i);
 const GN=20;let GEDIT=false,GOAT={},GOATOK=false,GSLOT=0;
 const gcl=a=>Array.from({length:GN},(_,i)=>String((a||[])[i]||"").slice(0,40));
 function gRefresh(){try{if(!document.getElementById("pgG").hidden)drawPage()}catch(e){}try{const p=document.getElementById("pf");if(p.open&&p.dataset.id)openProf(p.dataset.id,1)}catch(e){}}
@@ -1052,6 +1076,25 @@ function showGift(amount){amount=amount||100;if(document.getElementById("gift"))
   const t0=performance.now(),dur=rm?1:1300;(function step(t){const k=Math.min(1,(t-t0)/dur);num.textContent="+"+Math.round(amount*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(step)})(t0);
  },rm?100:1600)}
 
+
+/* ===== comments on GOAT lists ===== */
+let GCM={},GCT={};
+const agoTxt=t=>{const s=Math.max(0,(Date.now()-Date.parse(t))/1000);return s<60?"just now":s<3600?Math.floor(s/60)+"m ago":s<86400?Math.floor(s/3600)+"h ago":Math.floor(s/86400)+"d ago"};
+function gcHtml(u){const L=GCM[u]||[];
+ const rows=L.map(c=>`<div class="gcr"><div class="gch"><b translate="no">${esc(NAMES[c.author]||(PICKS[c.author]||{}).name||"Fight fan")}</b>${SK(c.author)}<small>${agoTxt(c.created_at)}</small>${(c.author===ME||u===ME)?`<button type="button" class="gcx" aria-label="Delete" data-id="${c.id}" data-u="${esc(u)}" onclick="gcDel(this.dataset.id,this.dataset.u)">✕</button>`:""}</div><p translate="no">${esc(c.body)}</p></div>`).join("");
+ return `<h3>Comments${L.length?" ("+L.length+")":""}</h3>${rows||'<div class="pfn">No comments yet. Be the first.</div>'}${ME&&SB?`<form class="gcf" onsubmit="gcPost(event,'${esc(u)}')"><input type="text" maxlength="300" placeholder="Write a comment…" autocomplete="off" aria-label="Write a comment"><button type="submit" class="btn">Post</button></form>`:""}`}
+function gcDraw(u){document.querySelectorAll(".gcm").forEach(e=>{if(e.dataset.u===u){const a=e.querySelector("input"),v=a?a.value:"";e.innerHTML=gcHtml(u);const b=e.querySelector("input");if(b&&v)b.value=v}})}
+async function gcLoad(u,force){if(!SB||!ME)return;if(!force&&Date.now()-(GCT[u]||0)<15000)return;GCT[u]=Date.now();
+ try{const{data,error}=await SB.from("goat_comments").select("id,author,body,created_at").eq("list_user",u).order("created_at",{ascending:true}).limit(100);if(!error&&data){GCM[u]=data;gcDraw(u)}}catch(e){}}
+function gcBox(u){if(!SB||!ME)return"";setTimeout(()=>gcLoad(u),0);return `<div class="gcm pfg" data-u="${esc(u)}">${gcHtml(u)}</div>`}
+async function gcPost(ev,u){ev.preventDefault();const f=ev.target,i=f.querySelector("input"),b=String(i.value||"").trim().slice(0,300);if(!b)return;
+ const btn=f.querySelector("button");btn.disabled=true;
+ try{const{data,error}=await SB.from("goat_comments").insert({list_user:u,author:ME,body:b}).select("id,author,body,created_at").single();
+  if(error)throw error;(GCM[u]=GCM[u]||[]).push(data);i.value="";gcDraw(u)}
+ catch(e){alert("Could not post the comment. "+(e&&e.message?e.message:""))}
+ btn.disabled=false}
+async function gcDel(id,u){try{const{error}=await SB.from("goat_comments").delete().eq("id",id);if(error)throw error;GCM[u]=(GCM[u]||[]).filter(c=>String(c.id)!==String(id));gcDraw(u)}catch(e){alert("Could not delete the comment.")}}
+
 let GFLASH="";
 async function goatSave(){
  const l=gcl(GOAT[ME]);GOAT[ME]=l;try{localStorage.setItem("ufcgoat",JSON.stringify(l))}catch(e){}
@@ -1060,14 +1103,14 @@ async function goatSave(){
  GOATOK=ok;gRefresh();return ok}
 function gTile(n,i,ro){const z=String(n||""),ph=z&&photoZ(z),fo=z&&findF(z);
  const att=(ro||!GEDIT)?(fo?` data-n="${esc(z)}" onclick="openFighter(this.dataset.n)"`:""):` onclick="goatPick(${i})"`;
- return `<div class="gt${z?" f":""}${ro?" ro":""}"${att}><div class="gq"${ph?` style="background-image:url(${ph})"`:""}>${z?(ph?"":`<b class="gi">${esc(ini(z))}</b>`)+`<span class="gname">${esc(z)}</span>`:'<span class="gplus">+</span>'}</div><span class="gnum">${i+1}${i===0?"<em>🐐</em>":""}</span></div>`}
+ const hot=gHot(z,i);return `<div class="gt${z?" f":""}${ro?" ro":""}${hot?" hot":""}"${att}><div class="gq"${ph?` style="background-image:url(${ph})"`:""}>${hot?'<span class="ghot">Hot take</span>':""}${z?(ph?"":`<b class="gi">${esc(ini(z))}</b>`)+`<span class="gname">${esc(z)}</span>`:'<span class="gplus">+</span>'}</div><span class="gnum">${i+1}${i===0?"<em>🐐</em>":""}</span></div>`}
 function goatHtml(){
  if(!ME||!SB)return '<div class="box"><div class="pfn">Log in to build your GOAT list: your top 20 fighters of all time.</div></div>';
  const l=gcl(GOAT[ME]),n=l.filter(Boolean).length;
- return (GFLASH?`<div class="gnote" style="margin-top:4px;color:#fff;font-weight:700">${GFLASH}</div>`:"")+(GBON[ME]?"":`<div class="gnote" style="margin-top:4px;color:var(--red2);font-weight:700">Fill all 20 spots for the first time and get 100 coins.</div>`)+`<div class="gnote" style="margin-top:4px">Your top 20 fighters of all time. ${n} of ${GN} filled. Other players can see your list on your profile.</div><button type="button" class="gedit${GEDIT?" on":""}" onclick="GEDIT=!GEDIT;drawPage()">${GEDIT?"Done":"✎ Edit list"}</button><div class="gnote" style="margin:8px 0 0">${GEDIT?"Tap a square to add or change a fighter.":"Tap a fighter to open their profile."}</div><div class="ggrid">${l.map((x,i)=>gTile(x,i)).join("")}</div>`}
+ return (GFLASH?`<div class="gnote" style="margin-top:4px;color:#fff;font-weight:700">${GFLASH}</div>`:"")+(GBON[ME]?"":`<div class="gnote" style="margin-top:4px;color:var(--red2);font-weight:700">Fill all 20 spots for the first time and get 100 coins.</div>`)+`<div class="gnote" style="margin-top:4px">Your top 20 fighters of all time. ${n} of ${GN} filled. Other players can see your list on your profile.</div><button type="button" class="gedit${GEDIT?" on":""}" onclick="GEDIT=!GEDIT;drawPage()">${GEDIT?"Done":"✎ Edit list"}</button><div class="gnote" style="margin:8px 0 0">${GEDIT?"Tap a square to add or change a fighter.":"Tap a fighter to open their profile."}</div><div class="ggrid">${l.map((x,i)=>gTile(x,i)).join("")}</div>${gcBox(ME)}`}
 function goatBlock(id){const l=gcl(GOAT[id]),n=l.filter(Boolean).length;
  if(!n)return id===ME?'<div class="pfg"><h3>GOAT list</h3><div class="pfn">You have not built your GOAT list yet. Open the GOAT list page from the home screen.</div></div>':'<div class="pfg"><h3>GOAT list</h3><div class="pfn">No GOAT list yet.</div></div>';
- return `<div class="pfg"><h3>GOAT list</h3><div class="ggrid sm">${l.map((x,i)=>gTile(x,i,1)).join("")}</div></div>`}
+ return `<div class="pfg"><h3>GOAT list</h3><div class="ggrid sm">${l.map((x,i)=>gTile(x,i,1)).join("")}</div>${gcBox(id)}</div>`}
 function goatSet(i,n){const l=gcl(GOAT[ME]);if(n){const j=l.findIndex(x=>nz(x)===nz(n));if(j>-1&&j!==i)l[j]=""}l[i]=n;GOAT[ME]=l;goatSave().then(ok=>{if(!ok)goatWarn()});drawPage()}
 function goatMove(i,d){const l=gcl(GOAT[ME]),j=i+d;if(j<0||j>=GN)return;[l[i],l[j]]=[l[j],l[i]];GOAT[ME]=l;goatSave().then(ok=>{if(!ok)goatWarn()});drawPage();goatPick(j)}
 function goatWarn(){const e=document.querySelector("#pgg .gnote");if(e&&!e.dataset.w){e.dataset.w=1;e.insertAdjacentHTML("afterend",'<div class="gnote" style="color:var(--red2)">Saved on this device only for now. Other players cannot see your list yet.</div>')}}

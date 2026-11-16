@@ -27,3 +27,30 @@ create trigger goat_bonus before insert or update on public.goat_lists for each 
 
 -- Give the bonus to lists that were already complete before this script ran (fires the trigger once for every row)
 update public.goat_lists set list = list;
+
+-- Comments on GOAT lists
+create table if not exists public.goat_comments(
+  id bigint generated always as identity primary key,
+  list_user uuid not null references auth.users(id) on delete cascade,
+  author uuid not null references auth.users(id) on delete cascade,
+  body text not null check (char_length(btrim(body)) between 1 and 300),
+  created_at timestamptz not null default now()
+);
+create index if not exists goat_comments_list on public.goat_comments(list_user, created_at);
+alter table public.goat_comments enable row level security;
+drop policy if exists "gc read" on public.goat_comments;
+create policy "gc read" on public.goat_comments for select to authenticated using (true);
+drop policy if exists "gc insert own" on public.goat_comments;
+create policy "gc insert own" on public.goat_comments for insert to authenticated with check (author = auth.uid());
+drop policy if exists "gc delete" on public.goat_comments;
+create policy "gc delete" on public.goat_comments for delete to authenticated using (author = auth.uid() or list_user = auth.uid());
+-- slow down spam: one comment per 3 seconds per person
+create or replace function public.gc_rate() returns trigger language plpgsql as $$
+begin
+  if exists (select 1 from public.goat_comments where author = new.author and created_at > now() - interval '3 seconds') then
+    raise exception 'slow down';
+  end if;
+  return new;
+end $$;
+drop trigger if exists gc_rate on public.goat_comments;
+create trigger gc_rate before insert on public.goat_comments for each row execute function public.gc_rate();

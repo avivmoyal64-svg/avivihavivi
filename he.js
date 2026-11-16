@@ -38,7 +38,7 @@ var TM={
 
 /* ---------- exact UI strings ---------- */
 var X={
-"Shop":"חנות","Emojis, color themes & stickers":"אימוג'ים, ערכות צבעים ומדבקות","Emojis, color themes &amp; stickers":"אימוג'ים, ערכות צבעים ומדבקות","Your wallet":"הארנק שלכם","Spending coins does not lower your rank.":"הוצאת מטבעות לא מורידה את הדירוג שלכם.","Reaction emojis":"אימוג'י תגובה","Use them to react to other players' picks.":"השתמשו בהם כדי להגיב לבחירות של שחקנים אחרים.","Color themes":"ערכות צבעים","Stickers":"מדבקות","A sticker sits next to your name for everyone to see.":"מדבקה מופיעה ליד השם שלכם לעיני כולם.","Owned":"בבעלותכם","In use":"בשימוש","Use":"שימוש","Red":"אדום","Pink":"ורוד","Blue":"כחול","Green":"ירוק","Like":"לייק","Thumbs up":"אגודל למעלה","Fire":"אש","Laugh":"צחוק","Clap":"מחיאות כפיים","Eyes":"עיניים","Skull":"גולגולת","Clown":"ליצן","Shocked":"הלם","Ice cold":"קר כקרח","Rocket":"רקטה","Crown":"כתר","Goat":"עז","React":"הגיבו","Remove my reaction":"הסרת התגובה שלי","More emojis are in the Shop on the home screen.":"עוד אימוג'ים בחנות במסך הבית.","Log in to use the shop.":"התחברו כדי להשתמש בחנות.","The shop is not open yet.":"החנות עדיין לא נפתחה.","Not enough coins.":"אין מספיק מטבעות.","You already own this.":"כבר יש לכם את זה.","Gift":"מתנה","complete!":"הושלמה!","Your gift: 100 coins added to your total.":"המתנה שלכם: 100 מטבעות נוספו לסך שלכם.","Collect":"קבלו","🎉 GOAT list complete! +100 coins added.":"🎉 רשימת ה-GOAT הושלמה! נוספו 100 מטבעות.","Fill all 20 spots for the first time and get 100 coins.":"מלאו את כל 20 המקומות בפעם הראשונה וקבלו 100 מטבעות.","🔔 Notifications":"🔔 התראות","🔔 Notifications: on":"🔔 התראות: פעילות","Notifications":"התראות","Turn on notifications":"הפעלת התראות","Turn off notifications":"כיבוי התראות",
+"Hot take":"דעה חמה","Comments":"תגובות","Post":"פרסום","Write a comment…":"כתבו תגובה…","No comments yet. Be the first.":"אין תגובות עדיין. היו הראשונים.","just now":"הרגע","Delete":"מחיקה","Could not delete the comment.":"לא ניתן היה למחוק את התגובה.","Shop":"חנות","Emojis, color themes & stickers":"אימוג'ים, ערכות צבעים ומדבקות","Emojis, color themes &amp; stickers":"אימוג'ים, ערכות צבעים ומדבקות","Your wallet":"הארנק שלכם","Spending coins does not lower your rank.":"הוצאת מטבעות לא מורידה את הדירוג שלכם.","Reaction emojis":"אימוג'י תגובה","Use them to react to other players' picks.":"השתמשו בהם כדי להגיב לבחירות של שחקנים אחרים.","Color themes":"ערכות צבעים","Stickers":"מדבקות","A sticker sits next to your name for everyone to see.":"מדבקה מופיעה ליד השם שלכם לעיני כולם.","Owned":"בבעלותכם","In use":"בשימוש","Use":"שימוש","Red":"אדום","Pink":"ורוד","Blue":"כחול","Green":"ירוק","Like":"לייק","Thumbs up":"אגודל למעלה","Fire":"אש","Laugh":"צחוק","Clap":"מחיאות כפיים","Eyes":"עיניים","Skull":"גולגולת","Clown":"ליצן","Shocked":"הלם","Ice cold":"קר כקרח","Rocket":"רקטה","Crown":"כתר","Goat":"עז","React":"הגיבו","Remove my reaction":"הסרת התגובה שלי","More emojis are in the Shop on the home screen.":"עוד אימוג'ים בחנות במסך הבית.","Log in to use the shop.":"התחברו כדי להשתמש בחנות.","The shop is not open yet.":"החנות עדיין לא נפתחה.","Not enough coins.":"אין מספיק מטבעות.","You already own this.":"כבר יש לכם את זה.","Gift":"מתנה","complete!":"הושלמה!","Your gift: 100 coins added to your total.":"המתנה שלכם: 100 מטבעות נוספו לסך שלכם.","Collect":"קבלו","🎉 GOAT list complete! +100 coins added.":"🎉 רשימת ה-GOAT הושלמה! נוספו 100 מטבעות.","Fill all 20 spots for the first time and get 100 coins.":"מלאו את כל 20 המקומות בפעם הראשונה וקבלו 100 מטבעות.","🔔 Notifications":"🔔 התראות","🔔 Notifications: on":"🔔 התראות: פעילות","Notifications":"התראות","Turn on notifications":"הפעלת התראות","Turn off notifications":"כיבוי התראות",
 "On iPhone: first tap Share, then Add to Home Screen, open the app from your Home Screen, and turn notifications on there.":"באייפון: קודם לחצו על שיתוף ואז על הוספה למסך הבית, פתחו את האפליקציה ממסך הבית והפעילו שם את ההתראות.",
 "This browser does not support notifications.":"הדפדפן הזה לא תומך בהתראות.",
 "Notifications are blocked for this site. Allow them in your browser or phone settings, then try again.":"ההתראות חסומות לאתר הזה. אפשרו אותן בהגדרות הדפדפן או הטלפון ונסו שוב.",
@@ -112,6 +112,11 @@ var P=[
  [/^Buy (.+) for (\d+) coins\?$/,function(m){return "לקנות "+m[1]+" ב-"+m[2]+" מטבעות?"}],
  [/^🎉 (.+) is yours!$/,function(m){return "🎉 "+m[1]+" שלכם!"}],
  [/^Something went wrong: (.*)$/,function(m){return "משהו השתבש: "+m[1]}],
+ [/^Comments \((\d+)\)$/,function(m){return "תגובות ("+m[1]+")"}],
+ [/^(\d+)m ago$/,function(m){return "לפני "+m[1]+" דק'"}],
+ [/^(\d+)h ago$/,function(m){return "לפני "+m[1]+" שע'"}],
+ [/^(\d+)d ago$/,function(m){return "לפני "+m[1]+" ימים"}],
+ [/^Could not post the comment\. ?(.*)$/,function(m){return "לא ניתן היה לפרסם את התגובה. "+m[1]}],
  [/^Spot #(\d+)$/,function(m){return "מקום #"+m[1]}],
  [/^Your top 20 fighters of all time\. (\d+) of (\d+) filled\. Other players can see your list on your profile\.$/,function(m){return "20 הלוחמים הטובים בכל הזמנים שלכם. "+m[1]+" מתוך "+m[2]+" מולאו. שחקנים אחרים יכולים לראות את הרשימה בפרופיל שלכם."}],
  [/^now #(\d+)$/,function(m){return "כרגע #"+m[1]}],
@@ -188,7 +193,7 @@ window.trHe=tr;
 var ATTR=["placeholder","aria-label","title","alt"];
 function doNode(n){
  if(n.nodeType===3){
-  var p=n.parentNode;if(!p||p.nodeName==="SCRIPT"||p.nodeName==="STYLE"||p.nodeName==="TEXTAREA")return;
+  var p=n.parentNode;if(!p||p.nodeName==="SCRIPT"||p.nodeName==="STYLE"||p.nodeName==="TEXTAREA"||(p.closest&&p.closest("[translate=no]")))return;
   var v=tr(n.nodeValue);if(v!==n.nodeValue)n.nodeValue=v;return;
  }
  if(n.nodeType!==1)return;
