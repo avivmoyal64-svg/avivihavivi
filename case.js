@@ -68,6 +68,19 @@ window.caseCard = () => {
 };
 
 /* ---------- page ---------- */
+const MEAN = {
+  pick: "Change one locked pick, as long as that fight is not over.",
+  c500: "500 coins added to your total.", c250: "250 coins added to your total.",
+  c100: "100 coins added to your total.", c25: "25 coins added to your total.",
+  theme: "Unlocks a color theme for the whole site. Use it in the Shop.",
+  sticker: "Unlocks a sticker next to your name. Use it in the Shop.",
+  emoji: "Unlocks a reaction emoji for other players' picks.",
+  none: "Nothing this time. A new free case opens tomorrow."
+};
+function prizes() {
+  const order = ["pick", "c500", "c250", "theme", "c100", "sticker", "emoji", "c25", "none"];
+  return `<div class="cspz"><h3>Possible prizes</h3>${order.map(k => `<div class="cspr r-${PR[k].r}">${ic(PR[k].i)}<div><b>${esc(PR[k].t)}</b><span>${esc(MEAN[k])}</span></div></div>`).join("")}</div>`;
+}
 function resultCard(r) {
   const k = keyOf(r), p = PR[k], o = real(k, r && r.item) || p;
   let msg;
@@ -101,7 +114,7 @@ function html() {
   <div class="cswrap" dir="ltr"><div class="csstrip" id="csr">${stripHtml(idle.keys, -1, null)}</div><div class="cspt"></div></div>
   ${open ? resultCard(ST) : ""}
   <div class="csact">${open ? `<button class="btn csb" type="button" disabled id="csb">Come back tomorrow</button><div class="csnext" id="csnx">Next free case in ${esc(left() || "a moment")}</div>` : `<button class="btn csb" type="button" id="csb" onclick="caseOpen()">Open free case</button><div class="csnext" id="csnx"></div>`}</div>
-  ${fp}`;
+  ${fp}${prizes()}`;
 }
 window.caseShow = function () {
   const el = $("pgcs"); if (!el || busy) return;
