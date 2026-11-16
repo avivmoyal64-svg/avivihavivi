@@ -155,28 +155,28 @@ var X={
 "Specific fighter":"לוחם מסוים",
 "Random fighter":"לוחם אקראי",
 "This week's card":"הקלף של השבוע",
-"Favorite fighters":"הלוחמים האהובים",
+"Fighter swap":"החלפת לוחמים",
 "🎲 Random fighter":"🎲 לוחם אקראי",
 "🏋️ Weight class":"🏋️ קטגוריית משקל",
 "🥊 Specific fighter":"🥊 לוחם מסוים",
 "📅 This week's card":"📅 הקלף של השבוע",
-"⭐ Favorite fighters":"⭐ הלוחמים האהובים",
+"🔄 Fighter swap":"🔄 החלפת לוחמים",
 "10 questions about a random fighter":"10 שאלות על לוחם אקראי",
 "Questions about the fighters of one division":"שאלות על הלוחמים של קטגוריית משקל אחת",
 "Pick one fighter to be quizzed on":"בחרו לוחם אחד לשאלות עליו",
 "Questions about the fighters on the upcoming card":"שאלות על הלוחמים בקלף הקרוב",
-"You get questions on their favorite, they get yours":"אתם מקבלים שאלות על האהוב שלו, והוא מקבל על האהוב שלכם",
+"You each get questions on a fighter you pick":"כל אחד מכם מקבל שאלות על לוחם שאתם בוחרים","Choose the fighter you get questions on":"בחרו את הלוחם שתקבלו עליו שאלות","Choose the fighter they get questions on":"בחרו את הלוחם שהוא יקבל עליו שאלות",
 "Choose a duel type":"בחרו סוג דו-קרב",
 "Choose a weight class":"בחרו קטגוריית משקל",
 "Choose a fighter":"בחרו לוחם",
 "‹ Back":"‹ חזרה",
 "Not enough profiled fighters on this week's card":"אין מספיק לוחמים עם פרופיל בקלף של השבוע",
-"They have not chosen a favorite fighter yet":"הוא עדיין לא בחר לוחם אהוב",
-"Choose your own favorite fighter first":"קודם בחרו לוחם אהוב משלכם",
-"You both need a favorite fighter for this duel.":"לשניכם צריך להיות לוחם אהוב בשביל הדו-קרב הזה.",
+
+
+
 "Challenge a player · win up to 25 coins":"אתגרו שחקן · עד 25 מטבעות למנצח",
 "Your coins":"המטבעות שלכם",
-"10 easy questions. The player with the most right answers wins the coins. A tie goes to whoever answered faster. Pick a duel type when you challenge someone: random fighter 25 coins, weight class 10, a specific fighter 10, this week's card 10, or favorite fighters 15.":"10 שאלות קלות. מי שענה נכון על הכי הרבה שאלות מקבל את המטבעות. בתיקו מנצח מי שענה מהר יותר. בוחרים סוג דו-קרב כשמאתגרים: לוחם אקראי 25 מטבעות, קטגוריית משקל 10, לוחם מסוים 10, הקלף של השבוע 10, או לוחמים אהובים 15."
+"10 easy questions. The player with the most right answers wins the coins. A tie goes to whoever answered faster. Pick a duel type when you challenge someone: random fighter 25 coins, weight class 10, a specific fighter 10, this week's card 10, or fighter swap 15.":"10 שאלות קלות. מי שענה נכון על הכי הרבה שאלות מקבל את המטבעות. בתיקו מנצח מי שענה מהר יותר. בוחרים סוג דו-קרב כשמאתגרים: לוחם אקראי 25 מטבעות, קטגוריית משקל 10, לוחם מסוים 10, הקלף של השבוע 10, או החלפת לוחמים 15."
 };
 
 /* ---------- dates ---------- */

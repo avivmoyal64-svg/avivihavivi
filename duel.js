@@ -8,7 +8,7 @@ const MODES = {
   "class": { c: 10, i: "🏋️", t: "Weight class",       d: "Questions about the fighters of one division" },
   fighter: { c: 10, i: "🥊", t: "Specific fighter",   d: "Pick one fighter to be quizzed on" },
   card:    { c: 10, i: "📅", t: "This week's card",   d: "Questions about the fighters on the upcoming card" },
-  fav:     { c: 15, i: "⭐", t: "Favorite fighters",  d: "You get questions on their favorite, they get yours" }
+  fav:     { c: 15, i: "🔄", t: "Fighter swap",       d: "You each get questions on a fighter you pick" }
 };
 let G = [], OK = false, PL = null, OUT = null, CH = null, MSG = "", BUSY = false, T = 0;
 
@@ -129,8 +129,8 @@ function genCard() {
   if (out.length < 10) out = out.concat(rr(L.map(x => shuf(cands(x, C).tf)), 10 - out.length, used));
   return out.length === 10 ? pack("This week's card", shuf(out)) : null;
 }
-function genFav(favMe, favThem) {
-  const a = genFighter(favThem), b = genFighter(favMe);
+function genSwap(fMe, fThem) {
+  const a = genFighter(fMe), b = genFighter(fThem);
   return a && b ? { a, b } : null;
 }
 window.duelGen = genRandom; window.duelGenFighter = genFighter; window.duelGenClass = genClass; window.duelGenCard = genCard;
@@ -151,7 +151,7 @@ async function load() {
   }
   try { hnav(); } catch (e) {}
   try { ren(); } catch (e) {}
-  if (!PL && !(CH && CH.step === "fighter")) { try { window.duelShow(); } catch (e) {} }
+  if (!PL && !(CH && /^(fighter|swap1|swap2)$/.test(CH.step))) { try { window.duelShow(); } catch (e) {} }
 }
 window.duelLoad = load;
 
@@ -196,14 +196,13 @@ function outHtml() {
   } else end = `<p>Waiting for ${esc(nm(s ? s.opp : null))} to play. The result shows up here when they finish.</p>`;
   return `<div class="dlres"><small>Your score</small><b>${OUT.score} / 10</b>${end}<button class="fvb go" type="button" onclick="duelBack()">Done</button></div>`;
 }
-function favOf(id) { try { return (window.FAVMAP || {})[id] || ""; } catch (e) { return ""; } }
 function panel() {
-  const id = CH.to, nmE = esc(nm(id)), head = `<div class="dlpt"><div><b>${nmE}</b><small>${CH.step === "mode" ? "Choose a duel type" : CH.step === "class" ? "Choose a weight class" : "Choose a fighter"}</small></div><button class="fvb" type="button" onclick="duelCf('')">Cancel</button></div>`;
+  const id = CH.to, nmE = esc(nm(id)), head = `<div class="dlpt"><div><b>${nmE}</b><small>${CH.step === "mode" ? "Choose a duel type" : CH.step === "class" ? "Choose a weight class" : CH.step === "swap1" ? "Choose the fighter you get questions on" : CH.step === "swap2" ? "Choose the fighter they get questions on" : "Choose a fighter"}</small></div><button class="fvb" type="button" onclick="duelCf('')">Cancel</button></div>`;
   if (CH.step === "class") return `<div class="dlr conf dlpn">${head}<div class="dlcl">${Object.keys(D).map(c => `<button type="button" onclick="duelSend('class','${esc(c)}')">${esc(c)}</button>`).join("")}</div><button class="fvb" type="button" onclick="duelStep('mode')">‹ Back</button></div>`;
-  if (CH.step === "fighter") return `<div class="dlr conf dlpn">${head}<input class="gpq" id="dlfq" type="search" placeholder="Search a fighter" autocomplete="off" oninput="duelFq(this.value)"><div class="dlfl" id="dlfl"></div><button class="fvb" type="button" onclick="duelStep('mode')">‹ Back</button></div>`;
-  const cardOk = cardFighters().length >= 3, favMe = favOf(ME), favTh = favOf(id), favOk = !!(favMe && favTh && findF(favMe) && findF(favTh));
+  if (CH.step === "fighter" || CH.step === "swap1" || CH.step === "swap2") return `<div class="dlr conf dlpn">${head}<input class="gpq" id="dlfq" type="search" placeholder="Search a fighter" autocomplete="off" oninput="duelFq(this.value)"><div class="dlfl" id="dlfl"></div><button class="fvb" type="button" onclick="duelStep('mode')">‹ Back</button></div>`;
+  const cardOk = cardFighters().length >= 3;
   const opt = (k, ok, why, act) => { const m = MODES[k]; return `<button class="dlmo" type="button" ${ok ? "" : "disabled"} onclick="${act}"><i>${m.i}</i><span><b>${m.t}</b><small>${ok ? m.d : why}</small></span><em>${m.c} coins</em></button>`; };
-  return `<div class="dlr conf dlpn">${head}<div class="dlmos">${opt("random", 1, "", "duelSend('random','')")}${opt("class", 1, "", "duelStep('class')")}${opt("fighter", 1, "", "duelStep('fighter')")}${opt("card", cardOk, "Not enough profiled fighters on this week's card", "duelSend('card','')")}${opt("fav", favOk, favMe ? "They have not chosen a favorite fighter yet" : "Choose your own favorite fighter first", "duelSend('fav','')")}</div></div>`;
+  return `<div class="dlr conf dlpn">${head}<div class="dlmos">${opt("random", 1, "", "duelSend('random','')")}${opt("class", 1, "", "duelStep('class')")}${opt("fighter", 1, "", "duelStep('fighter')")}${opt("card", cardOk, "Not enough profiled fighters on this week's card", "duelSend('card','')")}${opt("fav", 1, "", "duelStep('swap1')")}</div></div>`;
 }
 window.duelShow = () => {
   const el = $("pgds"); if (!el) return;
@@ -216,21 +215,27 @@ window.duelShow = () => {
     : `<div class="dlr"><div><b>${esc(nm(id))}</b></div><button class="fvb" type="button" ${open.has(id) || BUSY ? "disabled" : ""} onclick="duelCf('${esc(id)}')">⚔️ Challenge</button></div>`).join("");
   const todo = G.filter(g => (g.status === "invited" || g.status === "active")).map(row).join("");
   const done = G.filter(g => g.status === "done").slice(0, 8).map(row).join("");
-  el.innerHTML = `<div class="dlbox"><b>1v1 Trivia duel</b><p>10 easy questions. The player with the most right answers wins the coins. A tie goes to whoever answered faster. Pick a duel type when you challenge someone: random fighter 25 coins, weight class 10, a specific fighter 10, this week's card 10, or favorite fighters 15.</p></div>
+  el.innerHTML = `<div class="dlbox"><b>1v1 Trivia duel</b><p>10 easy questions. The player with the most right answers wins the coins. A tie goes to whoever answered faster. Pick a duel type when you challenge someone: random fighter 25 coins, weight class 10, a specific fighter 10, this week's card 10, or fighter swap 15.</p></div>
 ${MSG ? `<div class="dlm" role="status">${esc(MSG)}</div>` : ""}
 ${todo ? `<h3 class="dlh3">Your games</h3>${todo}` : ""}
 <h3 class="dlh3">Challenge a player</h3>${players || '<div class="pfn">No other players yet.</div>'}
 ${done ? `<h3 class="dlh3">Results</h3>${done}` : ""}`;
-  if (CH && CH.step === "fighter") window.duelFq($("dlfq") ? $("dlfq").value : "");
+  if (CH && /^(fighter|swap1|swap2)$/.test(CH.step)) window.duelFq($("dlfq") ? $("dlfq").value : "");
 };
 window.duelCf = id => { CH = id ? { to: id, step: "mode" } : null; MSG = ""; window.duelShow(); };
 window.duelStep = s => { if (CH) { CH.step = s; window.duelShow(); } };
+window.duelPickF = n => {
+  if (!CH) return;
+  if (CH.step === "swap1") { CH.f1 = n; CH.step = "swap2"; window.duelShow(); }
+  else if (CH.step === "swap2") window.duelSend("fav", n);
+  else window.duelSend("fighter", n);
+};
 window.duelFq = v => {
   const out = $("dlfl"); if (!out) return;
   const k = nz(v || ""), all = [];
   for (const c in D) D[c].forEach(f => all.push([f.n, c]));
   const r = all.filter(x => !k || nz(x[0]).includes(k)).sort((a, b) => a[0].localeCompare(b[0])).slice(0, 12);
-  out.innerHTML = r.map(x => `<button type="button" data-n="${esc(x[0])}" onclick="duelSend('fighter',this.dataset.n)">${avZ(x[0]).replace("<i ", '<i class="ga" ')}<span>${esc(x[0])}</span><small>${esc(x[1])}</small></button>`).join("") || '<div class="pfn">No match.</div>';
+  out.innerHTML = r.map(x => `<button type="button" data-n="${esc(x[0])}" onclick="duelPickF(this.dataset.n)">${avZ(x[0]).replace("<i ", '<i class="ga" ')}<span>${esc(x[0])}</span><small>${esc(x[1])}</small></button>`).join("") || '<div class="pfn">No match.</div>';
 };
 
 /* ---------- actions ---------- */
@@ -242,13 +247,13 @@ async function push(id) {
 }
 window.duelSend = async (mode, topic) => {
   if (BUSY || !CH) return;
-  const to = CH.to; BUSY = true; MSG = ""; CH = null;
+  const to = CH.to, f1 = CH.f1; BUSY = true; MSG = ""; CH = null;
   try {
     let g, gb = null;
     if (mode === "class") g = genClass(topic);
     else if (mode === "fighter") g = genFighter(topic);
     else if (mode === "card") g = genCard();
-    else if (mode === "fav") { const f = genFav(favOf(ME), favOf(to)); if (f) { g = f.a; gb = f.b; topic = "Favorite fighters"; } }
+    else if (mode === "fav") { const f = genSwap(f1, topic); if (f) { g = f.a; gb = f.b; topic = f1 + " & " + topic; } }
     else g = genRandom();
     if (!g) throw new Error("no questions");
     const args = { p_to: to, p_mode: mode, p_topic: (mode === "random" ? g.fighter : topic) || g.fighter, p_fighter: g.fighter, p_q: g.q, p_ans: g.ans };
@@ -262,7 +267,7 @@ window.duelSend = async (mode, topic) => {
   } catch (e) {
     BUSY = false;
     const t = String((e && e.message) || e);
-    MSG = /already open/i.test(t) ? "You already have an open game with this player." : /too many/i.test(t) ? "You sent too many challenges today. Try again tomorrow." : /favorite/i.test(t) ? "You both need a favorite fighter for this duel." : "Could not send the challenge. Try again.";
+    MSG = /already open/i.test(t) ? "You already have an open game with this player." : /too many/i.test(t) ? "You sent too many challenges today. Try again tomorrow." : "Could not send the challenge. Try again.";
     window.duelShow();
   }
 };

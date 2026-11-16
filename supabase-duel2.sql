@@ -1,5 +1,5 @@
 -- Trivia duel, part 2: five kinds of duel (random fighter 25 coins, weight class 10, specific fighter 10,
--- this week's card 10, favorite fighters 15). Run this AFTER supabase-duel.sql.
+-- this week's card 10, fighter swap 15). Run this AFTER supabase-duel.sql.
 alter table public.trivia_games add column if not exists mode text not null default 'random';
 alter table public.trivia_games add column if not exists topic text;
 alter table public.trivia_games add column if not exists reward int not null default 25;
@@ -23,7 +23,6 @@ begin
   if p_mode = 'fav' then
     if p_q_b is null or jsonb_typeof(p_q_b) <> 'array' or jsonb_array_length(p_q_b) <> 10 or coalesce(array_length(p_ans_b,1),0) <> 10 then raise exception 'bad questions'; end if;
     if exists(select 1 from unnest(p_ans_b) x where x < 0 or x > 3) then raise exception 'bad questions'; end if;
-    if not exists(select 1 from public.profile_fav where user_id = uid) or not exists(select 1 from public.profile_fav where user_id = p_to) then raise exception 'both need a favorite fighter'; end if;
   end if;
   if exists(select 1 from public.trivia_games where status in ('invited','active') and ((a = uid and b = p_to) or (a = p_to and b = uid))) then raise exception 'a game with this player is already open'; end if;
   if (select count(*) from public.trivia_games where a = uid and created_at >= today) >= 8 then raise exception 'too many challenges today'; end if;
