@@ -618,6 +618,18 @@ button.rx{cursor:pointer}.rx small{font:700 13px Barlow,Arial,sans-serif;color:v
 .cso{margin:14px 0;background:#2c2d32;padding:10px 14px}.cso summary{cursor:pointer;font:700 14px Barlow,Heebo,Arial,sans-serif;letter-spacing:1px;text-transform:uppercase;color:var(--mut)}
 .csor{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #3a3b42;font:15px Barlow,Heebo,Arial,sans-serif}.csor:last-of-type{border:0}.csor .csd{width:10px;height:10px;border-radius:50%}.csor b{flex:1}.csor em{font-style:normal;color:var(--mut)}.cso p{margin:8px 0 0;color:var(--mut);font:13px/1.4 Barlow,Heebo,Arial,sans-serif}
 .hcard.cshot{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 22px rgba(var(--rgb),.35)}.hcard.cshot small{color:var(--gold)}
+.dlbox{margin:14px 0 10px;padding:14px 16px;background:#2c2d32;border-inline-start:6px solid var(--red2)}.dlbox b{font:italic 900 20px "Barlow Condensed","Heebo",Arial,sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#fff}.dlbox p{margin:6px 0 0;color:var(--mut);font-size:14px}
+.dlh3{margin:18px 0 8px;font:italic 900 20px "Barlow Condensed","Heebo",Arial,sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#fff}
+.dlr{display:flex;align-items:center;gap:10px;margin:6px 0;padding:10px 12px;background:#2c2d32;border:1px solid #4d4e55}.dlr>div:first-child{flex:1;min-width:0}.dlr b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dlr small{display:block;color:var(--mut)}
+.dlr.inv,.dlr.conf{border-color:var(--gold)}.dlr.dwin{border-inline-start:5px solid #3fb950}.dlr.dlose{border-inline-start:5px solid var(--red)}.dlr .dls{flex:none;text-align:end}
+.dlr .fvb,.dlhd .fvb,.dlres .fvb{background:none;border:1px solid #6b6c75;color:#fff;padding:7px 12px;font:700 13px Barlow,Heebo,Arial,sans-serif;cursor:pointer}.dlr .fvb.go,.dlres .fvb.go{background:linear-gradient(90deg,var(--red),var(--red2));border-color:transparent}.dlr .fvb:disabled{opacity:.4;cursor:default}
+.dlm{margin:8px 0;padding:10px 12px;background:#41424a;border-inline-start:4px solid var(--red);font-size:14px}
+.dlhd{display:flex;align-items:center;gap:12px;margin:14px 0 10px}.dlhd>div{flex:1}.dlhd small{display:block;color:var(--mut)}.dlhd b{font:italic 900 22px "Barlow Condensed","Heebo",Arial,sans-serif}
+.dlav{flex:none;width:56px;height:56px;border-radius:50%;overflow:hidden;background:#2c2d32;border:2px solid var(--red);display:block}.dlav i{display:grid;place-items:center;width:100%;height:100%;background:center top/cover no-repeat;font:700 16px Barlow,Arial,sans-serif;font-style:normal;color:#fff}
+.dlbar{height:6px;background:#41424a;margin-bottom:16px}.dlbar i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--gold));transition:width .25s}
+.dlqt{margin:0 0 14px;font:700 21px/1.3 Barlow,Heebo,Arial,sans-serif;color:#fff}
+.dlo{display:grid;gap:10px}.dlo button{all:unset;box-sizing:border-box;cursor:pointer;padding:15px 16px;background:#2c2d32;border:1px solid #4d4e55;color:#fff;font:700 17px Barlow,Heebo,Arial,sans-serif;text-align:start}.dlo button:active,.dlo button.on{border-color:var(--gold);background:#41424a}
+.dlres{margin:18px 0;padding:22px 16px;background:#2c2d32;border-inline-start:6px solid var(--gold);text-align:center}.dlres small{display:block;color:var(--mut)}.dlres>b{display:block;font:italic 900 46px "Barlow Condensed","Heebo",Arial,sans-serif;color:#fff;margin:2px 0 8px}.dlres p{margin:6px 0}.dlres .dln{color:var(--mut)}.dlres .fvb{margin-top:10px}
 .cspz{margin:18px 0 8px}.cspz h3{margin:0 0 8px;font:italic 900 20px "Barlow Condensed","Heebo",Arial,sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#fff}
 .cspr{display:flex;align-items:center;gap:12px;margin:0 0 6px;padding:8px 12px;background:#2c2d32;border-inline-start:5px solid var(--rc)}
 .cspr>i{flex:none;width:34px;text-align:center;font-style:normal;font-size:28px}.cspr>i.cc{display:block;width:32px;height:32px;margin:0;font-size:32px}
@@ -645,6 +657,7 @@ button.rx{cursor:pointer}.rx small{font:700 13px Barlow,Arial,sans-serif;color:v
 <div id="pgp_next" hidden><div class="pgc" id="pgn"></div></div>
 <div id="pgp_recent" hidden><div class="pgc" id="pgr"></div></div></div>
 <div id="pgH" class="pgs" hidden role="dialog" aria-label="Shop"><div class="pgh"><button class="pgbk" onclick="closePage()">‹ Back</button><h2>Shop</h2></div><div class="pgc" id="pgh"></div></div>
+<div id="pgD" class="pgs" hidden role="dialog" aria-label="Trivia duel"><div class="pgh"><button class="pgbk" onclick="closePage()">‹ Back</button><h2>Trivia duel</h2></div><div class="pgc" id="pgds"></div></div>
 <div id="pgC" class="pgs" hidden role="dialog" aria-label="Daily case"><div class="pgh"><button class="pgbk" onclick="closePage()">‹ Back</button><h2>Daily case</h2></div><div class="pgc" id="pgcs"></div></div>
 <div id="pgG" class="pgs" hidden role="dialog" aria-label="GOAT list"><div class="pgh"><button class="pgbk" onclick="closePage()">‹ Back</button><h2>GOAT list</h2></div><div class="pgc" id="pgg"></div></div>
 <dialog id="pk"><div class="top"><span></span><button onclick="pk.close()" aria-label="Close">✕</button></div><div id="pkb" class="body"></div></dialog>
@@ -848,8 +861,8 @@ const betPt=(p,r,main,k,u)=>{const l=lost(p,r,k,u);return l?`<b class="pt neg">�
 const LOCKH=5,lockAt=()=>EV.lock-LOCKH*3600e3,locked=()=>Date.now()>=lockAt();
 const realK=k=>/^e\d+-/.test(k)||(EV.fights||[]).some(x=>x.id===k);
 const SK=id=>window.stk?window.stk(id):"";
-const GBON={},GBONUS=100,CASEC={};let FPUSE=null;
-const coins=id=>{const b=(GBON[id]?GBONUS:0)+(CASEC[id]||0);if((PICKS[id]||{}).hidden)return(PICKS[id].sc||0)+b;const f=(PICKS[id]||{}).fights||{};return b+Object.keys(f).reduce((s,k)=>s+pts(f[k],res(k),mainOf(k),k,id)-lost(f[k],res(k),k,id),0)};
+const GBON={},GBONUS=100,CASEC={},DUELC={};let FPUSE=null;
+const coins=id=>{const b=(GBON[id]?GBONUS:0)+(CASEC[id]||0)+(DUELC[id]||0);if((PICKS[id]||{}).hidden)return(PICKS[id].sc||0)+b;const f=(PICKS[id]||{}).fights||{};return b+Object.keys(f).reduce((s,k)=>s+pts(f[k],res(k),mainOf(k),k,id)-lost(f[k],res(k),k,id),0)};
 function board(){return Object.keys(PICKS).map(id=>({id,c:coins(id),n:(PICKS[id]||{}).hidden?(PICKS[id].n||0):Object.keys((PICKS[id]||{}).fights||{}).filter(realK).length})).sort((a,b)=>b.c-a.c||b.n-a.n)}
 function filt(){const fm=fmap(),out={};Object.keys(PRAW).forEach(id=>{const p=PRAW[id]||{};if(id===ME||!p.fights){out[id]=p;return}const f={};Object.keys(p.fights).forEach(k=>{if(res(k)||(fm[k]&&fm[k].w))f[k]=p.fights[k]});out[id]=Object.assign({},p,{fights:f})});PICKS=out}
 function ren(){try{filt()}catch(e){PICKS=PRAW}try{rmn()}catch(e){}try{pgRef()}catch(e){}
@@ -899,7 +912,7 @@ function openProf(id){try{window.reactLoad&&window.reactLoad()}catch(e){}const P
  const keys=Object.keys(f).filter(realK).sort((a,b)=>((parseInt((b.match(/^e(\d+)/)||[])[1])||0)-(parseInt((a.match(/^e(\d+)/)||[])[1])||0)));
  const rows=keys.map(k=>pickRow(k,f[k],id)).join("");
  document.getElementById("pfb").innerHTML=`<h2>${esc(NAMES[id]||P.name||"Fight fan")}${mine?" (you)":""}${SK(id)}</h2><div class="pfs"><div><b>${coins(id)}<i class="coin"></i></b><small>Coins</small></div><div><b>${hid||(!mine&&P.n!=null)?(P.n||0):keys.length}</b><small>Picks</small></div><div><b>${rank||"–"}</b><small>Rank</small></div></div>`+
- (window.favBlock?window.favBlock(id):"")+goatBlock(id)+(hid?'<div class="pfn">This player keeps their picks private.</div>':(keys.length?rows:'<div class="pfn">'+(!mine&&P.n?'Their picks stay hidden until each fight is over.':'No picks yet.')+'</div>')+(!mine&&P.n>keys.length&&keys.length?'<div class="pfn">Picks for fights that are not over yet stay hidden.</div>':''));
+ (window.favBlock?window.favBlock(id):"")+(window.duelBtn?window.duelBtn(id):"")+goatBlock(id)+(hid?'<div class="pfn">This player keeps their picks private.</div>':(keys.length?rows:'<div class="pfn">'+(!mine&&P.n?'Their picks stay hidden until each fight is over.':'No picks yet.')+'</div>')+(!mine&&P.n>keys.length&&keys.length?'<div class="pfn">Picks for fights that are not over yet stay hidden.</div>':''));
  document.getElementById("pf").dataset.id=id;if(!arguments[1])document.getElementById("pf").showModal()}
 function openSettings(){if(!SB||!ME)return;
  document.getElementById("stb").innerHTML=`<h2>Settings</h2><div class="stx"><h3>Change password</h3><input type="password" id="stp1" placeholder="New password (6+ characters)" autocomplete="new-password" minlength="6"><input type="password" id="stp2" placeholder="Repeat new password" autocomplete="new-password"><button class="btn" type="button" onclick="chgPw()">Change password</button><div class="st" id="stm" role="status"></div><h3>Notifications</h3><div id="stpush"></div><h3>Install the app</h3><div id="stinst">${instHtml()}</div></div>`;pushUI();
@@ -949,9 +962,10 @@ function evBlock(title,sub,fs,nested,nof){const B=evBoard(fs),nmOf=id=>esc(NAMES
 const curFs=()=>(EV.fights||[]).map(f=>({id:f.id,a:f.a,b:f.b,main:!!f.main}));
 const pastFs=e=>(e.fights||[]).map(f=>({id:f.id,a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m,r:f.r,nc:f.nc}));
 let PS="board";
-const pgEl=k=>document.getElementById(k==="picks"?"pgP":k==="goat"?"pgG":k==="shop"?"pgH":k==="case"?"pgC":"pgS"),anyPage=()=>["pgP","pgS","pgG","pgH","pgC"].some(i=>{const e=document.getElementById(i);return e&&!e.hidden});
+const pgEl=k=>document.getElementById(k==="picks"?"pgP":k==="goat"?"pgG":k==="shop"?"pgH":k==="case"?"pgC":k==="duel"?"pgD":"pgS"),anyPage=()=>["pgP","pgS","pgG","pgH","pgC","pgD"].some(i=>{const e=document.getElementById(i);return e&&!e.hidden});
 function drawPage(){const P=document.getElementById("pgP"),S=document.getElementById("pgS"),G=document.getElementById("pgG");
  if(G&&!G.hidden)document.getElementById("pgg").innerHTML=goatHtml();
+ {const Dd=document.getElementById("pgD");if(Dd&&!Dd.hidden&&window.duelShow)window.duelShow()}
  {const C=document.getElementById("pgC");if(C&&!C.hidden&&window.caseShow)window.caseShow()}
  {const H=document.getElementById("pgH");if(H&&!H.hidden&&window.shopHtml)document.getElementById("pgh").innerHTML=window.shopHtml()}
  if(P&&!P.hidden)document.getElementById("pgw").innerHTML=(!curFs().length||!curFs().every(f=>res(f.id)))?"":evBlock("Everyone's picks this week",(EV.name||"")+(EV.when?" · "+EV.when:"")+(locked()?" · picks locked":""),curFs(),false,true);
@@ -967,14 +981,14 @@ function pgTab(k,dir){const old=PS;PS=k;drawPage();const s=document.getElementBy
 (function(){const s=document.getElementById("pgS");if(!s)return;let x0=0,y0=0,t0=0,ok=false;
 s.addEventListener("touchstart",e=>{const t=e.touches[0];x0=t.clientX;y0=t.clientY;t0=Date.now();ok=e.touches.length===1&&!e.target.closest("input,textarea,button.pgbk")},{passive:true});
 s.addEventListener("touchend",e=>{if(!ok)return;ok=false;const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.5||Date.now()-t0>700)return;const i=PGO.indexOf(PS),n=i+((window.LANGHE?dx>0:dx<0)?1:-1);if(n<0||n>=PGO.length)return;pgTab(PGO[n],dx<0?1:-1)},{passive:true})})();
-function openPage(k){const pg=k==="picks"?"picks":k==="goat"?"goat":k==="shop"?"shop":k==="case"?"case":"score";if(pg==="score"&&k!=="score")PS=k==="recent"?"recent":k==="last"?"last":"board";
- const was=anyPage(),tgt=pgEl(pg),oth=["picks","score","goat","shop","case"].filter(x=>x!==pg).map(pgEl);if(!tgt)return;oth.forEach(e=>e.hidden=true);tgt.hidden=false;if(!was)lockS();
- const h="#"+(pg==="picks"?"picks":pg==="goat"?"goat":pg==="shop"?"shop":pg==="case"?"case":"scoreboard");try{if(location.hash!==h){was?history.replaceState({pg:1},"",h):history.pushState({pg:1},"",h)}}catch(e){}
+function openPage(k){const pg=k==="picks"?"picks":k==="goat"?"goat":k==="shop"?"shop":k==="case"?"case":k==="duel"?"duel":"score";if(pg==="score"&&k!=="score")PS=k==="recent"?"recent":k==="last"?"last":"board";
+ const was=anyPage(),tgt=pgEl(pg),oth=["picks","score","goat","shop","case","duel"].filter(x=>x!==pg).map(pgEl);if(!tgt)return;oth.forEach(e=>e.hidden=true);tgt.hidden=false;if(!was)lockS();
+ const h="#"+(pg==="picks"?"picks":pg==="goat"?"goat":pg==="shop"?"shop":pg==="case"?"case":pg==="duel"?"duel":"scoreboard");try{if(location.hash!==h){was?history.replaceState({pg:1},"",h):history.pushState({pg:1},"",h)}}catch(e){}
  drawPage();tgt.scrollTop=0}
-function closePage(pop){if(!anyPage())return;["pgP","pgS","pgG","pgH","pgC"].forEach(i=>{document.getElementById(i).hidden=true});unlockS();if(!pop&&history.state&&history.state.pg){try{history.back()}catch(e){}}}
-addEventListener("popstate",()=>{if(anyPage()&&!/^#(picks|scoreboard|goat|shop|case)$/.test(location.hash))closePage(true)});
+function closePage(pop){if(!anyPage())return;["pgP","pgS","pgG","pgH","pgC","pgD"].forEach(i=>{document.getElementById(i).hidden=true});unlockS();if(!pop&&history.state&&history.state.pg){try{history.back()}catch(e){}}}
+addEventListener("popstate",()=>{if(anyPage()&&!/^#(picks|scoreboard|goat|shop|case|duel)$/.test(location.hash))closePage(true)});
 function hnav(){const el=document.getElementById("hn");if(!el)return;const mine=(PICKS[ME]||{}).fights||{},t=(EV.fights||[]).length,n=(EV.fights||[]).filter(f=>mine[f.id]).length,B=board(),rank=B.findIndex(x=>x.id===ME)+1;
- el.innerHTML=`<button class="hcard" onclick="openPage('picks')"><i>🥊</i><span><b>This week's picks</b><small>${esc(EV.name||"")} · ${ME&&DB?n+" of "+t+" picked · ":""}${locked()?"picks locked":"picks lock "+new Date(lockAt()).toLocaleString(LOC(),{weekday:"short",hour:"2-digit",minute:"2-digit"})}</small></span><em>›</em></button><button class="hcard" onclick="openPage('score')"><i>🏆</i><span><b>Scoreboard, last week &amp; past events</b><small>${ME&&DB&&rank?"You're #"+rank+" · "+coins(ME)+" coins":"See who's winning"}</small></span><em>›</em></button><button class="hcard" onclick="openPage('goat')"><i>🐐</i><span><b>GOAT list</b><small>Your top 20 fighters of all time</small></span><em>›</em></button><button class="hcard" onclick="openPage('shop')"><i>🛍️</i><span><b>Shop</b><small>Emojis, color themes & stickers</small></span><em>›</em></button>${window.caseCard?window.caseCard():""}`}
+ el.innerHTML=`<button class="hcard" onclick="openPage('picks')"><i>🥊</i><span><b>This week's picks</b><small>${esc(EV.name||"")} · ${ME&&DB?n+" of "+t+" picked · ":""}${locked()?"picks locked":"picks lock "+new Date(lockAt()).toLocaleString(LOC(),{weekday:"short",hour:"2-digit",minute:"2-digit"})}</small></span><em>›</em></button><button class="hcard" onclick="openPage('score')"><i>🏆</i><span><b>Scoreboard, last week &amp; past events</b><small>${ME&&DB&&rank?"You're #"+rank+" · "+coins(ME)+" coins":"See who's winning"}</small></span><em>›</em></button><button class="hcard" onclick="openPage('goat')"><i>🐐</i><span><b>GOAT list</b><small>Your top 20 fighters of all time</small></span><em>›</em></button><button class="hcard" onclick="openPage('shop')"><i>🛍️</i><span><b>Shop</b><small>Emojis, color themes & stickers</small></span><em>›</em></button>${window.caseCard?window.caseCard():""}${window.duelCard?window.duelCard():""}`}
 let SWO=false;
 function togSW(){SWO=!SWO;drawPk()}
 function swHtml(f){const get=n=>{const r=findF(n);return r?D[r[0]][r[1]]:null},A=get(f.a),B=get(f.b);
@@ -1089,7 +1103,7 @@ async function pollEvents(){LASTPOLL=Date.now();try{const j=await getEvents(true
 function schedulePoll(){clearTimeout(POLL);const n=Date.now(),live=n>EV.lock-2*3600e3&&n<EV.lock+10*3600e3;POLL=setTimeout(()=>{if(document.hidden){schedulePoll();return}pollEvents()},live?45000:600000)}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-LASTPOLL>30000&&READY)pollEvents()});
 (async()=>{await loadEvents();try{if(!window.claude){await sbInit()}else{U=await claude.use("user");DB=await claude.use("db");if(U){ME=await U.id();OWNER=await U.isOwner()}}if(DB&&ME){DB.collection("picks").onSnapshot(s=>{PRAW={};s.docs.forEach(d=>PRAW[d.id]=d.data());ren();names()},()=>{});DB.doc("results/"+EV.id).onSnapshot(s=>{RES=s.exists?((s.data()||{}).fights||{}):{};ren()},()=>{})}}catch(e){}READY=true;ren();names()})();
-setTimeout(()=>{READY=true;ren()},10000);setTimeout(()=>{if(/^#(picks|scoreboard)$/.test(location.hash)&&!anyPage())openPage(location.hash==="#picks"?"picks":"score")},400);ren();renLast();
+setTimeout(()=>{READY=true;ren()},10000);setTimeout(()=>{if(/^#(picks|scoreboard|duel)$/.test(location.hash)&&!anyPage())openPage(location.hash==="#picks"?"picks":location.hash==="#duel"?"duel":"score")},400);ren();renLast();
 show("Flyweight");UI=true;
 
 /* ===== GOAT list: 20 spots per player ===== */
@@ -1209,4 +1223,4 @@ async function pushToggle(){const s=await pushState();
 /* load after login */
 (function w(n){try{if(ME){goatLoad();return}}catch(e){}if(n<40)setTimeout(()=>w(n+1),400)})(0);
 </script>
-<script src="shop.js"></script><script src="bets.js"></script><script src="case.js"></script></body></html>
+<script src="shop.js"></script><script src="bets.js"></script><script src="case.js"></script><script src="duel.js"></script></body></html>

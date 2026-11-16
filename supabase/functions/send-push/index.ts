@@ -21,6 +21,7 @@ const T = {
     results: (n: string) => ({ title: "Results are in", body: n + " is over. See how you did on the scoreboard." }),
     test: () => ({ title: "Notifications work", body: "This is a test message." }),
     nudge: (f: number) => ({ title: "Your GOAT list is waiting 🐐", body: "You are at " + f + " of 20. Finish it and get 100 coins!", tag: "goat-nudge" }),
+    duel: (who: string, id: string) => ({ title: who + " challenged you ⚔️", body: "1v1 trivia duel: 10 easy questions, the winner gets 25 coins.", tag: "duel-" + id, url: "/#duel" }),
   },
   he: {
     open: (n: string) => ({ title: "הבחירות נפתחו", body: n + ": בחרו מנצחים והרוויחו מטבעות." }),
@@ -28,6 +29,7 @@ const T = {
     results: (n: string) => ({ title: "התוצאות מוכנות", body: n + " הסתיים. בדקו בלוח התוצאות איך הלך לכם." }),
     test: () => ({ title: "ההתראות עובדות", body: "זו הודעת בדיקה." }),
     nudge: (f: number) => ({ title: "רשימת ה-GOAT שלכם מחכה 🐐", body: "אתם ב-" + f + " מתוך 20. סיימו אותה וקבלו 100 מטבעות!", tag: "goat-nudge" }),
+    duel: (who: string, id: string) => ({ title: who + " אתגר/ה אתכם ⚔️", body: "דו-קרב טריוויה 1 על 1: 10 שאלות קלות, המנצח מקבל 25 מטבעות.", tag: "duel-" + id, url: "/#duel" }),
   },
 };
 
@@ -45,15 +47,39 @@ async function send(subs: any[], make: (s: any) => any, dead: string[]) {
   await Promise.all(subs.map(async (s) => {
     const m = make(s); if (!m) return;
     try {
-      await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...m, url: "/", tag: m.tag }), { TTL: 3600 });
+      await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...m, url: m.url || "/", tag: m.tag }), { TTL: 3600 });
       ok++;
     } catch (e) { if (e && (e.statusCode === 404 || e.statusCode === 410)) dead.push(s.endpoint); }
   }));
   return ok;
 }
 
+const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization, apikey, content-type, x-client-info", "access-control-allow-methods": "POST, GET, OPTIONS" };
+const jr = (o: unknown, st = 200) => new Response(JSON.stringify(o), { status: st, headers: { "content-type": "application/json", ...CORS } });
+
 Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
   const url = new URL(req.url), dead: string[] = [], log: string[] = [];
+
+  // A player challenged someone to a trivia duel: notify the invited player (once per game). Needs the challenger's login token.
+  const ch = url.searchParams.get("challenge");
+  if (ch) {
+    try {
+      const au = req.headers.get("authorization") || "";
+      const ur = await fetch(SB_URL + "/auth/v1/user", { headers: { apikey: SB_KEY, Authorization: au } });
+      if (!ur.ok) return jr({ error: "not logged in" }, 401);
+      const me = (await ur.json()).id;
+      const gm = (await get("trivia_games?id=eq." + encodeURIComponent(ch) + "&select=id,a,b,status,notified"))[0];
+      if (!gm || gm.a !== me || gm.status !== "invited" || gm.notified) return jr({ skipped: true });
+      await fetch(SB_URL + "/rest/v1/trivia_games?id=eq." + encodeURIComponent(ch), { method: "PATCH", headers: dbH, body: JSON.stringify({ notified: true }) });
+      const subs0 = (await get("push_subs?select=endpoint,user_id,p256dh,auth,lang&user_id=eq." + gm.b));
+      const who = (url.searchParams.get("name") || "Someone").replace(/[\r\n<>]/g, "").slice(0, 24) || "Someone";
+      const n = await send(subs0, (s: any) => (s.lang === "he" ? T.he : T.en).duel(who, ch), dead);
+      if (dead.length) await fetch(SB_URL + "/rest/v1/push_subs?endpoint=in.(" + dead.map(encodeURIComponent).join(",") + ")", { method: "DELETE", headers: dbH });
+      return jr({ sent: n });
+    } catch (e) { return jr({ error: "failed" }, 500); }
+  }
+
   const subs = await get("push_subs?select=endpoint,user_id,p256dh,auth,lang");
   const L = (s: any) => (s.lang === "he" ? T.he : T.en);
 
