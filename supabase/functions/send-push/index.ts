@@ -29,6 +29,15 @@ const T = {
   },
 };
 
+
+// One-off announcements, sent by opening ?announce=THE_KEY&msg=NAME (once per name; add &again=1 to resend)
+const ANN: Record<string, any> = {
+  goat: {
+    en: { title: "GOAT list is live 🐐", body: "Build your top 20 fighters of all time. Big rewards are waiting!", tag: "goat" },
+    he: { title: "רשימת ה-GOAT באוויר 🐐", body: "בנו את 20 הלוחמים הטובים בכל הזמנים. מחכים לכם פרסים גדולים!", tag: "goat" },
+  },
+};
+
 async function send(subs: any[], make: (s: any) => any, dead: string[]) {
   let ok = 0;
   await Promise.all(subs.map(async (s) => {
@@ -51,6 +60,17 @@ Deno.serve(async (req) => {
     const n = await send(subs, (s) => L(s).test(), dead);
     if (dead.length) await fetch(SB_URL + "/rest/v1/push_subs?endpoint=in.(" + dead.map(encodeURIComponent).join(",") + ")", { method: "DELETE", headers: dbH });
     return new Response(JSON.stringify({ test: true, subscribers: subs.length, sent: n, removed: dead.length }), { headers: { "content-type": "application/json" } });
+  }
+
+  if (tk && url.searchParams.get("announce") === tk) {
+    const name = url.searchParams.get("msg") || "", a = ANN[name];
+    if (!a) return new Response(JSON.stringify({ error: "unknown msg", known: Object.keys(ANN) }), { headers: { "content-type": "application/json" } });
+    const stt = (await readKey("push_state")) || {}; stt.announced = stt.announced || {};
+    if (stt.announced[name] && !url.searchParams.get("again")) return new Response(JSON.stringify({ skipped: "already sent", add: "&again=1 to send again" }), { headers: { "content-type": "application/json" } });
+    const n = await send(subs, (s) => (s.lang === "he" ? a.he : a.en), dead);
+    stt.announced[name] = Date.now(); await writeKey("push_state", stt);
+    if (dead.length) await fetch(SB_URL + "/rest/v1/push_subs?endpoint=in.(" + dead.map(encodeURIComponent).join(",") + ")", { method: "DELETE", headers: dbH });
+    return new Response(JSON.stringify({ announced: name, subscribers: subs.length, sent: n, removed: dead.length }), { headers: { "content-type": "application/json" } });
   }
 
   const ev = await readKey("events"); if (!ev) return new Response("no events");
