@@ -4,11 +4,11 @@
 const RES = {"Islam Makhachev":{"rec":"29-1-0","w":29,"ko":5,"sub":13,"dec":11,"beat":["Della Maddalena","Dober","Garry","Green","Hooker","Johnson","Kuntz","Lentz","Moicano","Moises","Oliveira","Poirier","Ramos","Tibau","Tsarukyan","Volkanovski","Wade"],"lost":["Martins"]},"Jon Jones":{"rec":"28-1-0","w":28,"ko":11,"sub":7,"dec":10,"beat":["Bader","Belfort","Bonnar","Cormier","Evans","Gane","Gusmao","Gustafsson","Jackson","Machida","Miocic","O'Brien","Reyes","Rua","Santos","Smith","Sonnen","St-Preux","Teixeira","Vera","Vladimir"],"lost":["Hamill"]},"Conor McGregor":{"rec":"22-7-0","w":22,"ko":19,"sub":1,"dec":2,"beat":["Aldo","Alvarez","Brandao","Brimage","Cerrone","Diaz","Holloway","Mendes","Poirier","Siver"],"lost":["Diaz","Khabib","Poirier"]},"Khabib Nurmagomedov":{"rec":"29-0-0","w":29,"ko":8,"sub":11,"dec":10,"beat":["Barboza","Dos Anjos","Gaethje","Healy","Horcher","Iaquinta","Johnson","McGregor","Poirier","Shalorus","Tavares","Tibau","Trujillo"],"lost":[]},"Georges St-Pierre":{"rec":"26-2-0","w":26,"ko":8,"sub":6,"dec":12,"beat":["Alves","Bisping","Condit","Fitch","Hardy","Hendricks","Hieron","Hughes","Koscheck","Miller","Parisyan","Penn","Serra","Sherk","Shields","Trigg"],"lost":["Hughes","Serra"]},"Anderson Silva":{"rec":"34-11-0","beat":["Belfort","Bonnar","Brunson","Cote","Franklin","Griffin","Henderson","Irvin","Leben","Leites","Lutter","Maia","Marquardt","Okami","Sonnen"],"lost":["Adesanya","Bisping","Cannonier","Cormier","Hall","Weidman"]},"Daniel Cormier":{"rec":"22-3-0","w":22,"ko":10,"sub":5,"dec":7,"beat":["Cummins","Gustafsson","Henderson","Johnson","Lewis","Miocic","Mir","Nelson","Oezdemir","Silva"],"lost":["Jones","Miocic"]},"Francis Ngannou":{"rec":"18-3-0","w":18,"ko":13,"sub":4,"dec":1,"beat":["Arlovski","Blaydes","Gane","Hamilton","Henrique","Mihajlovic","Miocic","Overeem","Rozenstruik","Santos","Velasquez"],"lost":["Lewis","Miocic"]},"Alexander Volkanovski":{"rec":"29-4-0","w":29,"ko":14,"sub":3,"dec":12,"beat":["Aldo","Elkins","Hirota","Holloway","Jung","Kasuya","Kennedy","Lopes","Mendes","Ortega","Rodriguez","Young"],"lost":["Makhachev","Topuria"]},"Jose Aldo":{"rec":"32-10-0","w":32,"ko":17,"sub":1,"dec":14,"beat":["Edgar","Font","Hominick","Jung","Lamas","Martinez","Mendes","Moicano","Munhoz","Stephens","Vera"],"lost":["Dvalishvili","Holloway","McGregor","Moraes","Volkanovski","Yan"]},"Dustin Poirier":{"rec":"30-10-0","w":30,"ko":16,"sub":7,"dec":7,"beat":["Alvarez","Brandao","Brookins","Chandler","Duffy","Ferreira","Gaethje","Garza","Green","Holloway","Hooker","McGregor","Medeiros","Miller","Pettis","St. Denis"],"lost":["Gaethje","Holloway","Johnson","Jung","Khabib","Makhachev","Oliveira","Swanson"]},"Charles Oliveira":{"rec":"37-11-0","w":37,"ko":10,"sub":22,"dec":5,"beat":["Brooks","Chandler","Dariush","Gaethje","Gamrot","Lentz","Poirier","Teymur"],"lost":["Felder","Holloway","Lamas","Makhachev","Pettis","Topuria"]},"Demetrious Johnson":{"rec":"25-4-1","w":25,"ko":5,"sub":8,"dec":12,"beat":["Bagautinov","Benavidez","Borg","Cariaso","Cejudo","Dodson","Elliott","Horiguchi","Moraga","Reis"],"lost":["Cejudo"]},"Israel Adesanya":{"rec":"24-6-0","beat":["Brunson","Cannonier","Costa","Gastelum","Pereira","Romero","Silva","Tavares","Vettori","Whittaker","Wilkinson"],"lost":["Blachowicz","Du Plessis","Imavov","Pereira","Strickland"]},"Ilia Topuria":{"rec":"17-1-0","w":17,"ko":7,"sub":8,"dec":2,"beat":["Emmett","Hall","Herbert","Holloway","Jackson","Mitchell","Oliveira","Volkanovski","Zalal"],"lost":[]},"Yoel Romero":{"rec":"17-7-0","w":17,"ko":14,"sub":0,"dec":3,"beat":["Brunson","Kennedy","Machida","Markes","Rockhold","Souza","Starks","Tavares","Weidman"],"lost":["Adesanya","Costa","Whittaker"]}};
 const COLS = "id,a,b,status,mode,topic,fighter,reward,a_score,b_score,a_ms,b_ms,winner,rewarded,draw,ready,created_at,finished_at";
 const MODES = {
-  random:  { c: 25, i: "🎲", t: "Random fighter",     d: "10 questions about a random fighter" },
-  "class": { c: 10, i: "🏋️", t: "Weight class",       d: "Questions about the fighters of one division" },
-  fighter: { c: 10, i: "🥊", t: "Specific fighter",   d: "Pick one fighter to be quizzed on" },
-  card:    { c: 10, i: "📅", t: "This week's card",   d: "Questions about the fighters on the upcoming card" },
-  fav:     { c: 15, i: "🔄", t: "Fighter swap",       d: "You each pick a fighter. Your opponent is quizzed on yours and you on theirs" }
+  random:  { c: 5, i: "🎲", t: "Random fighter",     d: "10 questions about a random fighter" },
+  "class": { c: 5, i: "🏋️", t: "Weight class",       d: "Questions about the fighters of one division" },
+  fighter: { c: 5, i: "🥊", t: "Specific fighter",   d: "Pick one fighter to be quizzed on" },
+  card:    { c: 5, i: "📅", t: "This week's card",   d: "Questions about the fighters on the upcoming card" },
+  fav:     { c: 5, i: "🔄", t: "Fighter swap",       d: "You each pick a fighter. Your opponent is quizzed on yours and you on theirs" }
 };
 let G = [], OK = false, PL = null, OUT = null, CH = null, MSG = "", BUSY = false, T = 0;
 
@@ -142,7 +142,7 @@ async function load() {
   if (OK) {
     try {
       const w = await SB.from("trivia_games").select("winner,reward").eq("rewarded", true);
-      if (!w.error) { Object.keys(DUELC).forEach(k => delete DUELC[k]); (w.data || []).forEach(x => { if (x.winner) DUELC[x.winner] = (DUELC[x.winner] || 0) + (x.reward || 25); }); }
+      if (!w.error) { Object.keys(DUELC).forEach(k => delete DUELC[k]); (w.data || []).forEach(x => { if (x.winner) DUELC[x.winner] = (DUELC[x.winner] || 0) + (x.reward || 5); }); }
     } catch (e) {}
   }
   try { hnav(); } catch (e) {}
@@ -157,7 +157,7 @@ const myTurn = () => G.filter(g => g.mode === "fav" && g.a === ME && g.ready && 
 window.duelCard = () => {
   if (!OK || !ME) return "";
   const n = mineTodo().length, t = myTurn().length;
-  return `<button class="hcard${n || t ? " cshot" : ""}" onclick="openPage('duel')"><i>⚔️</i><span><b>Trivia duel</b><small>${n ? (n === 1 ? "1 player challenged you!" : n + " players challenged you!") : t ? "Your fighter duel is ready to play!" : "Challenge a player · win up to 25 coins"}</small></span><em>›</em></button>`;
+  return `<button class="hcard${n || t ? " cshot" : ""}" onclick="openPage('duel')"><i>⚔️</i><span><b>Trivia duel</b><small>${n ? (n === 1 ? "1 player challenged you!" : n + " players challenged you!") : t ? "Your fighter duel is ready to play!" : "Challenge a player · winner gets 5 coins"}</small></span><em>›</em></button>`;
 };
 window.duelBtn = id => (!OK || !ME || id === ME) ? "" : `<div class="fvt"><div><small>Trivia duel</small><b>Challenge this player</b></div><button class="fvb" type="button" onclick="duelGo('${esc(id)}')">⚔️ Challenge</button></div>`;
 window.duelGo = id => { try { $("pf").close(); } catch (e) {} CH = { to: id, step: "mode" }; MSG = ""; openPage("duel"); };
@@ -171,7 +171,7 @@ function row(g) {
   if (g.status === "done") {
     const win = g.winner === ME, lose = g.winner && g.winner !== ME;
     const t = g.draw ? "Draw" : win ? "You won" : "You lost";
-    const sub = win && g.rewarded ? "+" + (g.reward || 25) + " coins" : win ? "No coins (daily limit)" : "";
+    const sub = win && g.rewarded ? "+" + (g.reward || 5) + " coins" : win ? "No coins (daily limit)" : "";
     return `<div class="dlr ${win ? "dwin" : lose ? "dlose" : ""}"><div><b>${who}</b><small>${sub0}</small></div><div class="dls"><b dir="ltr">${s.my} – ${s.th}</b><small>${t}${sub ? " · " + sub : ""}</small></div></div>`;
   }
   if (g.status === "declined" || g.status === "cancelled") return "";
@@ -190,7 +190,7 @@ function outHtml() {
   let end = "";
   if (g && g.status === "done") {
     const win = g.winner === ME;
-    end = `<p>${g.draw ? "It is a draw. No coins." : win ? (g.rewarded ? "You won! +" + (g.reward || 25) + " coins" : "You won! (daily coin limit reached)") : esc(nm(s.opp)) + " won this one."}</p><p class="dln">${esc(nm(s.opp))}: ${s.th} / 10</p>`;
+    end = `<p>${g.draw ? "It is a draw. No coins." : win ? (g.rewarded ? "You won! +" + (g.reward || 5) + " coins" : "You won! (daily coin limit reached)") : esc(nm(s.opp)) + " won this one."}</p><p class="dln">${esc(nm(s.opp))}: ${s.th} / 10</p>`;
   } else end = `<p>Waiting for ${esc(nm(s ? s.opp : null))} to play. The result shows up here when they finish.</p>`;
   return `<div class="dlres"><small>Your score</small><b>${OUT.score} / 10</b>${end}<button class="fvb go" type="button" onclick="duelBack()">Done</button></div>`;
 }
@@ -217,7 +217,7 @@ window.duelShow = () => {
     : `<div class="dlr"><div><b>${esc(nm(id))}</b></div><button class="fvb" type="button" ${open.has(id) || BUSY ? "disabled" : ""} onclick="duelCf('${esc(id)}')">⚔️ Challenge</button></div>`).join("");
   const todo = G.filter(g => (g.status === "invited" || g.status === "active")).map(row).join("");
   const done = G.filter(g => g.status === "done").slice(0, 8).map(row).join("");
-  el.innerHTML = `<div class="dlbox"><b>1v1 Trivia duel</b><p>10 easy questions. The player with the most right answers wins the coins. A tie goes to whoever answered faster. Pick a duel type when you challenge someone: random fighter 25 coins, weight class 10, a specific fighter 10, this week's card 10, or fighter swap 15.</p></div>
+  el.innerHTML = `<div class="dlbox"><b>1v1 Trivia duel</b><p>10 easy questions. The player with the most right answers wins the coins. A tie goes to whoever answered faster. Pick a duel type when you challenge someone: random fighter, weight class, a specific fighter, this week's card, or fighter swap. The winner gets 5 coins.</p></div>
 ${MSG ? `<div class="dlm" role="status">${esc(MSG)}</div>` : ""}
 ${todo ? `<h3 class="dlh3">Your games</h3>${todo}` : ""}
 <h3 class="dlh3">Challenge a player</h3>${players || '<div class="pfn">No other players yet.</div>'}

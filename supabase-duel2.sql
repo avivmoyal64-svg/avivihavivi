@@ -1,8 +1,9 @@
--- Trivia duel, part 2: five kinds of duel (random fighter 25 coins, weight class 10, specific fighter 10,
--- this week's card 10, fighter swap 15). Run this AFTER supabase-duel.sql.
+-- Trivia duel, part 2: five kinds of duel (random fighter, weight class, specific fighter,
+-- this week's card, fighter swap; each pays the winner 5 coins). Run this AFTER supabase-duel.sql.
 alter table public.trivia_games add column if not exists mode text not null default 'random';
 alter table public.trivia_games add column if not exists topic text;
-alter table public.trivia_games add column if not exists reward int not null default 25;
+alter table public.trivia_games add column if not exists reward int not null default 5;
+alter table public.trivia_games alter column reward set default 5;
 alter table public.trivia_games add column if not exists questions_b jsonb;
 alter table public.trivia_games add column if not exists fighter_b text;
 alter table public.trivia_games add column if not exists ready boolean not null default true;
@@ -19,7 +20,7 @@ begin
   if uid is null then raise exception 'not logged in'; end if;
   if p_to is null or p_to = uid then raise exception 'pick another player'; end if;
   if not exists(select 1 from auth.users where id = p_to) then raise exception 'pick another player'; end if;
-  rw := case p_mode when 'random' then 25 when 'class' then 10 when 'fighter' then 10 when 'card' then 10 when 'fav' then 15 else null end;
+  rw := case p_mode when 'random' then 5 when 'class' then 5 when 'fighter' then 5 when 'card' then 5 when 'fav' then 5 else null end;
   if rw is null then raise exception 'bad mode'; end if;
   if jsonb_typeof(p_q) <> 'array' or jsonb_array_length(p_q) <> 10 or coalesce(array_length(p_ans,1),0) <> 10 then raise exception 'bad questions'; end if;
   if exists(select 1 from unnest(p_ans) x where x < 0 or x > 3) then raise exception 'bad questions'; end if;

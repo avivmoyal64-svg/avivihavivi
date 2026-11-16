@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
       await fetch(SB_URL + "/rest/v1/trivia_games?id=eq." + encodeURIComponent(ch), { method: "PATCH", headers: dbH, body: JSON.stringify({ notified: true }) });
       const subs0 = (await get("push_subs?select=endpoint,user_id,p256dh,auth,lang&user_id=eq." + gm.b));
       const who = (url.searchParams.get("name") || "Someone").replace(/[\r\n<>]/g, "").slice(0, 24) || "Someone";
-      const n = await send(subs0, (s: any) => (s.lang === "he" ? T.he : T.en).duel(who, ch, gm.reward || 25), dead);
+      const n = await send(subs0, (s: any) => (s.lang === "he" ? T.he : T.en).duel(who, ch, gm.reward || 5), dead);
       if (dead.length) await fetch(SB_URL + "/rest/v1/push_subs?endpoint=in.(" + dead.map(encodeURIComponent).join(",") + ")", { method: "DELETE", headers: dbH });
       return jr({ sent: n });
     } catch (e) { return jr({ error: "failed" }, 500); }

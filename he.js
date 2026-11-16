@@ -174,13 +174,9 @@ var X={
 
 
 
-"Challenge a player · win up to 25 coins":"אתגרו שחקן · עד 25 מטבעות למנצח",
+"Challenge a player · winner gets 5 coins":"אתגרו שחקן · המנצח מקבל 5 מטבעות",
 "Your coins":"המטבעות שלכם",
-"10 easy questions. The player with the most right answers wins the coins. A tie goes to whoever answered faster. Pick a duel type when you challenge someone: random fighter 25 coins, weight class 10, a specific fighter 10, this week's card 10, or fighter swap 15.":"10 שאלות קלות. מי שענה נכון על הכי הרבה שאלות מקבל את המטבעות. בתיקו מנצח מי שענה מהר יותר. בוחרים סוג דו-קרב כשמאתגרים: לוחם אקראי 25 מטבעות, קטגוריית משקל 10, לוחם מסוים 10, הקלף של השבוע 10, או החלפת לוחמים 15."
-};
-
-/* ---------- dates ---------- */
-var DAYS={Mon:"שני",Tue:"שלישי",Wed:"רביעי",Thu:"חמישי",Fri:"שישי",Sat:"שבת",Sun:"ראשון",Monday:"שני",Tuesday:"שלישי",Wednesday:"רביעי",Thursday:"חמישי",Friday:"שישי",Saturday:"שבת",Sunday:"ראשון"};
+"10 easy questions. The player with the most right answers wins the coins. A tie goes to whoever answered faster. Pick a duel type when you challenge someone: random fighter, weight class, a specific fighter, this week's card, or fighter swap. The winner gets 5 coins.":"10 שאלות קלות. מי שענה נכון על הכי הרבה שאלות מקבל את המטבעות. בתיקו מנצח מי שענה מהר יותר. בוחרים סוג דו-קרב כשמאתגרים: לוחם אקראי, קטגוריית משקל, לוחם מסוים, הקלף של השבוע או החלפת לוחמים. המנצח מקבל 5 מטבעות.",Tue:"שלישי",Wed:"רביעי",Thu:"חמישי",Fri:"שישי",Sat:"שבת",Sun:"ראשון",Monday:"שני",Tuesday:"שלישי",Wednesday:"רביעי",Thursday:"חמישי",Friday:"שישי",Saturday:"שבת",Sunday:"ראשון"};
 var MON={Jan:"בינואר",Feb:"בפברואר",Mar:"במרץ",Apr:"באפריל",May:"במאי",Jun:"ביוני",Jul:"ביולי",Aug:"באוגוסט",Sep:"בספטמבר",Sept:"בספטמבר",Oct:"באוקטובר",Nov:"בנובמבר",Dec:"בדצמבר"};
 function dateFix(s){
  if(!/\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\b/.test(s))return s;
