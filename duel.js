@@ -10,7 +10,8 @@ const MODES = {
   card:    { c: 5, i: "📅", t: "This week's card",   d: "Questions about the fighters on the upcoming card" },
   fav:     { c: 5, i: "🔄", t: "Fighter swap",       d: "You each pick a fighter. Your opponent is quizzed on yours and you on theirs" }
 };
-let G = [], OK = false, PL = null, OUT = null, CH = null, MSG = "", BUSY = false, T = 0;
+let G = [], OK = false, PL = null, OUT = null, CH = null, MSG = "", BUSY = false, T = 0, LOCK = 0, LT = 0;
+const DISM = {};
 
 const rnd = a => a[Math.floor(Math.random() * a.length)];
 const shuf = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -41,37 +42,38 @@ function ctx() {
 }
 const entry = (C, n) => C.ALL.find(x => nz(x.f.n) === nz(n));
 
-/* every question we can ask about one fighter: groups of "real" questions plus true/false fillers */
-function cands(x, C) {
-  const f = x.f, n = f.n, c = x.c, g = { div: [], nick: [], base: [], str: [], opp: [], mate: [], rec: [], res: [] }, tf = [];
-  const add = (k, q) => { if (q) g[k].push(q); };
-  add("div", mk(`Which weight class does ${n} fight in?`, c, C.DIV));
-  if (clean(f.nick)) add("nick", mk(`Which nickname belongs to ${n}?`, f.nick, C.NK));
-  (f.base || []).filter(clean).forEach(b => add("base", mk(`Which of these is part of ${n}'s fighting background?`, b, C.STY.filter(s => !(f.base || []).includes(s)), [`Which of these did ${n} train in?`])));
-  (f.s || []).filter(clean).slice(0, 2).forEach(s => add("str", mk(`Which of these is one of ${n}'s strengths?`, s, C.STR.filter(y => !(f.s || []).includes(y) && !(f.w || []).includes(y)), [`What is ${n} good at?`])));
-  const opp = uniq((f.ff || []).concat(f.hl || []).map(o => { const p = String(o).split(/\s+vs\.?\s+/i); return base(p.length > 1 ? (p.find(z => nz(base(z)) !== nz(n)) || "") : o); })).filter(o => o && nz(o) !== nz(n)), oz = new Set(opp.map(nz));
-  opp.forEach(o => add("opp", mk(`Which of these fighters has ${n} fought?`, o, C.names.filter(y => nz(y) !== nz(n) && !oz.has(nz(y))), [`${n} has been in the cage with which of these fighters?`])));
-  const mates = C.ALL.filter(y => y.c === c && y.f.n !== n).map(y => y.f.n), others = C.ALL.filter(y => y.c !== c).map(y => y.f.n);
-  shuf(mates).slice(0, 2).forEach(m => add("mate", mk(`Which of these fighters is in ${n}'s weight class?`, m, others, [`Which of these fighters competes at ${n}'s weight?`])));
-  const r = C.RN[nz(n)];
-  if (r) {
-    const W = r.w || parseInt(String(r.rec).split("-")[0], 10), L = parseInt(String(r.rec).split("-")[1], 10);
-    if (W) add("rec", mk(`How many wins does ${n} have on the record?`, "" + W, ["" + (W - 4), "" + (W + 3), "" + (W - 8), "" + (W + 7)].filter(v => +v > 0)));
-    if (!isNaN(L)) add("rec", { q: `Is ${n} undefeated as a pro?`, o: ["Yes", "No"], a: L === 0 ? 0 : 1, alt: [] });
-    if (r.ko != null) { const m = [["Knockout", r.ko], ["Submission", r.sub], ["Decision", r.dec]].sort((p, q) => q[1] - p[1]); if (m[0][1] > m[1][1]) add("res", { q: `How did ${n} win most of the fights?`, o: ["Knockout", "Submission", "Decision"], a: ["Knockout", "Submission", "Decision"].indexOf(m[0][0]), alt: [] }); }
-    const seen = new Set((r.beat || []).concat(r.lost || []).map(nz));
-    (r.beat || []).slice(0, 6).forEach(o => add("res", mk(`Which of these fighters has ${n} beaten?`, o, C.sur.filter(s => !seen.has(nz(s)) && nz(s) !== nz(last(n))), [`Which of these fighters lost to ${n}?`])));
+/* One question per kind of fact about a fighter (so a game never repeats the same template). Kinds share a group and a game takes at most 2 per group. */
+const GROUP = { div: "d", limit: "d", mate: "d", nick: "n", base: "s", sdef: "s", orig: "s", opp: "o", rec: "r", und: "r", res: "w" };
+function slotQs(x, C) {
+  const f = x.f, n = f.n, c = x.c, S = {};
+  S.div = mk(`Which weight class does ${n} fight in?`, c, C.DIV);
+  if (LIM[c]) S.limit = mk(`${n} fights at ${c}. What is the weight limit of that division?`, lim(c), C.DIV.map(lim));
+  if (clean(f.nick)) S.nick = mk(`Which nickname belongs to ${n}?`, f.nick, C.NK);
+  const arts = (f.base || []).filter(s => clean(s) && SDESC[s] && s !== "Well-rounded"), all = f.base || [];
+  if (arts.length) {
+    const b = rnd(arts);
+    S.base = mk(`Which of these did ${n} train in?`, b, Object.keys(SDESC).filter(s => s !== "Well-rounded" && !all.includes(s) && !(s === "Greco-Roman" && all.includes("Greco-Roman Wrestling")) && !(s === "Greco-Roman Wrestling" && all.includes("Greco-Roman"))));
+    const other = arts.filter(s => s !== b && SDESC[s] !== SDESC[b]);
+    if (other.length) S.sdef = sdesc(other[0], `${n}'s background includes ${other[0]}. What is ${other[0]}?`);
+    const og = arts.filter(s => SORIG[s]); if (og.length) S.orig = sorig(rnd(og));
   }
-  const T_ = (txt, truth) => tf.push({ q: "True or false: " + txt, o: ["True", "False"], a: truth ? 0 : 1, alt: [] });
-  { const t = Math.random() < 0.5; T_(`${n} fights at ${t ? c : rnd(C.DIV.filter(d => d !== c))}.`, t); }
-  if ((f.base || []).length) { const t = Math.random() < 0.5, b = t ? rnd(f.base) : rnd(C.STY.filter(s => !f.base.includes(s))); if (clean(b)) T_(`${n} has a ${b} background.`, t); }
-  if (clean(f.nick)) { const t = Math.random() < 0.5, k = t ? f.nick : rnd(C.NK.filter(y => y !== f.nick)); if (k) T_(`${n}'s nickname is “${k}”.`, t); }
-  if (mates.length) { const t = Math.random() < 0.5, o = t ? rnd(mates) : rnd(others); if (o) T_(`${o} fights in the same weight class as ${n}.`, t); }
-  /* extra fillers, only used when a fighter has little data */
-  const pad = C.DIV.filter(d => d !== c).map(d => ({ q: `True or false: ${n} fights at ${d}.`, o: ["True", "False"], a: 1, alt: [] }));
-  return { g, tf, pad };
+  const opp = uniq((f.ff || []).concat(f.hl || []).map(o => { const p = String(o).split(/\s+vs\.?\s+/i); return base(p.length > 1 ? (p.find(z => nz(base(z)) !== nz(n)) || "") : o); })).filter(o => o && nz(o) !== nz(n)), oz = new Set(opp.map(nz));
+  /* wrong options only come from other weight classes, so they cannot be a real opponent by accident */
+  if (opp.length) S.opp = mk(`Which of these fighters has ${n} fought?`, rnd(opp), C.ALL.filter(y => y.c !== c && !oz.has(nz(y.f.n))).map(y => y.f.n));
+  const mates = C.ALL.filter(y => y.c === c && y.f.n !== n).map(y => y.f.n), others = C.ALL.filter(y => y.c !== c).map(y => y.f.n);
+  if (mates.length) S.mate = mk(`Which of these fighters is in ${n}'s weight class?`, rnd(mates), others);
+  const r = C.RN[nz(n)], rec = r ? r.rec : f.rec;
+  const W = r && r.w ? r.w : parseInt(String(rec || "").split("-")[0], 10), L = parseInt(String(rec || "").split("-")[1], 10);
+  if (W > 0) S.rec = mk(`How many wins does ${n} have on the record?`, "" + W, ["" + (W - 4), "" + (W + 3), "" + (W - 8), "" + (W + 7)].filter(v => +v > 0));
+  if (!isNaN(L) && W > 0) S.und = { q: `Is ${n} undefeated as a pro?`, o: ["Yes", "No"], a: L === 0 ? 0 : 1, alt: [] };
+  if (r) {
+    if (r.ko != null) { const m = [["Knockout", r.ko], ["Submission", r.sub], ["Decision", r.dec]].sort((p, q) => q[1] - p[1]); if (m[0][1] > m[1][1]) S.res = { q: `How did ${n} win most of the fights?`, o: ["Knockout", "Submission", "Decision"], a: ["Knockout", "Submission", "Decision"].indexOf(m[0][0]), alt: [] }; }
+    const seen = new Set((r.beat || []).concat(r.lost || []).map(nz));
+    if ((r.beat || []).length && !S.res) S.res = mk(`Which of these fighters has ${n} beaten?`, rnd(r.beat), C.sur.filter(s => !seen.has(nz(s)) && nz(s) !== nz(last(n))));
+  }
+  return S;
 }
-/* fill 10 slots round-robin over the queues; repeated question text gets its alternative wording */
+/* fill slots round-robin over the queues; repeated question text gets its alternative wording */
 function rr(queues, need, used, dupOk) {
   const out = []; let more = true;
   queues = queues.map(q => q.slice());
@@ -82,7 +84,7 @@ function rr(queues, need, used, dupOk) {
       while (q.length) {
         const z = q.shift(); more = true;
         let t = z.q;
-        if (!dupOk && used.has(t)) t = (z.alt || []).find(a => !used.has(a)); 
+        if (!dupOk && used.has(t)) t = (z.alt || []).find(a => !used.has(a));
         if (!t) continue;
         z.q = t; used.add(t); out.push(z); break;
       }
@@ -91,11 +93,9 @@ function rr(queues, need, used, dupOk) {
   return out;
 }
 function setFor(x, C) {
-  const { g, tf, pad } = cands(x, C), used = new Set();
-  const qs = shuf(Object.keys(g)).map(k => shuf(g[k]));
-  let out = rr(qs, 10, used);
-  if (out.length < 10) out = out.concat(rr([shuf(tf)], 10 - out.length, used));
-  if (out.length < 10) out = out.concat(rr([shuf(pad)], 10 - out.length, used));
+  const S = slotQs(x, C), cnt = {}, out = [], used = new Set();
+  shuf(Object.keys(S).filter(k => S[k])).forEach(k => { const g = GROUP[k]; if ((cnt[g] || 0) < 2 && !used.has(S[k].q)) { cnt[g] = (cnt[g] || 0) + 1; out.push(S[k]); used.add(S[k].q); } });
+  for (const q of ruleQs()) { if (out.length >= 10) break; if (!used.has(q.q)) { out.push(q); used.add(q.q); } }
   return out.length === 10 ? shuf(out) : null;
 }
 const pack = (fighter, out) => ({ fighter, q: out.map(z => ({ q: z.q, o: z.o })), ans: out.map(z => z.a) });
@@ -128,7 +128,6 @@ function weightQs(c) {
   const DIV = Object.keys(D), i = DIV.indexOf(c), out = [];
   if (!LIM[c]) return out;
   out.push(mk(`What is the weight limit of the ${c} division?`, lim(c), DIV.map(lim)));
-  out.push(mk(`Which division has a weight limit of ${LIM[c][0]} lb?`, c, DIV));
   if (i < DIV.length - 1) out.push(mk(`Which division is the next one up from ${c}?`, DIV[i + 1], DIV));
   else if (i > 0) out.push(mk(`Which division is the next one down from ${c}?`, DIV[i - 1], DIV));
   return out.filter(Boolean);
@@ -137,6 +136,7 @@ function ruleQs() {
   const S = (q, right, wr) => mk(q, right, wr);
   return shuf([
     S("How long is a standard UFC round?", "5 minutes", ["3 minutes", "7 minutes", "10 minutes"]),
+    S("How long is the rest between rounds?", "1 minute", ["30 seconds", "2 minutes", "5 minutes"]),
     S("How many rounds is a UFC title fight?", "5 rounds", ["3 rounds", "4 rounds", "7 rounds"]),
     S("How many rounds is a standard non-title UFC fight?", "3 rounds", ["2 rounds", "4 rounds", "5 rounds"]),
     S("How many sides does the Octagon have?", "8", ["6", "10", "12"]),
@@ -144,7 +144,13 @@ function ruleQs() {
     S("What happens when a fighter taps out?", "They submit and the fight ends", ["The round is paused", "The fight is a draw", "They get a free break"]),
     S("How many judges score a UFC fight?", "3", ["1", "2", "5"]),
     S("What is the judges' scoring system called?", "10-point must system", ["5-point system", "Round-win system", "100-point system"]),
-    S("In which year was the first UFC event held?", "1993", ["1988", "1996", "2001"])
+    S("In a normal round, how many points do the judges give?", "10 to the winner and 9 to the loser", ["5 to the winner and 4 to the loser", "10 to both fighters", "100 to the winner and 90 to the loser"]),
+    S("What happens if nobody wins by knockout or submission before the last round ends?", "The judges decide the winner", ["A sudden-death round is fought", "The fight is always a draw", "The fight is replayed another day"]),
+    S("In which year was the first UFC event held?", "1993", ["1988", "1996", "2001"]),
+    S("How many men's weight classes does the UFC list here?", "8", ["5", "6", "10"]),
+    S("In non-title fights, how much over the division limit can a fighter weigh?", "1 pound", ["5 pounds", "10 pounds", "There is no limit"]),
+    S("When do official weigh-ins take place?", "The day before the fight", ["Right after the fight", "A week before the fight", "One hour before the fight"]),
+    S("What can happen if a fighter misses weight?", "Part of their purse can be forfeited", ["Nothing at all", "They automatically win", "The fight gets more rounds"])
   ].filter(Boolean));
 }
 function genClass(cls) {
@@ -152,7 +158,7 @@ function genClass(cls) {
   const W = weightQs(cls);
   const outside = C.ALL.filter(x => x.c !== cls).map(x => x.f.n), F = [];
   const aT = [`Which of these fighters is in the ${cls} division?`, `Which of these fighters competes at ${cls}?`, `Who fights at ${cls}?`];
-  mem.slice(0, 3).forEach((x, i) => F.push(mk(aT[i % 3], x.f.n, outside)));
+  mem.slice(0, 2).forEach((x, i) => F.push(mk(aT[i % 3], x.f.n, outside)));
   mem.filter(x => clean(x.f.nick)).slice(0, 2).forEach(x => F.push(mk(`Who is known as “${x.f.nick}”?`, x.f.n, mem.map(y => y.f.n))));
   const styles = shuf(uniq(mem.flatMap(x => x.f.base || [])).filter(s => SDESC[s])), S = [];
   styles.slice(0, 3).forEach(s => S.push(sdesc(s)));
@@ -177,7 +183,7 @@ function genCard() {
   L.forEach(x => (x.f.base || []).filter(s => SDESC[s]).slice(0, 1).forEach(s => { SD.push(sdesc(s, `${x.f.n}'s background includes ${s}. What is ${s}?`)); if (SORIG[s]) OR.push(sorig(s)); }));
   const qs = [R, LM, WN, RK, SD, OR, ruleQs().slice(0, 2)].map(a => shuf(a.filter(Boolean)));
   let out = rr(qs, 10, used);
-  if (out.length < 10) out = out.concat(rr(L.map(x => { const { g } = cands(x, C); return shuf(Object.values(g).flat()).slice(0, 3); }), 10 - out.length, used));
+  if (out.length < 10) out = out.concat(rr(L.map(x => shuf(Object.values(slotQs(x, C)).filter(Boolean)).slice(0, 3)), 10 - out.length, used));
   return out.length === 10 ? pack("This week's card", shuf(out)) : null;
 }
 window.duelGen = genRandom; window.duelGenFighter = genFighter; window.duelGenClass = genClass; window.duelGenCard = genCard;
@@ -199,22 +205,25 @@ async function load() {
   try { hnav(); } catch (e) {}
   try { ren(); } catch (e) {}
   if (!PL && !(CH && /^(fighter|swap1|swapb)$/.test(CH.step))) { try { window.duelShow(); } catch (e) {} }
+  try { ui(); } catch (e) {}
 }
 window.duelLoad = load;
 
 const live = g => g.status === "invited" || g.status === "active";
 const mineTodo = () => G.filter(g => g.b === ME && g.b_score == null && live(g));
-const myTurn = () => G.filter(g => g.mode === "fav" && g.a === ME && g.ready && g.a_score == null && live(g));
+const invitesIn = () => G.filter(g => g.b === ME && g.status === "invited");
+const myTurn = () => G.filter(g => g.a === ME && g.status === "active" && g.ready && g.a_score == null);
 window.duelCard = () => {
   if (!OK || !ME) return "";
   const n = mineTodo().length, t = myTurn().length;
-  return `<button class="hcard${n || t ? " cshot" : ""}" onclick="openPage('duel')"><i>⚔️</i><span><b>Trivia duel</b><small>${n ? (n === 1 ? "1 player challenged you!" : n + " players challenged you!") : t ? "Your fighter duel is ready to play!" : "Challenge a player · winner gets 5 coins"}</small></span><em>›</em></button>`;
+  return `<button class="hcard${n || t ? " cshot" : ""}" onclick="openPage('duel')"><i>⚔️</i><span><b>Trivia duel</b><small>${n ? (n === 1 ? "1 player challenged you!" : n + " players challenged you!") : t ? "Your duel is ready to play!" : "Challenge a player · winner gets 5 coins"}</small></span><em>›</em></button>`;
 };
 window.duelBtn = id => (!OK || !ME || id === ME) ? "" : `<div class="fvt"><div><small>Trivia duel</small><b>Challenge this player</b></div><button class="fvb" type="button" onclick="duelGo('${esc(id)}')">⚔️ Challenge</button></div>`;
 window.duelGo = id => { try { $("pf").close(); } catch (e) {} CH = { to: id, step: "mode" }; MSG = ""; openPage("duel"); };
 function $(id) { return document.getElementById(id); }
 
 /* ---------- page ---------- */
+const lockLeft = () => Math.max(0, Math.ceil((LOCK - Date.now()) / 1000));
 const side = g => { const me = g.a === ME; return { opp: me ? g.b : g.a, my: me ? g.a_score : g.b_score, th: me ? g.b_score : g.a_score }; };
 const mlab = g => { const m = MODES[g.mode] || MODES.random; return m.i + " " + m.t; };
 function row(g) {
@@ -226,10 +235,11 @@ function row(g) {
     return `<div class="dlr ${win ? "dwin" : lose ? "dlose" : ""}"><div><b>${who}</b><small>${sub0}</small></div><div class="dls"><b dir="ltr">${s.my} – ${s.th}</b><small>${t}${sub ? " · " + sub : ""}</small></div></div>`;
   }
   if (g.status === "declined" || g.status === "cancelled") return "";
-  const inv = g.b === ME && g.b_score == null, mine = s.my != null, wait = g.mode === "fav" && g.a === ME && !g.ready;
-  const btns = (mine || wait) ? "" : `<button class="fvb go" type="button" onclick="duelPlay('${g.id}')">Play</button>`;
-  const no = g.b_score == null ? `<button class="fvb" type="button" onclick="duelNo('${g.id}')">${inv ? "Decline" : "Cancel"}</button>` : "";
-  return `<div class="dlr ${inv ? "inv" : ""}"><div><b>${who}</b><small>${inv ? "Challenged you" : wait ? "Waiting for them to pick a fighter" : mine ? "Waiting for them to play" : "Your turn to play"}</small><small>${sub0}</small></div>${btns}${no}</div>`;
+  const invIn = g.b === ME && g.status === "invited", invOut = g.a === ME && g.status === "invited", inv = invIn;
+  const mine = s.my != null, wait = g.mode === "fav" && g.a === ME && !g.ready && g.status === "active";
+  const btns = invIn ? `<button class="fvb go" type="button" onclick="duelAccept('${g.id}')">Accept</button>` : (mine || wait || invOut) ? "" : `<button class="fvb go" type="button" onclick="duelPlay('${g.id}')">Play</button>`;
+  const no = g.b_score == null ? `<button class="fvb" type="button" onclick="duelNo('${g.id}')">${invIn ? "Decline" : "Cancel"}</button>` : "";
+  return `<div class="dlr ${inv ? "inv" : ""}"><div><b>${who}</b><small>${invIn ? "Challenged you" : invOut ? "Waiting for them to accept" : wait ? "Waiting for them to pick a fighter" : mine ? "Waiting for them to play" : "Your turn to play"}</small><small>${sub0}</small></div>${btns}${no}</div>`;
 }
 function playHtml() {
   const q = PL.qs[PL.i], pct = Math.round(PL.i / PL.qs.length * 100);
@@ -265,7 +275,7 @@ window.duelShow = () => {
   const ids = Object.keys(NAMES).filter(id => id !== ME && NAMES[id]).sort((a, b) => nm(a).localeCompare(nm(b)));
   const open = new Set(G.filter(g => g.status === "invited" || g.status === "active").map(g => g.a === ME ? g.b : g.a));
   const players = ids.map(id => CH && CH.to === id ? panel()
-    : `<div class="dlr"><div><b>${esc(nm(id))}</b></div><button class="fvb" type="button" ${open.has(id) || BUSY ? "disabled" : ""} onclick="duelCf('${esc(id)}')">⚔️ Challenge</button></div>`).join("");
+    : `<div class="dlr"><div><b>${esc(nm(id))}</b></div><button class="fvb" type="button" ${open.has(id) || BUSY || lockLeft() ? "disabled" : ""} onclick="duelCf('${esc(id)}')">${lockLeft() && !open.has(id) ? "Wait " + lockLeft() + "s" : "⚔️ Challenge"}</button></div>`).join("");
   const todo = G.filter(g => (g.status === "invited" || g.status === "active")).map(row).join("");
   const done = G.filter(g => g.status === "done").slice(0, 8).map(row).join("");
   el.innerHTML = `<div class="dlbox"><b>1v1 Trivia duel</b><p>10 easy questions. The player with the most right answers wins the coins. A tie goes to whoever answered faster. Pick a duel type when you challenge someone: random fighter, weight class, a specific fighter, this week's card, or fighter swap. The winner gets 5 coins.</p></div>
@@ -315,12 +325,13 @@ window.duelSend = async (mode, topic) => {
     push(r.data);
     BUSY = false;
     await load();
-    if (mode === "fav") { MSG = "Challenge sent. You get your questions once they pick a fighter for you."; window.duelShow(); }
-    else startPlay({ id: r.data, fighter: g.fighter, qs: g.q });
+    LOCK = Date.now() + 10000; lockTick();
+    MSG = "Invite sent. They can accept or decline it. You can cancel it under Your games.";
+    window.duelShow();
   } catch (e) {
     BUSY = false;
     const t = String((e && e.message) || e);
-    MSG = /already open/i.test(t) ? "You already have an open game with this player." : /too many/i.test(t) ? "You sent too many challenges today. Try again tomorrow." : "Could not send the challenge. Try again.";
+    MSG = /wait a few/i.test(t) ? "Wait a few seconds before sending another invite, or cancel the one you sent." : /already open/i.test(t) ? "You already have an open game with this player." : /too many/i.test(t) ? "You sent too many challenges today. Try again tomorrow." : "Could not send the challenge. Try again.";
     window.duelShow();
   }
 };
@@ -345,6 +356,37 @@ async function setA(n) {
     BUSY = false; CH = null; await load(); await window.duelPlay(gid);
   } catch (e) { BUSY = false; MSG = "Could not save your pick. Try again."; window.duelShow(); }
 }
+window.duelAccept = async id => {
+  if (BUSY) return; BUSY = true;
+  try { const r = await SB.rpc("trivia_accept", { p_game: id }); if (r.error) throw r.error; }
+  catch (e) { BUSY = false; MSG = "Could not accept the invite. Try again."; try { openPage("duel"); } catch (x) {} await load(); return; }
+  BUSY = false; CH = null; MSG = "";
+  await load();
+  try { openPage("duel"); } catch (e) {}
+  await window.duelPlay(id);
+};
+function lockTick() { clearTimeout(LT); if (lockLeft() > 0) LT = setTimeout(() => { try { if (!PL && !(CH && /^(fighter|swap1|swapb)$/.test(CH.step))) window.duelShow(); } catch (e) {} lockTick(); }, 1000); }
+
+/* ---------- invite pop-up (shows anywhere on the site until you answer) ---------- */
+function ui() {
+  let el = $("dlinv");
+  if (!el) { el = document.createElement("div"); el.id = "dlinv"; el.setAttribute("role", "alert"); document.body.appendChild(el); }
+  let onPage = false; try { const p = $("pgD"); onPage = !!(p && !p.hidden); } catch (e) {}
+  const inc = !OK || !ME || onPage || PL ? null : invitesIn()[0];
+  const acc = inc || !OK || !ME || onPage || PL ? null : myTurn().find(g => !DISM[g.id]);
+  if (!inc && !acc) { el.hidden = true; el.innerHTML = ""; el.dataset.k = ""; return; }
+  const g = inc || acc, k = (inc ? "i" : "a") + g.id + "|" + invitesIn().length;
+  el.hidden = false;
+  if (el.dataset.k === k) return;
+  el.dataset.k = k;
+  const m = MODES[g.mode] || MODES.random, more = inc ? invitesIn().length - 1 : 0;
+  el.innerHTML = inc
+    ? `<div class="dli"><div><b><span>${esc(nm(g.a))}</span> <span>challenged you ⚔️</span></b><small>${m.i} ${m.t} · ${g.reward || 5} coins</small>${more > 0 ? `<small>+${more}</small>` : ""}</div><button type="button" class="dla" onclick="duelAccept('${g.id}')">Accept</button><button type="button" class="dld" onclick="duelNo('${g.id}')">Decline</button></div>`
+    : `<div class="dli"><div><b><span>${esc(nm(g.b))}</span> <span>accepted your challenge</span></b><small>Play now</small></div><button type="button" class="dla" onclick="openPage('duel');duelPlay('${g.id}')">Play</button><button type="button" class="dld" onclick="duelLater('${g.id}')">Later</button></div>`;
+}
+window.duelLater = id => { DISM[id] = 1; ui(); };
+setInterval(() => { try { ui(); } catch (e) {} }, 800);
+
 window.duelAns = k => {
   if (!PL || PL.lock) return;
   PL.lock = true; PL.picks.push(k);
@@ -371,6 +413,7 @@ async function finish() {
 window.duelQuit = () => { PL = null; window.duelShow(); };
 window.duelBack = () => { OUT = null; window.duelShow(); };
 window.duelNo = async id => {
+  LOCK = 0;
   try { const r = await SB.rpc("trivia_decline", { p_game: id }); if (r.error) throw r.error; } catch (e) { MSG = "Could not change the game. Try again."; }
   await load(); window.duelShow();
 };

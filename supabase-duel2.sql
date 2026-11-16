@@ -25,6 +25,7 @@ begin
   if jsonb_typeof(p_q) <> 'array' or jsonb_array_length(p_q) <> 10 or coalesce(array_length(p_ans,1),0) <> 10 then raise exception 'bad questions'; end if;
   if exists(select 1 from unnest(p_ans) x where x < 0 or x > 3) then raise exception 'bad questions'; end if;
   if exists(select 1 from public.trivia_games where status in ('invited','active') and ((a = uid and b = p_to) or (a = p_to and b = uid))) then raise exception 'a game with this player is already open'; end if;
+  if exists(select 1 from public.trivia_games where a = uid and status = 'invited' and created_at > now() - interval '10 seconds') then raise exception 'wait a few seconds before sending another invite'; end if;
   if (select count(*) from public.trivia_games where a = uid and created_at >= today) >= 8 then raise exception 'too many challenges today'; end if;
   if p_mode = 'fav' then
     insert into public.trivia_games(a, b, mode, topic, reward, fighter, fighter_b, questions, questions_b, ready)
@@ -36,6 +37,18 @@ begin
     insert into public.trivia_secret(game_id, answers) values (gid, p_ans);
   end if;
   return gid;
+end $$;
+
+-- The invited player accepts the invite. Until then nobody can play.
+create or replace function public.trivia_accept(p_game uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); g record;
+begin
+  select * into g from public.trivia_games where id = p_game for update;
+  if not found or uid is null or uid <> g.b then raise exception 'no such game'; end if;
+  if g.status = 'active' then return; end if;
+  if g.status <> 'invited' then raise exception 'game is over'; end if;
+  update public.trivia_games set status = 'active' where id = p_game;
 end $$;
 
 -- The invited player picks the fighter the challenger gets questions on (fighter swap only).
@@ -60,7 +73,8 @@ declare uid uuid := auth.uid(); g record; k int[]; sc int := 0; i int; ms int :=
 begin
   select * into g from public.trivia_games where id = p_game for update;
   if not found or uid is null or (uid <> g.a and uid <> g.b) then raise exception 'no such game'; end if;
-  if g.status not in ('invited','active') then raise exception 'game is over'; end if;
+  if g.status in ('done','declined','cancelled') then raise exception 'game is over'; end if;
+  if g.status <> 'active' then raise exception 'not accepted yet'; end if;
   if not g.ready then raise exception 'not ready yet'; end if;
   if coalesce(array_length(p_picks,1),0) <> 10 then raise exception 'bad answers'; end if;
   if (uid = g.a and g.a_score is not null) or (uid = g.b and g.b_score is not null) then raise exception 'already played'; end if;
@@ -128,5 +142,5 @@ begin
          + coalesce((select sum(reward) from public.trivia_games where winner = p_uid and rewarded), 0)::int;
 end $$;
 
-revoke all on function public.trivia_create(uuid, text, text, text, jsonb, int[]), public.trivia_set_a(uuid, text, jsonb, int[]), public.trivia_submit(uuid, int[], int) from public, anon;
-grant execute on function public.trivia_create(uuid, text, text, text, jsonb, int[]), public.trivia_set_a(uuid, text, jsonb, int[]), public.trivia_submit(uuid, int[], int) to authenticated;
+revoke all on function public.trivia_create(uuid, text, text, text, jsonb, int[]), public.trivia_set_a(uuid, text, jsonb, int[]), public.trivia_submit(uuid, int[], int), public.trivia_accept(uuid) from public, anon;
+grant execute on function public.trivia_create(uuid, text, text, text, jsonb, int[]), public.trivia_set_a(uuid, text, jsonb, int[]), public.trivia_submit(uuid, int[], int), public.trivia_accept(uuid) to authenticated;
