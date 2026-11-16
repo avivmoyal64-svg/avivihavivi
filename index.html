@@ -530,6 +530,36 @@ html[dir=rtl] .stk{transform:rotate(5deg)}
 button.rx{cursor:pointer}.rx small{font:700 13px Barlow,Arial,sans-serif;color:var(--mut)}.rx.me{border-color:var(--red);background:rgba(var(--rgb),.22)}.rx.add{opacity:.8}
 .rpg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:10px 0 14px}
 .rpg button{font-size:34px;padding:10px 0;border-radius:14px;border:1px solid #5a5b63;background:#2c2d32;cursor:pointer}.rpg button.me{border-color:var(--red)}
+
+/* shop: broadcast look */
+.shwal{position:relative;margin:10px 0 0;padding:16px 20px;background:linear-gradient(100deg,rgba(var(--rgb),.9) 0,var(--red3) 100%);border:0;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px));box-shadow:none}
+.shwal::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 14px,rgba(255,255,255,.07) 14px 16px);pointer-events:none}
+.shwal span{color:#fff;font:italic 800 15px "Barlow Condensed","Heebo",Arial,sans-serif;letter-spacing:2px;opacity:.9}
+.shwal b{font:italic 900 40px/1 "Barlow Condensed","Heebo",Arial,sans-serif;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+#pgh .pgl{display:flex;align-items:center;gap:10px;margin:26px 0 8px;font:italic 800 22px/1 "Barlow Condensed","Heebo",Arial,sans-serif;letter-spacing:1px;text-transform:uppercase;color:#fff}
+#pgh .pgl::before{content:"";width:12px;height:22px;background:var(--red);transform:skewX(-18deg);box-shadow:8px 0 0 -3px #fff}
+#pgh .gnote{text-align:start;margin:0 0 10px}
+.shgrid{gap:12px}
+.shc{position:relative;padding:16px 6px 14px;gap:8px;background:linear-gradient(160deg,#4b4c55,#383941);border:0;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));transition:transform .15s}
+.shc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#5d5e67}
+.shc.own::before{background:var(--red)}
+.shc:active{transform:scale(.97)}
+.shc .shg{font-size:40px;min-height:46px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.45))}
+.shc b{font:italic 800 16px "Barlow Condensed","Heebo",Arial,sans-serif;letter-spacing:.8px}
+.shc.wide{padding:14px 18px 14px 20px}
+.shw{width:38px;height:38px;border:3px solid #fff;box-shadow:0 0 0 3px rgba(255,255,255,.12),0 0 18px currentColor}
+.shb{min-width:78px;padding:8px 14px;background:linear-gradient(90deg,var(--red),var(--red2));font:italic 900 16px "Barlow Condensed","Heebo",Arial,sans-serif;letter-spacing:.5px;box-shadow:none}
+.shb.use{background:#2c2d32;border:0;color:#fff;box-shadow:inset 0 0 0 2px var(--red)}
+.shb.on{background:none;color:var(--red2);font:italic 800 14px "Barlow Condensed","Heebo",Arial,sans-serif;letter-spacing:1.5px;text-transform:uppercase;padding:8px 0}
+.shb.on::before{content:"✓ "}
+.stk{font-size:13px;padding:3px 10px;box-shadow:3px 3px 0 rgba(0,0,0,.5)}
+.shc.wide .stk{font-size:16px;padding:5px 14px}
+.rxb{gap:8px;margin:8px 0 2px}
+.rx{padding:4px 12px;border-radius:0;transform:skewX(-10deg);background:#34353b;border:0;box-shadow:inset 0 0 0 2px #55565e}
+.rx>*,.rx{font-style:normal}.rx small{transform:skewX(10deg);display:inline-block}
+.rx.me{box-shadow:inset 0 0 0 2px var(--red);background:rgba(var(--rgb),.25)}
+.rpg button{border-radius:0;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));border:0;background:linear-gradient(160deg,#4b4c55,#383941)}
+.rpg button.me{box-shadow:inset 0 0 0 3px var(--red)}
 </style></head><body>
 <div id="prog"></div>
 <section id="hero"><div class="hp one"><canvas id="c1" width="1920" height="1080"></canvas></div><div class="hc" id="hc"><h1>UFC <span>Fighter</span> Roster</h1><p class="sub" style="color:#ddd">Scroll to bring the fighters to life</p><span class="hint">Scroll ↓</span></div></section>

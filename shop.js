@@ -2,7 +2,7 @@
 (function () {
 "use strict";
 const IT = {
-  e_thumb:{g:"👍",n:"Thumbs up"}, e_fire:{g:"🔥",n:"Fire"}, e_laugh:{g:"😂",n:"Laugh"}, e_clap:{g:"👏",n:"Clap"}, e_eyes:{g:"👀",n:"Eyes"},
+  e_thumb:{g:"👍",n:"Like"}, e_fire:{g:"🔥",n:"Fire"}, e_laugh:{g:"😂",n:"Laugh"}, e_clap:{g:"👏",n:"Clap"}, e_eyes:{g:"👀",n:"Eyes"},
   e_skull:{g:"💀",n:"Skull"}, e_clown:{g:"🤡",n:"Clown"}, e_shock:{g:"😱",n:"Shocked"}, e_ice:{g:"🥶",n:"Ice cold"}, e_rocket:{g:"🚀",n:"Rocket"},
   e_crown:{g:"👑",n:"Crown"}, e_goat:{g:"🐐",n:"Goat"},
   t_pink:{v:"pink",n:"Pink",c:"#e0197d"}, t_blue:{v:"blue",n:"Blue",c:"#1a6fe0"}, t_green:{v:"green",n:"Green",c:"#12a150"},
