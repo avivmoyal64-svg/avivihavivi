@@ -8,6 +8,7 @@ const IT = {
   t_pink:{v:"pink",n:"Pink",c:"#e0197d"}, t_blue:{v:"blue",n:"Blue",c:"#1a6fe0"}, t_green:{v:"green",n:"Green",c:"#12a150"},
   s_champ:{i:"👑",n:"CHAMP"}, s_ko:{i:"🥊",n:"KO KING"}, s_pick:{i:"🎯",n:"PICK MASTER"}, s_goat:{i:"🐐",n:"THE GOAT"}, s_one:{i:"⭐",n:"THE ONE & ONLY"}
 };
+window.SHOPIT = IT;
 const kind = id => id[0] === "e" ? "emoji" : id[0] === "t" ? "theme" : "sticker";
 const SHOP = { ok: false, price: {}, owned: new Set(), prof: {}, wallet: 0, msg: "" };
 let REACT = {};
