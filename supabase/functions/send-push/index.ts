@@ -33,8 +33,8 @@ const T = {
 // One-off announcements, sent by opening ?announce=THE_KEY&msg=NAME (once per name; add &again=1 to resend)
 const ANN: Record<string, any> = {
   goat: {
-    en: { title: "GOAT list is live 🐐", body: "Build your top 20 fighters of all time. Big rewards are waiting!", tag: "goat" },
-    he: { title: "רשימת ה-GOAT באוויר 🐐", body: "בנו את 20 הלוחמים הטובים בכל הזמנים. מחכים לכם פרסים גדולים!", tag: "goat" },
+    en: { title: "GOAT list is live 🐐", body: "Build your top 20 fighters of all time. Fill all 20 spots and get 100 coins!", tag: "goat" },
+    he: { title: "רשימת ה-GOAT באוויר 🐐", body: "בנו את 20 הלוחמים הטובים בכל הזמנים. מלאו את כל 20 המקומות וקבלו 100 מטבעות!", tag: "goat" },
   },
 };
 

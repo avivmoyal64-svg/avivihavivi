@@ -696,7 +696,8 @@ const rsOf=x=>x?(x.nc?{w:"",m:x.m||"NC",nc:1}:x.w?{w:x.w,m:x.m,r:x.r}:null):null
 const pts=(p,r,main)=>{if(!p||!r||r.nc||p.w!==r.w)return 0;let v=100;if(r.m&&nm(p.m)===nm(r.m)){v+=50;if(r.m==="DEC"||!r.r||+p.r===+r.r)v+=50}return main?v*2:v};
 const LOCKH=5,lockAt=()=>EV.lock-LOCKH*3600e3,locked=()=>Date.now()>=lockAt();
 const realK=k=>/^e\d+-/.test(k)||(EV.fights||[]).some(x=>x.id===k);
-const coins=id=>{if((PICKS[id]||{}).hidden)return PICKS[id].sc||0;const f=(PICKS[id]||{}).fights||{};return Object.keys(f).reduce((s,k)=>s+pts(f[k],res(k),mainOf(k)),0)};
+const GBON={},GBONUS=100;
+const coins=id=>{const b=GBON[id]?GBONUS:0;if((PICKS[id]||{}).hidden)return(PICKS[id].sc||0)+b;const f=(PICKS[id]||{}).fights||{};return b+Object.keys(f).reduce((s,k)=>s+pts(f[k],res(k),mainOf(k)),0)};
 function board(){return Object.keys(PICKS).map(id=>({id,c:coins(id),n:(PICKS[id]||{}).hidden?(PICKS[id].n||0):Object.keys((PICKS[id]||{}).fights||{}).filter(realK).length})).sort((a,b)=>b.c-a.c||b.n-a.n)}
 function filt(){const fm=fmap(),out={};Object.keys(PRAW).forEach(id=>{const p=PRAW[id]||{};if(id===ME||!p.fights){out[id]=p;return}const f={};Object.keys(p.fights).forEach(k=>{if(res(k)||(fm[k]&&fm[k].w))f[k]=p.fights[k]});out[id]=Object.assign({},p,{fights:f})});PICKS=out}
 function ren(){try{filt()}catch(e){PICKS=PRAW}try{rmn()}catch(e){}try{pgRef()}catch(e){}
@@ -938,12 +939,15 @@ const GN=20;let GEDIT=false,GOAT={},GOATOK=false,GSLOT=0;
 const gcl=a=>Array.from({length:GN},(_,i)=>String((a||[])[i]||"").slice(0,40));
 function gRefresh(){try{if(!document.getElementById("pgG").hidden)drawPage()}catch(e){}try{const p=document.getElementById("pf");if(p.open&&p.dataset.id)openProf(p.dataset.id,1)}catch(e){}}
 async function goatLoad(){
- if(SB){try{const{data,error}=await SB.from("goat_lists").select("user_id,list");if(!error&&data){GOATOK=true;data.forEach(r=>{GOAT[r.user_id]=gcl(r.list)})}}catch(e){}}
+ if(SB){try{let q=await SB.from("goat_lists").select("user_id,list,bonus");if(q.error)q=await SB.from("goat_lists").select("user_id,list");const{data,error}=q;if(!error&&data){GOATOK=true;data.forEach(r=>{GOAT[r.user_id]=gcl(r.list);if(r.bonus)GBON[r.user_id]=true})}}catch(e){}}
  if(ME&&!(GOAT[ME]||[]).some(Boolean)){try{const l=JSON.parse(localStorage.getItem("ufcgoat")||"null");if(Array.isArray(l))GOAT[ME]=gcl(l)}catch(e){}}
+try{ren()}catch(e){}
  gRefresh()}
+let GFLASH="";
 async function goatSave(){
  const l=gcl(GOAT[ME]);GOAT[ME]=l;try{localStorage.setItem("ufcgoat",JSON.stringify(l))}catch(e){}
- let ok=false;if(SB&&ME){try{const{error}=await SB.from("goat_lists").upsert({user_id:ME,list:l,updated_at:new Date().toISOString()});ok=!error}catch(e){}}
+ let ok=false;if(SB&&ME){try{const{error}=await SB.from("goat_lists").upsert({user_id:ME,list:l,updated_at:new Date().toISOString()});ok=!error}catch(e){}
+  if(ok&&!GBON[ME]){try{const{data}=await SB.from("goat_lists").select("bonus").eq("user_id",ME).maybeSingle();if(data&&data.bonus){GBON[ME]=true;GFLASH="🎉 GOAT list complete! +100 coins added.";try{ren()}catch(e){}}}catch(e){}}}
  GOATOK=ok;gRefresh();return ok}
 function gTile(n,i,ro){const z=String(n||""),ph=z&&photoZ(z),fo=z&&findF(z);
  const att=(ro||!GEDIT)?(fo?` data-n="${esc(z)}" onclick="openFighter(this.dataset.n)"`:""):` onclick="goatPick(${i})"`;
@@ -951,7 +955,7 @@ function gTile(n,i,ro){const z=String(n||""),ph=z&&photoZ(z),fo=z&&findF(z);
 function goatHtml(){
  if(!ME||!SB)return '<div class="box"><div class="pfn">Log in to build your GOAT list: your top 20 fighters of all time.</div></div>';
  const l=gcl(GOAT[ME]),n=l.filter(Boolean).length;
- return `<div class="gnote" style="margin-top:4px">Your top 20 fighters of all time. ${n} of ${GN} filled. Other players can see your list on your profile.</div><button type="button" class="gedit${GEDIT?" on":""}" onclick="GEDIT=!GEDIT;drawPage()">${GEDIT?"Done":"✎ Edit list"}</button><div class="gnote" style="margin:8px 0 0">${GEDIT?"Tap a square to add or change a fighter.":"Tap a fighter to open their profile."}</div><div class="ggrid">${l.map((x,i)=>gTile(x,i)).join("")}</div>`}
+ return (GFLASH?`<div class="gnote" style="margin-top:4px;color:#fff;font-weight:700">${GFLASH}</div>`:"")+(GBON[ME]?"":`<div class="gnote" style="margin-top:4px;color:var(--red2);font-weight:700">Fill all 20 spots for the first time and get 100 coins.</div>`)+`<div class="gnote" style="margin-top:4px">Your top 20 fighters of all time. ${n} of ${GN} filled. Other players can see your list on your profile.</div><button type="button" class="gedit${GEDIT?" on":""}" onclick="GEDIT=!GEDIT;drawPage()">${GEDIT?"Done":"✎ Edit list"}</button><div class="gnote" style="margin:8px 0 0">${GEDIT?"Tap a square to add or change a fighter.":"Tap a fighter to open their profile."}</div><div class="ggrid">${l.map((x,i)=>gTile(x,i)).join("")}</div>`}
 function goatBlock(id){const l=gcl(GOAT[id]),n=l.filter(Boolean).length;
  if(!n)return id===ME?'<div class="pfg"><h3>GOAT list</h3><div class="pfn">You have not built your GOAT list yet. Open the GOAT list page from the home screen.</div></div>':'<div class="pfg"><h3>GOAT list</h3><div class="pfn">No GOAT list yet.</div></div>';
  return `<div class="pfg"><h3>GOAT list</h3><div class="ggrid sm">${l.map((x,i)=>gTile(x,i,1)).join("")}</div></div>`}

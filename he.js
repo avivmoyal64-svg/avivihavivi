@@ -38,7 +38,7 @@ var TM={
 
 /* ---------- exact UI strings ---------- */
 var X={
-"🔔 Notifications":"🔔 התראות","🔔 Notifications: on":"🔔 התראות: פעילות","Notifications":"התראות","Turn on notifications":"הפעלת התראות","Turn off notifications":"כיבוי התראות",
+"🎉 GOAT list complete! +100 coins added.":"🎉 רשימת ה-GOAT הושלמה! נוספו 100 מטבעות.","Fill all 20 spots for the first time and get 100 coins.":"מלאו את כל 20 המקומות בפעם הראשונה וקבלו 100 מטבעות.","🔔 Notifications":"🔔 התראות","🔔 Notifications: on":"🔔 התראות: פעילות","Notifications":"התראות","Turn on notifications":"הפעלת התראות","Turn off notifications":"כיבוי התראות",
 "On iPhone: first tap Share, then Add to Home Screen, open the app from your Home Screen, and turn notifications on there.":"באייפון: קודם לחצו על שיתוף ואז על הוספה למסך הבית, פתחו את האפליקציה ממסך הבית והפעילו שם את ההתראות.",
 "This browser does not support notifications.":"הדפדפן הזה לא תומך בהתראות.",
 "Notifications are blocked for this site. Allow them in your browser or phone settings, then try again.":"ההתראות חסומות לאתר הזה. אפשרו אותן בהגדרות הדפדפן או הטלפון ונסו שוב.",
