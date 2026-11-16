@@ -206,6 +206,7 @@ async function load() {
   try { ren(); } catch (e) {}
   if (!PL && !(CH && /^(fighter|swap1|swapb)$/.test(CH.step))) { try { window.duelShow(); } catch (e) {} }
   try { ui(); } catch (e) {}
+  try { if (OK) checkResults(); } catch (e) {}
 }
 window.duelLoad = load;
 
@@ -366,6 +367,43 @@ window.duelAccept = async id => {
   await window.duelPlay(id);
 };
 function lockTick() { clearTimeout(LT); if (lockLeft() > 0) LT = setTimeout(() => { try { if (!PL && !(CH && /^(fighter|swap1|swapb)$/.test(CH.step))) window.duelShow(); } catch (e) {} lockTick(); }, 1000); }
+
+/* ---------- big win / lose animation ---------- */
+const SEEN = new Set(); let SEEN0 = false, FXT = 0;
+const seenKey = () => "dlseen_" + ME;
+function seenLoad() { try { const a = JSON.parse(localStorage.getItem(seenKey()) || "null"); return Array.isArray(a) ? a : null; } catch (e) { return null; } }
+function seenSave() { try { localStorage.setItem(seenKey(), JSON.stringify([...SEEN].slice(-80))); } catch (e) {} }
+function checkResults() {
+  const done = G.filter(g => g.status === "done");
+  if (!SEEN0) { SEEN0 = true; const s = seenLoad(); if (s === null) { done.forEach(g => SEEN.add(g.id)); seenSave(); return; } s.forEach(i => SEEN.add(i)); }
+  const fresh = done.filter(g => !SEEN.has(g.id));
+  if (!fresh.length || PL) return;
+  fresh.forEach(g => SEEN.add(g.id)); seenSave();
+  resultFx(fresh[0]);
+}
+function resultFx(g) {
+  const win = g.winner === ME, lose = !!g.winner && !win, calm = (() => { try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } })();
+  const s = side(g); let el = $("dlfx"); if (el) el.remove();
+  el = document.createElement("div"); el.id = "dlfx"; el.className = win ? "win" : lose ? "lose" : "draw"; el.onclick = () => window.dlfxClose();
+  const sub = win ? (g.rewarded ? "+" + (g.reward || 5) + " coins" : "No coins today (daily limit)") : lose ? "Better luck next time" : "No coins this time";
+  el.innerHTML = `<div class="dlfxb"><h1>${win ? "You win!" : lose ? "You lose!" : "It's a draw"}</h1><div class="dlfxs" dir="ltr">${s.my} – ${s.th}</div><p>${esc(sub)}</p><small>${esc(nm(s.opp))}</small><em>Tap to close</em></div>`;
+  document.body.appendChild(el);
+  if (!calm && el.animate) {
+    const n = win ? 34 : lose ? 14 : 0, W = innerWidth, H = innerHeight;
+    for (let i = 0; i < n; i++) {
+      const c = document.createElement("i"); c.className = "coin dlfxc" + (lose ? " gr" : ""); c.setAttribute("aria-hidden", "true");
+      const x = Math.random() * W, sz = 20 + Math.random() * 26, r = (Math.random() * 720 - 360) | 0, dl = Math.random() * (win ? 1400 : 700);
+      c.style.cssText = `left:${x}px;top:-60px;width:${sz}px;height:${sz}px;font-size:${sz}px`;
+      el.appendChild(c);
+      c.animate(win
+        ? [{ transform: "translateY(0) rotate(0deg)", opacity: 1 }, { transform: `translateY(${H + 120}px) rotate(${r}deg)`, opacity: 1 }]
+        : [{ transform: "translateY(0) rotate(0deg)", opacity: .9 }, { transform: `translateY(${H * .55}px) rotate(${r}deg)`, opacity: 0 }],
+        { duration: win ? 1800 + Math.random() * 1400 : 1500 + Math.random() * 900, delay: dl, easing: win ? "cubic-bezier(.3,.1,.6,1)" : "ease-in", fill: "both" });
+    }
+  }
+  clearTimeout(FXT); FXT = setTimeout(() => window.dlfxClose(), 6500);
+}
+window.dlfxClose = () => { clearTimeout(FXT); const e = $("dlfx"); if (e) { e.classList.add("out"); setTimeout(() => e.remove(), 250); } };
 
 /* ---------- invite pop-up (shows anywhere on the site until you answer) ---------- */
 function ui() {

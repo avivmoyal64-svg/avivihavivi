@@ -254,7 +254,14 @@ var X={
 "Part of their purse can be forfeited":"אפשר לקחת חלק מהשכר שלו",
 "Nothing at all":"שום דבר",
 "They automatically win":"הוא מנצח אוטומטית",
-"The fight gets more rounds":"לקרב נוספים סיבובים"
+"The fight gets more rounds":"לקרב נוספים סיבובים",
+"You win!":"ניצחתם!",
+"You lose!":"הפסדתם!",
+"It's a draw":"תיקו",
+"Better luck next time":"בהצלחה בפעם הבאה",
+"No coins this time":"בלי מטבעות הפעם",
+"No coins today (daily limit)":"אין מטבעות היום (מגבלה יומית)",
+"Tap to close":"הקישו לסגירה"
 };
 
 /* ---------- dates ---------- */
