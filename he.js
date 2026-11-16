@@ -165,7 +165,7 @@ var X={
 "Questions about the fighters of one division":"שאלות על הלוחמים של קטגוריית משקל אחת",
 "Pick one fighter to be quizzed on":"בחרו לוחם אחד לשאלות עליו",
 "Questions about the fighters on the upcoming card":"שאלות על הלוחמים בקלף הקרוב",
-"You each get questions on a fighter you pick":"כל אחד מכם מקבל שאלות על לוחם שאתם בוחרים","Choose the fighter you get questions on":"בחרו את הלוחם שתקבלו עליו שאלות","Choose the fighter they get questions on":"בחרו את הלוחם שהוא יקבל עליו שאלות",
+"You each pick a fighter. Your opponent is quizzed on yours and you on theirs":"כל אחד בוחר לוחם. היריב נשאל על הלוחם שלכם ואתם על שלו","Choose the fighter your opponent gets questions on":"בחרו את הלוחם שהיריב יקבל עליו שאלות","Choose the fighter your challenger gets questions on":"בחרו את הלוחם שהמאתגר יקבל עליו שאלות","Waiting for them to pick a fighter":"מחכים שיבחר לוחם","Challenge sent. You get your questions once they pick a fighter for you.":"האתגר נשלח. תקבלו את השאלות כשיבחר עבורכם לוחם.","Your fighter duel is ready to play!":"דו-קרב הלוחמים שלכם מוכן למשחק!","Could not save your pick. Try again.":"לא הצלחנו לשמור את הבחירה. נסו שוב.",
 "Choose a duel type":"בחרו סוג דו-קרב",
 "Choose a weight class":"בחרו קטגוריית משקל",
 "Choose a fighter":"בחרו לוחם",

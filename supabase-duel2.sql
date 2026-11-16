@@ -5,11 +5,14 @@ alter table public.trivia_games add column if not exists topic text;
 alter table public.trivia_games add column if not exists reward int not null default 25;
 alter table public.trivia_games add column if not exists questions_b jsonb;
 alter table public.trivia_games add column if not exists fighter_b text;
+alter table public.trivia_games add column if not exists ready boolean not null default true;
 alter table public.trivia_secret add column if not exists answers_b int[];
 
 drop function if exists public.trivia_create(uuid, text, jsonb, int[]);
-create or replace function public.trivia_create(p_to uuid, p_mode text, p_topic text, p_fighter text, p_q jsonb, p_ans int[],
-  p_fighter_b text default null, p_q_b jsonb default null, p_ans_b int[] default null) returns uuid
+drop function if exists public.trivia_create(uuid, text, text, text, jsonb, int[], text, jsonb, int[]);
+-- For mode 'fav' (fighter swap) p_q / p_ans are the OPPONENT's questions (about the fighter the challenger picked);
+-- the challenger's own questions are added later by the opponent through trivia_set_a.
+create or replace function public.trivia_create(p_to uuid, p_mode text, p_topic text, p_fighter text, p_q jsonb, p_ans int[]) returns uuid
 language plpgsql security definer set search_path = public as $$
 declare uid uuid := auth.uid(); gid uuid; rw int; today timestamptz := ((now() at time zone 'Asia/Jerusalem')::date)::timestamp at time zone 'Asia/Jerusalem';
 begin
@@ -20,17 +23,33 @@ begin
   if rw is null then raise exception 'bad mode'; end if;
   if jsonb_typeof(p_q) <> 'array' or jsonb_array_length(p_q) <> 10 or coalesce(array_length(p_ans,1),0) <> 10 then raise exception 'bad questions'; end if;
   if exists(select 1 from unnest(p_ans) x where x < 0 or x > 3) then raise exception 'bad questions'; end if;
-  if p_mode = 'fav' then
-    if p_q_b is null or jsonb_typeof(p_q_b) <> 'array' or jsonb_array_length(p_q_b) <> 10 or coalesce(array_length(p_ans_b,1),0) <> 10 then raise exception 'bad questions'; end if;
-    if exists(select 1 from unnest(p_ans_b) x where x < 0 or x > 3) then raise exception 'bad questions'; end if;
-  end if;
   if exists(select 1 from public.trivia_games where status in ('invited','active') and ((a = uid and b = p_to) or (a = p_to and b = uid))) then raise exception 'a game with this player is already open'; end if;
   if (select count(*) from public.trivia_games where a = uid and created_at >= today) >= 8 then raise exception 'too many challenges today'; end if;
-  insert into public.trivia_games(a, b, mode, topic, reward, fighter, fighter_b, questions, questions_b)
-    values (uid, p_to, p_mode, left(coalesce(p_topic,''), 60), rw, left(coalesce(p_fighter,''), 60), left(p_fighter_b, 60), p_q, case when p_mode = 'fav' then p_q_b end)
-    returning id into gid;
-  insert into public.trivia_secret(game_id, answers, answers_b) values (gid, p_ans, case when p_mode = 'fav' then p_ans_b end);
+  if p_mode = 'fav' then
+    insert into public.trivia_games(a, b, mode, topic, reward, fighter, fighter_b, questions, questions_b, ready)
+      values (uid, p_to, p_mode, left(coalesce(p_topic,''), 60), rw, '', left(coalesce(p_fighter,''), 60), '[]'::jsonb, p_q, false) returning id into gid;
+    insert into public.trivia_secret(game_id, answers, answers_b) values (gid, '{}', p_ans);
+  else
+    insert into public.trivia_games(a, b, mode, topic, reward, fighter, questions)
+      values (uid, p_to, p_mode, left(coalesce(p_topic,''), 60), rw, left(coalesce(p_fighter,''), 60), p_q) returning id into gid;
+    insert into public.trivia_secret(game_id, answers) values (gid, p_ans);
+  end if;
   return gid;
+end $$;
+
+-- The invited player picks the fighter the challenger gets questions on (fighter swap only).
+create or replace function public.trivia_set_a(p_game uuid, p_fighter text, p_q jsonb, p_ans int[]) returns void
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); g record;
+begin
+  select * into g from public.trivia_games where id = p_game for update;
+  if not found or uid is null or uid <> g.b or g.mode <> 'fav' then raise exception 'no such game'; end if;
+  if g.ready then raise exception 'already chosen'; end if;
+  if g.status not in ('invited','active') then raise exception 'game is over'; end if;
+  if jsonb_typeof(p_q) <> 'array' or jsonb_array_length(p_q) <> 10 or coalesce(array_length(p_ans,1),0) <> 10 then raise exception 'bad questions'; end if;
+  if exists(select 1 from unnest(p_ans) x where x < 0 or x > 3) then raise exception 'bad questions'; end if;
+  update public.trivia_games set questions = p_q, fighter = left(coalesce(p_fighter,''), 60), topic = left(g.fighter_b || ' & ' || coalesce(p_fighter,''), 60), ready = true where id = p_game;
+  update public.trivia_secret set answers = p_ans where game_id = p_game;
 end $$;
 
 create or replace function public.trivia_submit(p_game uuid, p_picks int[], p_ms int) returns int
@@ -41,6 +60,7 @@ begin
   select * into g from public.trivia_games where id = p_game for update;
   if not found or uid is null or (uid <> g.a and uid <> g.b) then raise exception 'no such game'; end if;
   if g.status not in ('invited','active') then raise exception 'game is over'; end if;
+  if not g.ready then raise exception 'not ready yet'; end if;
   if coalesce(array_length(p_picks,1),0) <> 10 then raise exception 'bad answers'; end if;
   if (uid = g.a and g.a_score is not null) or (uid = g.b and g.b_score is not null) then raise exception 'already played'; end if;
   select case when g.mode = 'fav' and uid = g.b then answers_b else answers end into k from public.trivia_secret where game_id = p_game;
@@ -107,5 +127,5 @@ begin
          + coalesce((select sum(reward) from public.trivia_games where winner = p_uid and rewarded), 0)::int;
 end $$;
 
-revoke all on function public.trivia_create(uuid, text, text, text, jsonb, int[], text, jsonb, int[]), public.trivia_submit(uuid, int[], int) from public, anon;
-grant execute on function public.trivia_create(uuid, text, text, text, jsonb, int[], text, jsonb, int[]), public.trivia_submit(uuid, int[], int) to authenticated;
+revoke all on function public.trivia_create(uuid, text, text, text, jsonb, int[]), public.trivia_set_a(uuid, text, jsonb, int[]), public.trivia_submit(uuid, int[], int) from public, anon;
+grant execute on function public.trivia_create(uuid, text, text, text, jsonb, int[]), public.trivia_set_a(uuid, text, jsonb, int[]), public.trivia_submit(uuid, int[], int) to authenticated;

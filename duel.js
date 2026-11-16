@@ -2,13 +2,13 @@
 (function () {
 "use strict";
 const RES = {"Islam Makhachev":{"rec":"29-1-0","w":29,"ko":5,"sub":13,"dec":11,"beat":["Della Maddalena","Dober","Garry","Green","Hooker","Johnson","Kuntz","Lentz","Moicano","Moises","Oliveira","Poirier","Ramos","Tibau","Tsarukyan","Volkanovski","Wade"],"lost":["Martins"]},"Jon Jones":{"rec":"28-1-0","w":28,"ko":11,"sub":7,"dec":10,"beat":["Bader","Belfort","Bonnar","Cormier","Evans","Gane","Gusmao","Gustafsson","Jackson","Machida","Miocic","O'Brien","Reyes","Rua","Santos","Smith","Sonnen","St-Preux","Teixeira","Vera","Vladimir"],"lost":["Hamill"]},"Conor McGregor":{"rec":"22-7-0","w":22,"ko":19,"sub":1,"dec":2,"beat":["Aldo","Alvarez","Brandao","Brimage","Cerrone","Diaz","Holloway","Mendes","Poirier","Siver"],"lost":["Diaz","Khabib","Poirier"]},"Khabib Nurmagomedov":{"rec":"29-0-0","w":29,"ko":8,"sub":11,"dec":10,"beat":["Barboza","Dos Anjos","Gaethje","Healy","Horcher","Iaquinta","Johnson","McGregor","Poirier","Shalorus","Tavares","Tibau","Trujillo"],"lost":[]},"Georges St-Pierre":{"rec":"26-2-0","w":26,"ko":8,"sub":6,"dec":12,"beat":["Alves","Bisping","Condit","Fitch","Hardy","Hendricks","Hieron","Hughes","Koscheck","Miller","Parisyan","Penn","Serra","Sherk","Shields","Trigg"],"lost":["Hughes","Serra"]},"Anderson Silva":{"rec":"34-11-0","beat":["Belfort","Bonnar","Brunson","Cote","Franklin","Griffin","Henderson","Irvin","Leben","Leites","Lutter","Maia","Marquardt","Okami","Sonnen"],"lost":["Adesanya","Bisping","Cannonier","Cormier","Hall","Weidman"]},"Daniel Cormier":{"rec":"22-3-0","w":22,"ko":10,"sub":5,"dec":7,"beat":["Cummins","Gustafsson","Henderson","Johnson","Lewis","Miocic","Mir","Nelson","Oezdemir","Silva"],"lost":["Jones","Miocic"]},"Francis Ngannou":{"rec":"18-3-0","w":18,"ko":13,"sub":4,"dec":1,"beat":["Arlovski","Blaydes","Gane","Hamilton","Henrique","Mihajlovic","Miocic","Overeem","Rozenstruik","Santos","Velasquez"],"lost":["Lewis","Miocic"]},"Alexander Volkanovski":{"rec":"29-4-0","w":29,"ko":14,"sub":3,"dec":12,"beat":["Aldo","Elkins","Hirota","Holloway","Jung","Kasuya","Kennedy","Lopes","Mendes","Ortega","Rodriguez","Young"],"lost":["Makhachev","Topuria"]},"Jose Aldo":{"rec":"32-10-0","w":32,"ko":17,"sub":1,"dec":14,"beat":["Edgar","Font","Hominick","Jung","Lamas","Martinez","Mendes","Moicano","Munhoz","Stephens","Vera"],"lost":["Dvalishvili","Holloway","McGregor","Moraes","Volkanovski","Yan"]},"Dustin Poirier":{"rec":"30-10-0","w":30,"ko":16,"sub":7,"dec":7,"beat":["Alvarez","Brandao","Brookins","Chandler","Duffy","Ferreira","Gaethje","Garza","Green","Holloway","Hooker","McGregor","Medeiros","Miller","Pettis","St. Denis"],"lost":["Gaethje","Holloway","Johnson","Jung","Khabib","Makhachev","Oliveira","Swanson"]},"Charles Oliveira":{"rec":"37-11-0","w":37,"ko":10,"sub":22,"dec":5,"beat":["Brooks","Chandler","Dariush","Gaethje","Gamrot","Lentz","Poirier","Teymur"],"lost":["Felder","Holloway","Lamas","Makhachev","Pettis","Topuria"]},"Demetrious Johnson":{"rec":"25-4-1","w":25,"ko":5,"sub":8,"dec":12,"beat":["Bagautinov","Benavidez","Borg","Cariaso","Cejudo","Dodson","Elliott","Horiguchi","Moraga","Reis"],"lost":["Cejudo"]},"Israel Adesanya":{"rec":"24-6-0","beat":["Brunson","Cannonier","Costa","Gastelum","Pereira","Romero","Silva","Tavares","Vettori","Whittaker","Wilkinson"],"lost":["Blachowicz","Du Plessis","Imavov","Pereira","Strickland"]},"Ilia Topuria":{"rec":"17-1-0","w":17,"ko":7,"sub":8,"dec":2,"beat":["Emmett","Hall","Herbert","Holloway","Jackson","Mitchell","Oliveira","Volkanovski","Zalal"],"lost":[]},"Yoel Romero":{"rec":"17-7-0","w":17,"ko":14,"sub":0,"dec":3,"beat":["Brunson","Kennedy","Machida","Markes","Rockhold","Souza","Starks","Tavares","Weidman"],"lost":["Adesanya","Costa","Whittaker"]}};
-const COLS = "id,a,b,status,mode,topic,fighter,reward,a_score,b_score,a_ms,b_ms,winner,rewarded,draw,created_at,finished_at";
+const COLS = "id,a,b,status,mode,topic,fighter,reward,a_score,b_score,a_ms,b_ms,winner,rewarded,draw,ready,created_at,finished_at";
 const MODES = {
   random:  { c: 25, i: "🎲", t: "Random fighter",     d: "10 questions about a random fighter" },
   "class": { c: 10, i: "🏋️", t: "Weight class",       d: "Questions about the fighters of one division" },
   fighter: { c: 10, i: "🥊", t: "Specific fighter",   d: "Pick one fighter to be quizzed on" },
   card:    { c: 10, i: "📅", t: "This week's card",   d: "Questions about the fighters on the upcoming card" },
-  fav:     { c: 15, i: "🔄", t: "Fighter swap",       d: "You each get questions on a fighter you pick" }
+  fav:     { c: 15, i: "🔄", t: "Fighter swap",       d: "You each pick a fighter. Your opponent is quizzed on yours and you on theirs" }
 };
 let G = [], OK = false, PL = null, OUT = null, CH = null, MSG = "", BUSY = false, T = 0;
 
@@ -129,10 +129,6 @@ function genCard() {
   if (out.length < 10) out = out.concat(rr(L.map(x => shuf(cands(x, C).tf)), 10 - out.length, used));
   return out.length === 10 ? pack("This week's card", shuf(out)) : null;
 }
-function genSwap(fMe, fThem) {
-  const a = genFighter(fMe), b = genFighter(fThem);
-  return a && b ? { a, b } : null;
-}
 window.duelGen = genRandom; window.duelGenFighter = genFighter; window.duelGenClass = genClass; window.duelGenCard = genCard;
 
 /* ---------- data ---------- */
@@ -151,15 +147,17 @@ async function load() {
   }
   try { hnav(); } catch (e) {}
   try { ren(); } catch (e) {}
-  if (!PL && !(CH && /^(fighter|swap1|swap2)$/.test(CH.step))) { try { window.duelShow(); } catch (e) {} }
+  if (!PL && !(CH && /^(fighter|swap1|swapb)$/.test(CH.step))) { try { window.duelShow(); } catch (e) {} }
 }
 window.duelLoad = load;
 
-const mineTodo = () => G.filter(g => g.b === ME && g.b_score == null && (g.status === "invited" || g.status === "active"));
+const live = g => g.status === "invited" || g.status === "active";
+const mineTodo = () => G.filter(g => g.b === ME && g.b_score == null && live(g));
+const myTurn = () => G.filter(g => g.mode === "fav" && g.a === ME && g.ready && g.a_score == null && live(g));
 window.duelCard = () => {
   if (!OK || !ME) return "";
-  const n = mineTodo().length;
-  return `<button class="hcard${n ? " cshot" : ""}" onclick="openPage('duel')"><i>⚔️</i><span><b>Trivia duel</b><small>${n ? (n === 1 ? "1 player challenged you!" : n + " players challenged you!") : "Challenge a player · win up to 25 coins"}</small></span><em>›</em></button>`;
+  const n = mineTodo().length, t = myTurn().length;
+  return `<button class="hcard${n || t ? " cshot" : ""}" onclick="openPage('duel')"><i>⚔️</i><span><b>Trivia duel</b><small>${n ? (n === 1 ? "1 player challenged you!" : n + " players challenged you!") : t ? "Your fighter duel is ready to play!" : "Challenge a player · win up to 25 coins"}</small></span><em>›</em></button>`;
 };
 window.duelBtn = id => (!OK || !ME || id === ME) ? "" : `<div class="fvt"><div><small>Trivia duel</small><b>Challenge this player</b></div><button class="fvb" type="button" onclick="duelGo('${esc(id)}')">⚔️ Challenge</button></div>`;
 window.duelGo = id => { try { $("pf").close(); } catch (e) {} CH = { to: id, step: "mode" }; MSG = ""; openPage("duel"); };
@@ -177,10 +175,10 @@ function row(g) {
     return `<div class="dlr ${win ? "dwin" : lose ? "dlose" : ""}"><div><b>${who}</b><small>${sub0}</small></div><div class="dls"><b dir="ltr">${s.my} – ${s.th}</b><small>${t}${sub ? " · " + sub : ""}</small></div></div>`;
   }
   if (g.status === "declined" || g.status === "cancelled") return "";
-  const inv = g.b === ME && g.b_score == null, mine = s.my != null;
-  const btns = mine ? "" : `<button class="fvb go" type="button" onclick="duelPlay('${g.id}')">Play</button>`;
+  const inv = g.b === ME && g.b_score == null, mine = s.my != null, wait = g.mode === "fav" && g.a === ME && !g.ready;
+  const btns = (mine || wait) ? "" : `<button class="fvb go" type="button" onclick="duelPlay('${g.id}')">Play</button>`;
   const no = g.b_score == null ? `<button class="fvb" type="button" onclick="duelNo('${g.id}')">${inv ? "Decline" : "Cancel"}</button>` : "";
-  return `<div class="dlr ${inv ? "inv" : ""}"><div><b>${who}</b><small>${inv ? "Challenged you" : mine ? "Waiting for them to play" : "Your turn to play"}</small><small>${sub0}</small></div>${btns}${no}</div>`;
+  return `<div class="dlr ${inv ? "inv" : ""}"><div><b>${who}</b><small>${inv ? "Challenged you" : wait ? "Waiting for them to pick a fighter" : mine ? "Waiting for them to play" : "Your turn to play"}</small><small>${sub0}</small></div>${btns}${no}</div>`;
 }
 function playHtml() {
   const q = PL.qs[PL.i], pct = Math.round(PL.i / PL.qs.length * 100);
@@ -197,9 +195,9 @@ function outHtml() {
   return `<div class="dlres"><small>Your score</small><b>${OUT.score} / 10</b>${end}<button class="fvb go" type="button" onclick="duelBack()">Done</button></div>`;
 }
 function panel() {
-  const id = CH.to, nmE = esc(nm(id)), head = `<div class="dlpt"><div><b>${nmE}</b><small>${CH.step === "mode" ? "Choose a duel type" : CH.step === "class" ? "Choose a weight class" : CH.step === "swap1" ? "Choose the fighter you get questions on" : CH.step === "swap2" ? "Choose the fighter they get questions on" : "Choose a fighter"}</small></div><button class="fvb" type="button" onclick="duelCf('')">Cancel</button></div>`;
+  const id = CH.to, nmE = esc(nm(id)), head = `<div class="dlpt"><div><b>${nmE}</b><small>${CH.step === "mode" ? "Choose a duel type" : CH.step === "class" ? "Choose a weight class" : CH.step === "swap1" ? "Choose the fighter your opponent gets questions on" : "Choose a fighter"}</small></div><button class="fvb" type="button" onclick="duelCf('')">Cancel</button></div>`;
   if (CH.step === "class") return `<div class="dlr conf dlpn">${head}<div class="dlcl">${Object.keys(D).map(c => `<button type="button" onclick="duelSend('class','${esc(c)}')">${esc(c)}</button>`).join("")}</div><button class="fvb" type="button" onclick="duelStep('mode')">‹ Back</button></div>`;
-  if (CH.step === "fighter" || CH.step === "swap1" || CH.step === "swap2") return `<div class="dlr conf dlpn">${head}<input class="gpq" id="dlfq" type="search" placeholder="Search a fighter" autocomplete="off" oninput="duelFq(this.value)"><div class="dlfl" id="dlfl"></div><button class="fvb" type="button" onclick="duelStep('mode')">‹ Back</button></div>`;
+  if (CH.step === "fighter" || CH.step === "swap1") return `<div class="dlr conf dlpn">${head}<input class="gpq" id="dlfq" type="search" placeholder="Search a fighter" autocomplete="off" oninput="duelFq(this.value)"><div class="dlfl" id="dlfl"></div><button class="fvb" type="button" onclick="duelStep('mode')">‹ Back</button></div>`;
   const cardOk = cardFighters().length >= 3;
   const opt = (k, ok, why, act) => { const m = MODES[k]; return `<button class="dlmo" type="button" ${ok ? "" : "disabled"} onclick="${act}"><i>${m.i}</i><span><b>${m.t}</b><small>${ok ? m.d : why}</small></span><em>${m.c} coins</em></button>`; };
   return `<div class="dlr conf dlpn">${head}<div class="dlmos">${opt("random", 1, "", "duelSend('random','')")}${opt("class", 1, "", "duelStep('class')")}${opt("fighter", 1, "", "duelStep('fighter')")}${opt("card", cardOk, "Not enough profiled fighters on this week's card", "duelSend('card','')")}${opt("fav", 1, "", "duelStep('swap1')")}</div></div>`;
@@ -209,6 +207,10 @@ window.duelShow = () => {
   if (PL) { el.innerHTML = playHtml(); return; }
   if (OUT) { el.innerHTML = outHtml(); return; }
   if (!OK) { el.innerHTML = '<div class="box"><div class="pfn">The trivia duel is not available yet.</div></div>'; return; }
+  if (CH && CH.step === "swapb") {
+    el.innerHTML = `<div class="dlbox"><b>${esc(nm(CH.opp))}</b><p>${esc(MSG) || "Choose the fighter your challenger gets questions on"}</p></div><div class="dlr conf dlpn"><input class="gpq" id="dlfq" type="search" placeholder="Search a fighter" autocomplete="off" oninput="duelFq(this.value)"><div class="dlfl" id="dlfl"></div><button class="fvb" type="button" onclick="duelCf('')">Cancel</button></div>`;
+    window.duelFq($("dlfq") ? $("dlfq").value : ""); return;
+  }
   const ids = Object.keys(NAMES).filter(id => id !== ME && NAMES[id]).sort((a, b) => nm(a).localeCompare(nm(b)));
   const open = new Set(G.filter(g => g.status === "invited" || g.status === "active").map(g => g.a === ME ? g.b : g.a));
   const players = ids.map(id => CH && CH.to === id ? panel()
@@ -220,14 +222,14 @@ ${MSG ? `<div class="dlm" role="status">${esc(MSG)}</div>` : ""}
 ${todo ? `<h3 class="dlh3">Your games</h3>${todo}` : ""}
 <h3 class="dlh3">Challenge a player</h3>${players || '<div class="pfn">No other players yet.</div>'}
 ${done ? `<h3 class="dlh3">Results</h3>${done}` : ""}`;
-  if (CH && /^(fighter|swap1|swap2)$/.test(CH.step)) window.duelFq($("dlfq") ? $("dlfq").value : "");
+  if (CH && /^(fighter|swap1|swapb)$/.test(CH.step)) window.duelFq($("dlfq") ? $("dlfq").value : "");
 };
 window.duelCf = id => { CH = id ? { to: id, step: "mode" } : null; MSG = ""; window.duelShow(); };
 window.duelStep = s => { if (CH) { CH.step = s; window.duelShow(); } };
 window.duelPickF = n => {
   if (!CH) return;
-  if (CH.step === "swap1") { CH.f1 = n; CH.step = "swap2"; window.duelShow(); }
-  else if (CH.step === "swap2") window.duelSend("fav", n);
+  if (CH.step === "swap1") window.duelSend("fav", n);
+  else if (CH.step === "swapb") setA(n);
   else window.duelSend("fighter", n);
 };
 window.duelFq = v => {
@@ -247,23 +249,23 @@ async function push(id) {
 }
 window.duelSend = async (mode, topic) => {
   if (BUSY || !CH) return;
-  const to = CH.to, f1 = CH.f1; BUSY = true; MSG = ""; CH = null;
+  const to = CH.to; BUSY = true; MSG = ""; CH = null;
   try {
-    let g, gb = null;
+    let g;
     if (mode === "class") g = genClass(topic);
     else if (mode === "fighter") g = genFighter(topic);
     else if (mode === "card") g = genCard();
-    else if (mode === "fav") { const f = genSwap(f1, topic); if (f) { g = f.a; gb = f.b; topic = f1 + " & " + topic; } }
+    else if (mode === "fav") { g = genFighter(topic); }
     else g = genRandom();
     if (!g) throw new Error("no questions");
     const args = { p_to: to, p_mode: mode, p_topic: (mode === "random" ? g.fighter : topic) || g.fighter, p_fighter: g.fighter, p_q: g.q, p_ans: g.ans };
-    if (gb) { args.p_fighter_b = gb.fighter; args.p_q_b = gb.q; args.p_ans_b = gb.ans; }
     const r = await SB.rpc("trivia_create", args);
     if (r.error) throw r.error;
     push(r.data);
     BUSY = false;
     await load();
-    startPlay({ id: r.data, fighter: g.fighter, qs: g.q });
+    if (mode === "fav") { MSG = "Challenge sent. You get your questions once they pick a fighter for you."; window.duelShow(); }
+    else startPlay({ id: r.data, fighter: g.fighter, qs: g.q });
   } catch (e) {
     BUSY = false;
     const t = String((e && e.message) || e);
@@ -275,12 +277,23 @@ function startPlay(p) { PL = { id: p.id, fighter: p.fighter, qs: p.qs, i: 0, pic
 window.duelPlay = async id => {
   if (BUSY) return; BUSY = true;
   try {
-    const q = await SB.from("trivia_games").select("id,a,b,mode,fighter,fighter_b,questions,questions_b").eq("id", id).single();
+    const q = await SB.from("trivia_games").select("id,a,b,mode,ready,fighter,fighter_b,questions,questions_b").eq("id", id).single();
     if (q.error || !q.data) throw q.error || 0;
     const d = q.data, mineB = d.mode === "fav" && d.b === ME;
+    if (mineB && !d.ready) { BUSY = false; CH = { step: "swapb", game: id, opp: d.a }; MSG = ""; window.duelShow(); return; }
     BUSY = false; startPlay({ id, fighter: mineB ? d.fighter_b : d.fighter, qs: mineB ? d.questions_b : d.questions });
   } catch (e) { BUSY = false; MSG = "Could not open the game. Try again."; window.duelShow(); }
 };
+async function setA(n) {
+  const gid = CH && CH.game; if (!gid || BUSY) return;
+  BUSY = true;
+  try {
+    const g = genFighter(n); if (!g) throw new Error("no questions");
+    const r = await SB.rpc("trivia_set_a", { p_game: gid, p_fighter: g.fighter, p_q: g.q, p_ans: g.ans });
+    if (r.error) throw r.error;
+    BUSY = false; CH = null; await load(); await window.duelPlay(gid);
+  } catch (e) { BUSY = false; MSG = "Could not save your pick. Try again."; window.duelShow(); }
+}
 window.duelAns = k => {
   if (!PL || PL.lock) return;
   PL.lock = true; PL.picks.push(k);
