@@ -1039,10 +1039,10 @@ show("Flyweight");UI=true;
 
 /* ===== GOAT list: 20 spots per player ===== */
 
-/* GOAT tiers (hidden from players): 1-10, 11-15 and free spots 16-20. A fighter outside his tier at spots 1-15 gets a HOT TAKE label. */
-const GTA=["georges st pierre","gsp","jon jones","anderson silva","khabib nurmagomedov","demetrious johnson","amanda nunes","islam makhachev","alexander volkanovski","kamaru usman","jose aldo"],
- GTB=["valentina shevchenko","max holloway","daniel cormier","charles oliveira","israel adesanya"],
- GTC=["randy couture","ilia topuria","alex pereira","matt hughes","stipe miocic"];
+/* GOAT tiers (hidden from players), from the owner's own list: 1-10, 11-15 and free spots 16-20. A fighter outside his tier at spots 1-15 gets a HOT TAKE label. */
+const GTA=["islam makhachev","jon jones","georges st pierre","gsp","alexander volkanovski","demetrious johnson","daniel cormier","anderson silva","alex pereira","merab dvalishvili","petr yan"],
+ GTB=["jose aldo","khabib nurmagomedov","charles oliveira","ilia topuria","stipe miocic"],
+ GTC=["francis ngannou","israel adesanya","max holloway","kamaru usman","joshua van"];
 const gTier=n=>{const k=nz(n);return GTA.includes(k)?0:GTB.includes(k)?1:GTC.includes(k)?2:3};
 const gSlotTier=i=>i<10?0:i<15?1:2;
 const gHot=(n,i)=>!!n&&i<15&&gTier(n)!==gSlotTier(i);
