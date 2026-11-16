@@ -442,6 +442,27 @@ html[dir=rtl] .lgtg.top{left:auto;right:12px}
 html[dir=rtl] *{font-style:normal!important}
 
 /* GOAT list */
+/* gift pop-up */
+#gift{position:fixed;inset:0;z-index:300;display:grid;place-items:center;background:rgba(14,14,17,.82);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);opacity:0;animation:gfin .25s forwards;overflow:hidden}
+@keyframes gfin{to{opacity:1}}
+#gift .gwrap{position:relative;display:grid;justify-items:center;text-align:center;padding:0 20px}
+#gift .gbox{position:relative;width:130px;height:130px;font-size:104px;line-height:130px;transform:scale(0);animation:gpop .55s cubic-bezier(.2,1.5,.4,1) .1s forwards,gshake .7s ease-in-out .8s;filter:drop-shadow(0 10px 18px rgba(0,0,0,.5))}
+#gift .gbox.open{animation:gopen .45s ease-out forwards}
+@keyframes gpop{to{transform:scale(1)}}
+@keyframes gshake{0%,100%{transform:rotate(0)}15%{transform:rotate(-12deg) scale(1.06)}30%{transform:rotate(11deg) scale(1.08)}45%{transform:rotate(-10deg) scale(1.1)}60%{transform:rotate(9deg) scale(1.1)}80%{transform:rotate(-4deg) scale(1.08)}}
+@keyframes gopen{0%{transform:scale(1.1)}35%{transform:scale(1.35) translateY(-8px)}100%{transform:scale(.85) translateY(26px);opacity:.0}}
+#gift .gc{position:absolute;left:50%;top:50%;margin:-.5em 0 0 -.5em;font-size:26px;width:1em;height:1em;background-size:contain;opacity:0;pointer-events:none}
+#gift .gc.go{animation:gcoin var(--d) cubic-bezier(.15,.7,.35,1) var(--dl) forwards}
+@keyframes gcoin{0%{opacity:1;transform:translate(0,0) rotate(0) scale(.4)}45%{opacity:1;transform:translate(var(--x),var(--y)) rotate(var(--r)) scale(1.15)}100%{opacity:0;transform:translate(calc(var(--x)*1.25),calc(var(--y) + 210px)) rotate(calc(var(--r)*2)) scale(.9)}}
+#gift .gtx{margin-top:14px;opacity:0;transform:translateY(14px);transition:all .45s .1s}
+#gift .gtx.on{opacity:1;transform:none}
+#gift .gt1{font:800 clamp(30px,9vw,44px)/1 "Barlow Condensed","Heebo",Arial,sans-serif;text-transform:uppercase;color:#fff;font-style:italic;letter-spacing:.5px}
+#gift .gt1 b{color:var(--red2)}
+#gift .gt2{margin-top:6px;font:700 clamp(40px,13vw,64px)/1 "Barlow Condensed","Heebo",Arial,sans-serif;color:#ffd54a;text-shadow:0 0 22px rgba(255,200,60,.55)}
+#gift .gt3{margin-top:8px;color:#cfcfd4;font:16px/1.4 Barlow,"Heebo",Arial,sans-serif}
+#gift button{margin-top:18px;padding:13px 38px;border:0;background:var(--red);color:#fff;font:800 20px "Barlow Condensed","Heebo",Arial,sans-serif;text-transform:uppercase;letter-spacing:1px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);cursor:pointer}
+@media (prefers-reduced-motion:reduce){#gift .gbox{animation:gpop .01s forwards}#gift .gc{display:none}}
+
 .ggrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 10px;margin-top:10px}
 .gt{display:flex;flex-direction:column;align-items:center;min-width:0;cursor:pointer}
 .gq{position:relative;width:100%;aspect-ratio:1;border-radius:12px;background:#2c2d32 center top/cover no-repeat;border:2px solid #4d4e55;overflow:hidden;display:grid;place-items:center}
@@ -562,7 +583,10 @@ let LK=0,LOCKY=0;
 function lockS(){if(LK++===0){LOCKY=scrollY;const b=document.body;b.style.top=-LOCKY+"px";b.classList.add("lk")}}
 function unlockS(){if(LK>0&&--LK===0){const b=document.body;b.classList.remove("lk");b.style.top="";scrollTo({top:LOCKY,left:0,behavior:"instant"})}}
 {const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){if(!this.open)lockS();sm.call(this)}}
-["dlg","pk","zm","pf","st","cp","ar"].forEach(id=>document.getElementById(id).addEventListener("close",unlockS));
+document.querySelectorAll("dialog").forEach(d=>d.addEventListener("close",()=>{unlockS();setTimeout(fixLock,0)}));
+/* safety net: if the scroll lock is ever left on with nothing open, release it so the page can never stay stuck */
+function fixLock(){try{if(LK>0&&!document.querySelector("dialog[open]")&&!anyPage()){LK=1;unlockS()}else if(LK===0&&document.body.classList.contains("lk")&&!document.querySelector("dialog[open]")&&!anyPage()){document.body.classList.remove("lk");document.body.style.top=""}}catch(e){}}
+["touchstart","pointerdown","visibilitychange","pageshow"].forEach(ev=>addEventListener(ev,()=>{if(document.body.classList.contains("lk"))fixLock()},{passive:true,capture:true}));
 function swipeClose(d,ab){let y0=0,dy=0,on=false,t0=0;
  d.addEventListener("touchstart",e=>{if(e.touches.length!==1||d.scrollTop>0||(!ab&&e.target.closest&&e.target.closest("button"))){on=false;return}y0=e.touches[0].clientY;dy=0;on=true;t0=Date.now();d.style.transition="none"},{passive:true});
  d.addEventListener("touchmove",e=>{if(!on)return;const y=e.touches[0].clientY-y0;if(!dy&&y<12)return;if(d.scrollTop>0){on=false;d.style.transform="";d.style.opacity="";return}if(y<=0){dy=0;d.style.transform="";d.style.opacity="";return}dy=y;if(e.cancelable)e.preventDefault();d.style.transform="translateY("+dy*.92+"px)";d.style.opacity=Math.max(.4,1-dy/520)},{passive:false});
@@ -943,11 +967,30 @@ async function goatLoad(){
  if(ME&&!(GOAT[ME]||[]).some(Boolean)){try{const l=JSON.parse(localStorage.getItem("ufcgoat")||"null");if(Array.isArray(l))GOAT[ME]=gcl(l)}catch(e){}}
 try{ren()}catch(e){}
  gRefresh()}
+
+/* ===== gift pop-up (first completed GOAT list) ===== */
+function showGift(amount){amount=amount||100;if(document.getElementById("gift"))return;
+ const g=document.createElement("div");g.id="gift";g.setAttribute("role","dialog");g.setAttribute("aria-label","Gift");
+ g.innerHTML='<div class="gwrap"><div class="gbox" id="gbox">🎁</div><div class="gtx" id="gtx"><div class="gt1">GOAT list <b>complete!</b></div><div class="gt2"><span id="gnum">0</span> <i class="coin" style="font-size:.8em"></i></div><div class="gt3">Your gift: 100 coins added to your total.</div><button type="button" id="gok">Collect</button></div></div>';
+ document.body.appendChild(g);
+ const box=document.getElementById("gbox"),tx=document.getElementById("gtx"),num=document.getElementById("gnum");
+ const rm=matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches;
+ const close=()=>{g.remove()};document.getElementById("gok").onclick=close;g.addEventListener("click",e=>{if(e.target===g)close()});
+ setTimeout(()=>{box.classList.add("open");
+  const wrap=g.querySelector(".gwrap"),br=box.getBoundingClientRect(),wr=wrap.getBoundingClientRect(),cx=br.left+br.width/2-wr.left,cy=br.top+br.height/2-wr.top;
+  const N=amount>=100?26:14;
+  for(let i=0;i<N;i++){const c=document.createElement("i");c.className="gc coin";const a=(-Math.PI/2)+(Math.random()-.5)*Math.PI*1.35,s=110+Math.random()*190;
+   c.style.cssText=`left:${cx}px;top:${cy}px;--x:${Math.cos(a)*s}px;--y:${Math.sin(a)*s*1.05}px;--r:${(Math.random()-.5)*720}deg;--d:${1.5+Math.random()*.9}s;--dl:${Math.random()*.35}s;font-size:${20+Math.random()*14}px`;
+   wrap.appendChild(c);requestAnimationFrame(()=>c.classList.add("go"))}
+  tx.classList.add("on");
+  const t0=performance.now(),dur=rm?1:1300;(function step(t){const k=Math.min(1,(t-t0)/dur);num.textContent="+"+Math.round(amount*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(step)})(t0);
+ },rm?100:1600)}
+
 let GFLASH="";
 async function goatSave(){
  const l=gcl(GOAT[ME]);GOAT[ME]=l;try{localStorage.setItem("ufcgoat",JSON.stringify(l))}catch(e){}
  let ok=false;if(SB&&ME){try{const{error}=await SB.from("goat_lists").upsert({user_id:ME,list:l,updated_at:new Date().toISOString()});ok=!error}catch(e){}
-  if(ok&&!GBON[ME]){try{const{data}=await SB.from("goat_lists").select("bonus").eq("user_id",ME).maybeSingle();if(data&&data.bonus){GBON[ME]=true;GFLASH="🎉 GOAT list complete! +100 coins added.";try{ren()}catch(e){}}}catch(e){}}}
+  if(ok&&!GBON[ME]){try{const{data}=await SB.from("goat_lists").select("bonus").eq("user_id",ME).maybeSingle();if(data&&data.bonus){GBON[ME]=true;GFLASH="🎉 GOAT list complete! +100 coins added.";try{ren()}catch(e){}try{showGift(100)}catch(e){}}}catch(e){}}}
  GOATOK=ok;gRefresh();return ok}
 function gTile(n,i,ro){const z=String(n||""),ph=z&&photoZ(z),fo=z&&findF(z);
  const att=(ro||!GEDIT)?(fo?` data-n="${esc(z)}" onclick="openFighter(this.dataset.n)"`:""):` onclick="goatPick(${i})"`;
