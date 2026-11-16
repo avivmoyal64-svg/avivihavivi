@@ -109,24 +109,75 @@ function genFighter(name) {
   const C = ctx(), x = entry(C, name); if (!x) return null;
   const o = setFor(x, C); return o ? pack(x.f.n, o) : null;
 }
+/* ---------- educational questions (weight class + this week's card) ---------- */
+const LIM = { Flyweight: [125, 56.7], Bantamweight: [135, 61.2], Featherweight: [145, 65.8], Lightweight: [155, 70.3], Welterweight: [170, 77.1], Middleweight: [185, 83.9], "Light Heavyweight": [205, 93.0], Heavyweight: [265, 120.2] };
+const lim = c => LIM[c] ? `${LIM[c][0]} lb (${LIM[c][1]} kg)` : "";
+const SDESC = {
+  BJJ: "Ground fighting built on submissions", Wrestling: "Takedowns and controlling the opponent", Boxing: "Striking with punches",
+  "Muay Thai": "Striking with fists, elbows, knees and shins", Kickboxing: "Striking with punches and kicks", Judo: "Throws, pins and chokes",
+  Sambo: "Russian grappling with throws and leg locks", Karate: "Striking art built on straight-line punches and kicks", Taekwondo: "Kicking art known for fast, high kicks",
+  "Greco-Roman": "Wrestling with holds only above the waist", "Greco-Roman Wrestling": "Wrestling with holds only above the waist",
+  "Dirty Boxing": "Close-range punching from the clinch", "Well-rounded": "Skilled in both striking and grappling"
+};
+const SORIG = { BJJ: "Brazil", "Muay Thai": "Thailand", Judo: "Japan", Karate: "Japan", Taekwondo: "Korea", Sambo: "Russia" };
+const COUNTRIES = ["Brazil", "Thailand", "Japan", "Korea", "Russia", "Mexico", "Ireland"];
+const STRIKE = ["Boxing", "Kickboxing", "Muay Thai", "Karate", "Taekwondo", "Dirty Boxing"];
+const sdesc = (s, F) => mk(F || `What is ${s}?`, SDESC[s], Object.keys(SDESC).filter(k => SDESC[k] !== SDESC[s] && (!STRIKE.includes(s) || !STRIKE.includes(k))).map(k => SDESC[k]));
+const sorig = s => mk(`Which country does ${s} come from?`, SORIG[s], COUNTRIES);
+function weightQs(c) {
+  const DIV = Object.keys(D), i = DIV.indexOf(c), out = [];
+  if (!LIM[c]) return out;
+  out.push(mk(`What is the weight limit of the ${c} division?`, lim(c), DIV.map(lim)));
+  out.push(mk(`Which division has a weight limit of ${LIM[c][0]} lb?`, c, DIV));
+  if (i < DIV.length - 1) out.push(mk(`Which division is the next one up from ${c}?`, DIV[i + 1], DIV));
+  else if (i > 0) out.push(mk(`Which division is the next one down from ${c}?`, DIV[i - 1], DIV));
+  return out.filter(Boolean);
+}
+function ruleQs() {
+  const S = (q, right, wr) => mk(q, right, wr);
+  return shuf([
+    S("How long is a standard UFC round?", "5 minutes", ["3 minutes", "7 minutes", "10 minutes"]),
+    S("How many rounds is a UFC title fight?", "5 rounds", ["3 rounds", "4 rounds", "7 rounds"]),
+    S("How many rounds is a standard non-title UFC fight?", "3 rounds", ["2 rounds", "4 rounds", "5 rounds"]),
+    S("How many sides does the Octagon have?", "8", ["6", "10", "12"]),
+    S("What does TKO stand for?", "Technical knockout", ["Total knockout", "Timed knockout", "Tag knockout"]),
+    S("What happens when a fighter taps out?", "They submit and the fight ends", ["The round is paused", "The fight is a draw", "They get a free break"]),
+    S("How many judges score a UFC fight?", "3", ["1", "2", "5"]),
+    S("What is the judges' scoring system called?", "10-point must system", ["5-point system", "Round-win system", "100-point system"]),
+    S("In which year was the first UFC event held?", "1993", ["1988", "1996", "2001"])
+  ].filter(Boolean));
+}
 function genClass(cls) {
-  const C = ctx(), mem = shuf(C.ALL.filter(x => x.c === cls)), out = [], pick = [];
-  const A = [], B = [], Cc = [], Dd = [];
+  const C = ctx(), mem = shuf(C.ALL.filter(x => x.c === cls));
+  const W = weightQs(cls);
+  const outside = C.ALL.filter(x => x.c !== cls).map(x => x.f.n), F = [];
   const aT = [`Which of these fighters is in the ${cls} division?`, `Which of these fighters competes at ${cls}?`, `Who fights at ${cls}?`];
-  const outside = C.ALL.filter(x => x.c !== cls).map(x => x.f.n);
-  mem.slice(0, 7).forEach((x, i) => A.push(mk(aT[i % 3], x.f.n, outside)));
-  mem.filter(x => clean(x.f.nick)).slice(0, 5).forEach(x => B.push(mk(`Who is known as “${x.f.nick}”?`, x.f.n, mem.map(y => y.f.n))));
-  shuf(mem).slice(0, 4).forEach(x => Cc.push(mk(`Which weight class does ${x.f.n} fight in?`, cls, C.DIV)));
-  shuf(mem).filter(x => (x.f.base || []).some(clean)).slice(0, 4).forEach(x => { const b = (x.f.base || []).filter(clean)[0]; Dd.push(mk(`Which of these fighters has a ${b} background?`, x.f.n, C.ALL.filter(y => !(y.f.base || []).includes(b)).map(y => y.f.n))); });
-  const q = rr([A, B, Cc, Dd].map(a => a.filter(Boolean)), 10, new Set(), true);
+  mem.slice(0, 3).forEach((x, i) => F.push(mk(aT[i % 3], x.f.n, outside)));
+  mem.filter(x => clean(x.f.nick)).slice(0, 2).forEach(x => F.push(mk(`Who is known as “${x.f.nick}”?`, x.f.n, mem.map(y => y.f.n))));
+  const styles = shuf(uniq(mem.flatMap(x => x.f.base || [])).filter(s => SDESC[s])), S = [];
+  styles.slice(0, 3).forEach(s => S.push(sdesc(s)));
+  styles.filter(s => SORIG[s]).slice(0, 1).forEach(s => S.push(sorig(s)));
+  const q = rr([W, shuf(F.filter(Boolean)), shuf(S.filter(Boolean)), ruleQs()], 10, new Set(), true);
   return q.length === 10 ? pack(cls, shuf(q)) : null;
 }
 const cardFighters = () => { const C = ctx(), L = []; (EV.fights || []).forEach(f => [f.a, f.b].forEach(n => { const x = n && entry(C, n); if (x && !L.some(y => y.f.n === x.f.n)) L.push(x); })); return L; };
+const winsOf = r => { const m = /^(\d+)-/.exec(String(r || "")); return m ? +m[1] : null; };
+const rankOf = t => { const s = String(t || "").toUpperCase(); if (/CHAMP/.test(s)) return 0; const m = /#(\d+)/.exec(s); return m ? +m[1] : null; };
 function genCard() {
   const C = ctx(), L = shuf(cardFighters()); if (L.length < 3) return null;
-  const used = new Set(), queues = L.map(x => { const { g } = cands(x, C); const ks = shuf(Object.keys(g)); const il = []; for (let r = 0; r < 4; r++) ks.forEach(k => { if (g[k][r]) il.push(g[k][r]); }); return shuf(il).slice(0, 3); });
-  let out = rr(queues, 10, used);
-  if (out.length < 10) out = out.concat(rr(L.map(x => shuf(cands(x, C).tf)), 10 - out.length, used));
+  const fs = shuf(EV.fights || []), used = new Set();
+  const R = [], LM = [], WN = [], RK = [], SD = [], OR = [];
+  fs.forEach(f => {
+    if (f.a && f.b && (f.rounds === 3 || f.rounds === 5)) R.push(mk(`${f.a} vs ${f.b} is scheduled for how many rounds?`, f.rounds + " rounds", ["3 rounds", "5 rounds", "4 rounds", "2 rounds"]));
+    if (f.a && f.b && LIM[f.cls]) LM.push(mk(`${f.a} vs ${f.b} is a ${f.cls} fight. What is the weight limit?`, lim(f.cls), Object.keys(LIM).map(lim)));
+    [[f.a, f.ra], [f.b, f.rb]].forEach(([n, r]) => { const w = winsOf(r); if (n && w) WN.push(mk(`How many wins does ${n} have going into this fight?`, "" + w, ["" + (w - 3), "" + (w + 2), "" + (w - 6), "" + (w + 5)].filter(v => +v >= 0))); });
+    const ra = rankOf(f.ta), rb = rankOf(f.tb);
+    if (f.a && f.b && ra != null && rb != null && ra !== rb) RK.push({ q: `Who is ranked higher: ${f.a} or ${f.b}?`, o: [f.a, f.b], a: ra < rb ? 0 : 1, alt: [] });
+  });
+  L.forEach(x => (x.f.base || []).filter(s => SDESC[s]).slice(0, 1).forEach(s => { SD.push(sdesc(s, `${x.f.n}'s background includes ${s}. What is ${s}?`)); if (SORIG[s]) OR.push(sorig(s)); }));
+  const qs = [R, LM, WN, RK, SD, OR, ruleQs().slice(0, 2)].map(a => shuf(a.filter(Boolean)));
+  let out = rr(qs, 10, used);
+  if (out.length < 10) out = out.concat(rr(L.map(x => { const { g } = cands(x, C); return shuf(Object.values(g).flat()).slice(0, 3); }), 10 - out.length, used));
   return out.length === 10 ? pack("This week's card", shuf(out)) : null;
 }
 window.duelGen = genRandom; window.duelGenFighter = genFighter; window.duelGenClass = genClass; window.duelGenCard = genCard;

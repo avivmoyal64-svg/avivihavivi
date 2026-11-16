@@ -176,7 +176,51 @@ var X={
 
 "Challenge a player · winner gets 5 coins":"אתגרו שחקן · המנצח מקבל 5 מטבעות",
 "Your coins":"המטבעות שלכם",
-"10 easy questions. The player with the most right answers wins the coins. A tie goes to whoever answered faster. Pick a duel type when you challenge someone: random fighter, weight class, a specific fighter, this week's card, or fighter swap. The winner gets 5 coins.":"10 שאלות קלות. מי שענה נכון על הכי הרבה שאלות מקבל את המטבעות. בתיקו מנצח מי שענה מהר יותר. בוחרים סוג דו-קרב כשמאתגרים: לוחם אקראי, קטגוריית משקל, לוחם מסוים, הקלף של השבוע או החלפת לוחמים. המנצח מקבל 5 מטבעות.",Tue:"שלישי",Wed:"רביעי",Thu:"חמישי",Fri:"שישי",Sat:"שבת",Sun:"ראשון",Monday:"שני",Tuesday:"שלישי",Wednesday:"רביעי",Thursday:"חמישי",Friday:"שישי",Saturday:"שבת",Sunday:"ראשון"};
+"10 easy questions. The player with the most right answers wins the coins. A tie goes to whoever answered faster. Pick a duel type when you challenge someone: random fighter, weight class, a specific fighter, this week's card, or fighter swap. The winner gets 5 coins.":"10 שאלות קלות. מי שענה נכון על הכי הרבה שאלות מקבל את המטבעות. בתיקו מנצח מי שענה מהר יותר. בוחרים סוג דו-קרב כשמאתגרים: לוחם אקראי, קטגוריית משקל, לוחם מסוים, הקלף של השבוע או החלפת לוחמים. המנצח מקבל 5 מטבעות.",
+"Ground fighting built on submissions":"קרב קרקע שמבוסס על הגשות",
+"Takedowns and controlling the opponent":"הפלות ושליטה ביריב",
+"Striking with punches":"מכות באגרופים",
+"Striking with fists, elbows, knees and shins":"מכות באגרופים, מרפקים, ברכיים ושוקיים",
+"Striking with punches and kicks":"מכות באגרופים ובבעיטות",
+"Throws, pins and chokes":"הטלות, נעילות וחניקות",
+"Russian grappling with throws and leg locks":"היאבקות רוסית עם הטלות ונעילות רגליים",
+"Striking art built on straight-line punches and kicks":"אמנות מכות שמבוססת על אגרופים ובעיטות בקו ישר",
+"Kicking art known for fast, high kicks":"אמנות בעיטות שידועה בבעיטות מהירות וגבוהות",
+"Wrestling with holds only above the waist":"היאבקות עם אחיזות רק מעל המותניים",
+"Close-range punching from the clinch":"אגרופים בטווח קצר מהקלינץ'",
+"Skilled in both striking and grappling":"טוב גם במכות וגם בהיאבקות",
+"Brazil":"ברזיל",
+"Thailand":"תאילנד",
+"Japan":"יפן",
+"Korea":"קוריאה",
+"Russia":"רוסיה",
+"Mexico":"מקסיקו",
+"Ireland":"אירלנד",
+"How long is a standard UFC round?":"כמה זמן נמשך סיבוב רגיל ב-UFC?",
+"How many rounds is a UFC title fight?":"כמה סיבובים יש בקרב אליפות ב-UFC?",
+"How many rounds is a standard non-title UFC fight?":"כמה סיבובים יש בקרב רגיל (לא אליפות) ב-UFC?",
+"How many sides does the Octagon have?":"כמה צלעות יש לאוקטגון?",
+"What does TKO stand for?":"מה פירוש TKO?",
+"Technical knockout":"נוקאאוט טכני",
+"Total knockout":"נוקאאוט מוחלט",
+"Timed knockout":"נוקאאוט מתוזמן",
+"Tag knockout":"נוקאאוט תיוג",
+"What happens when a fighter taps out?":"מה קורה כשלוחם נותן טאפ?",
+"They submit and the fight ends":"הוא נכנע והקרב נגמר",
+"The round is paused":"הסיבוב נעצר",
+"The fight is a draw":"הקרב מסתיים בתיקו",
+"They get a free break":"הוא מקבל הפסקה חינם",
+"How many judges score a UFC fight?":"כמה שופטים נותנים ניקוד בקרב ב-UFC?",
+"What is the judges' scoring system called?":"איך נקראת שיטת הניקוד של השופטים?",
+"10-point must system":"שיטת 10 הנקודות",
+"5-point system":"שיטת 5 הנקודות",
+"Round-win system":"שיטת ניצחון בסיבוב",
+"100-point system":"שיטת 100 הנקודות",
+"In which year was the first UFC event held?":"באיזו שנה נערך אירוע ה-UFC הראשון?"
+};
+
+/* ---------- dates ---------- */
+var DAYS={Mon:"שני",Tue:"שלישי",Wed:"רביעי",Thu:"חמישי",Fri:"שישי",Sat:"שבת",Sun:"ראשון",Monday:"שני",Tuesday:"שלישי",Wednesday:"רביעי",Thursday:"חמישי",Friday:"שישי",Saturday:"שבת",Sunday:"ראשון"};
 var MON={Jan:"בינואר",Feb:"בפברואר",Mar:"במרץ",Apr:"באפריל",May:"במאי",Jun:"ביוני",Jul:"ביולי",Aug:"באוגוסט",Sep:"בספטמבר",Sept:"בספטמבר",Oct:"באוקטובר",Nov:"בנובמבר",Dec:"בדצמבר"};
 function dateFix(s){
  if(!/\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\b/.test(s))return s;
@@ -190,6 +234,20 @@ function dateFix(s){
 /* ---------- patterns ---------- */
 function ord(n){return n}
 var P=[
+ [/^(\d+) rounds?$/,function(m){return m[1]+" סיבובים"}],
+ [/^(\d+) minutes$/,function(m){return m[1]+" דקות"}],
+ [/^(\d+) lb \(([\d.]+) kg\)$/,function(m){return m[1]+" ליברות ("+m[2]+" ק״ג)"}],
+ [/^What is the weight limit of the (.+) division\?$/,function(m){return "מהי מגבלת המשקל של קטגוריית "+m[1]+"?"}],
+ [/^Which division has a weight limit of (\d+) lb\?$/,function(m){return "לאיזו קטגוריה יש מגבלת משקל של "+m[1]+" ליברות?"}],
+ [/^Which division is the next one up from (.+)\?$/,function(m){return "איזו קטגוריה היא הבאה למעלה אחרי "+m[1]+"?"}],
+ [/^Which division is the next one down from (.+)\?$/,function(m){return "איזו קטגוריה היא הבאה למטה אחרי "+m[1]+"?"}],
+ [/^What is ([A-Za-z \-]+)\?$/,function(m){return "מהו "+m[1]+"?"}],
+ [/^Which country does (.+) come from\?$/,function(m){return "מאיזו מדינה מגיע "+m[1]+"?"}],
+ [/^(.+)'s background includes (.+)\. What is (.+)\?$/,function(m){return "הרקע של "+m[1]+" כולל "+m[2]+". מהו "+m[3]+"?"}],
+ [/^(.+) vs (.+) is scheduled for how many rounds\?$/,function(m){return "בכמה סיבובים מתוכנן הקרב בין "+m[1]+" ל-"+m[2]+"?"}],
+ [/^(.+) vs (.+) is a (.+) fight\. What is the weight limit\?$/,function(m){return "הקרב "+m[1]+" נגד "+m[2]+" הוא בקטגוריית "+m[3]+". מהי מגבלת המשקל?"}],
+ [/^How many wins does (.+) have going into this fight\?$/,function(m){return "כמה ניצחונות יש ל-"+m[1]+" לקראת הקרב הזה?"}],
+ [/^Who is ranked higher: (.+) or (.+)\?$/,function(m){return "מי מדורג גבוה יותר: "+m[1]+" או "+m[2]+"?"}],
  [/^\+(\d+) coins$/,function(m){return "‎+"+m[1]+" מטבעות"}],
  [/^You won! \+(\d+) coins$/,function(m){return "ניצחתם! ‎+"+m[1]+" מטבעות"}],
  [/^Which of these fighters is in the (.+) division\?$/,function(m){return "איזה מהלוחמים הבאים נמצא בקטגוריית "+m[1]+"?"}],
