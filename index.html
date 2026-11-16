@@ -476,7 +476,7 @@ html[dir=rtl] *{font-style:normal!important}
 .ggrid.sm{gap:10px 8px}.ggrid.sm .gnum{font-size:22px}.ggrid.sm .gname{font-size:10.5px}.ggrid.sm .gq{border-radius:9px}
 .gt.ro{cursor:default}
 #gp{height:62dvh;max-height:none;margin-top:5dvh;margin-bottom:auto}
-.gps{position:sticky;top:0;z-index:2;background:var(--panel);padding:2px 0 8px}
+.gps{flex:none;background:var(--panel);padding:2px 0 8px}
 .gnum em{font-style:normal;font-size:.62em;margin-inline-start:3px;opacity:1;vertical-align:.1em}
 .gedit{display:block;margin:6px auto 0;padding:9px 22px;border-radius:999px;border:1px solid var(--red);background:#2c2d32;color:#fff;font:700 15px "Barlow Condensed",Arial,sans-serif;cursor:pointer}
 .gedit.on{background:var(--red)}
@@ -498,7 +498,8 @@ html[dir=rtl] *{font-style:normal!important}
 .gr .gb button:disabled{opacity:.3}
 .gnote{margin:10px 0;color:var(--mut);font:14px/1.45 Barlow,Arial,sans-serif;text-align:center}
 .gpq{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:12px;border:1px solid #5a5b63;background:#2c2d32;color:var(--tx);font:16px Barlow,Arial,sans-serif}
-.gpl{display:grid;gap:6px;margin-top:10px}
+.gpl{display:grid;gap:6px;margin-top:10px;align-content:start;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#gp[open]{display:flex;flex-direction:column;overflow:hidden}#gp .top{flex:none}#gp #gpb{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}#gp #gpb>*{flex:none}#gp #gpb>.gpl{flex:1 1 auto}
 .gpl button{display:flex;align-items:center;gap:10px;width:100%;text-align:start;background:#41424a;border:0;border-inline-start:4px solid var(--red);padding:7px 10px;color:var(--tx);font:700 17px "Barlow Condensed",Arial,sans-serif;text-transform:uppercase;cursor:pointer}
 .gpl button small{margin-inline-start:auto;color:var(--mut);font:13px Barlow,Arial,sans-serif;text-transform:none}
 .pfg{margin:6px 0 14px}.pfg h3{margin:10px 0 8px;font:700 13px Barlow,Arial,sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:var(--red2)}
@@ -679,7 +680,7 @@ document.querySelectorAll("dialog").forEach(d=>d.addEventListener("close",()=>{u
 function fixLock(){try{if(LK>0&&!document.querySelector("dialog[open]")&&!anyPage()){LK=1;unlockS()}else if(LK===0&&document.body.classList.contains("lk")&&!document.querySelector("dialog[open]")&&!anyPage()){document.body.classList.remove("lk");document.body.style.top=""}}catch(e){}}
 ["touchstart","pointerdown","visibilitychange","pageshow"].forEach(ev=>addEventListener(ev,()=>{if(document.body.classList.contains("lk"))fixLock()},{passive:true,capture:true}));
 function swipeClose(d,ab){let y0=0,dy=0,on=false,t0=0;
- d.addEventListener("touchstart",e=>{if(e.touches.length!==1||d.scrollTop>0||(!ab&&e.target.closest&&e.target.closest("button"))){on=false;return}y0=e.touches[0].clientY;dy=0;on=true;t0=Date.now();d.style.transition="none"},{passive:true});
+ d.addEventListener("touchstart",e=>{if(e.touches.length!==1||d.scrollTop>0||(()=>{for(let n=e.target;n&&n!==d;n=n.parentElement)if(n.scrollTop>0)return true;return false})()||(!ab&&e.target.closest&&e.target.closest("button"))){on=false;return}y0=e.touches[0].clientY;dy=0;on=true;t0=Date.now();d.style.transition="none"},{passive:true});
  d.addEventListener("touchmove",e=>{if(!on)return;const y=e.touches[0].clientY-y0;if(!dy&&y<12)return;if(d.scrollTop>0){on=false;d.style.transform="";d.style.opacity="";return}if(y<=0){dy=0;d.style.transform="";d.style.opacity="";return}dy=y;if(e.cancelable)e.preventDefault();d.style.transform="translateY("+dy*.92+"px)";d.style.opacity=Math.max(.4,1-dy/520)},{passive:false});
  const end=()=>{if(!on)return;on=false;const v=dy/(Date.now()-t0+1);d.style.transition="transform .26s cubic-bezier(.2,.8,.3,1),opacity .26s";
   if(dy>110||(v>.7&&dy>45)){d.style.transform="translateY(110vh)";d.style.opacity="0";setTimeout(()=>{d.close();d.style.transition="";d.style.transform="";d.style.opacity=""},250)}
