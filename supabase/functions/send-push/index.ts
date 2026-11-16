@@ -21,6 +21,7 @@ const T = {
     results: (n: string) => ({ title: "Results are in", body: n + " is over. See how you did on the scoreboard." }),
     test: () => ({ title: "Notifications work", body: "This is a test message." }),
     nudge: (f: number) => ({ title: "Your GOAT list is waiting 🐐", body: "You are at " + f + " of 20. Finish it and get 100 coins!", tag: "goat-nudge" }),
+    note: (k: string, who: string, id: string) => k === "accepted" ? ({ title: who + " accepted your challenge ⚔️", body: "Open the site to play your 10 questions.", tag: "duelnote-" + id, url: "/#duel" }) : k === "ready" ? ({ title: who + " picked your fighter", body: "Your questions are ready. Play now!", tag: "duelnote-" + id, url: "/#duel" }) : ({ title: "Your duel is finished", body: who + " finished too. See who won!", tag: "duelnote-" + id, url: "/#duel" }),
     duel: (who: string, id: string, c: number) => ({ title: who + " challenged you ⚔️", body: "1v1 trivia duel: 10 easy questions, the winner gets " + c + " coins.", tag: "duel-" + id, url: "/#duel" }),
   },
   he: {
@@ -29,6 +30,7 @@ const T = {
     results: (n: string) => ({ title: "התוצאות מוכנות", body: n + " הסתיים. בדקו בלוח התוצאות איך הלך לכם." }),
     test: () => ({ title: "ההתראות עובדות", body: "זו הודעת בדיקה." }),
     nudge: (f: number) => ({ title: "רשימת ה-GOAT שלכם מחכה 🐐", body: "אתם ב-" + f + " מתוך 20. סיימו אותה וקבלו 100 מטבעות!", tag: "goat-nudge" }),
+    note: (k: string, who: string, id: string) => k === "accepted" ? ({ title: who + " אישר/ה את האתגר שלכם ⚔️", body: "היכנסו לאתר כדי לשחק את 10 השאלות.", tag: "duelnote-" + id, url: "/#duel" }) : k === "ready" ? ({ title: who + " בחר/ה לוחם עבורכם", body: "השאלות שלכם מוכנות. שחקו עכשיו!", tag: "duelnote-" + id, url: "/#duel" }) : ({ title: "הדו-קרב שלכם הסתיים", body: who + " סיים/ה גם. בואו לראות מי ניצח!", tag: "duelnote-" + id, url: "/#duel" }),
     duel: (who: string, id: string, c: number) => ({ title: who + " אתגר/ה אתכם ⚔️", body: "דו-קרב טריוויה 1 על 1: 10 שאלות קלות, המנצח מקבל " + c + " מטבעות.", tag: "duel-" + id, url: "/#duel" }),
   },
 };
@@ -60,6 +62,26 @@ const jr = (o: unknown, st = 200) => new Response(JSON.stringify(o), { status: s
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
   const url = new URL(req.url), dead: string[] = [], log: string[] = [];
+
+  // Duel updates (accepted / fighter picked / finished): tell the other player of the game.
+  const dn = url.searchParams.get("duelnote"), dk = url.searchParams.get("kind") || "";
+  if (dn && ["accepted", "ready", "done"].includes(dk)) {
+    try {
+      const au = req.headers.get("authorization") || "";
+      const ur = await fetch(SB_URL + "/auth/v1/user", { headers: { apikey: SB_KEY, Authorization: au } });
+      if (!ur.ok) return jr({ error: "not logged in" }, 401);
+      const me = (await ur.json()).id;
+      const gm = (await get("trivia_games?id=eq." + encodeURIComponent(dn) + "&select=id,a,b,status,ready"))[0];
+      if (!gm || (gm.a !== me && gm.b !== me)) return jr({ skipped: true });
+      if ((dk === "accepted" && !(me === gm.b && gm.status !== "invited")) || (dk === "ready" && !(me === gm.b && gm.ready)) || (dk === "done" && gm.status !== "done")) return jr({ skipped: true });
+      const other = me === gm.a ? gm.b : gm.a;
+      const subs0 = await get("push_subs?select=endpoint,user_id,p256dh,auth,lang&user_id=eq." + other);
+      const who = (url.searchParams.get("name") || "Someone").replace(/[\r\n<>]/g, "").slice(0, 24) || "Someone";
+      const n = await send(subs0, (s: any) => (s.lang === "he" ? T.he : T.en).note(dk, who, dn), dead);
+      if (dead.length) await fetch(SB_URL + "/rest/v1/push_subs?endpoint=in.(" + dead.map(encodeURIComponent).join(",") + ")", { method: "DELETE", headers: dbH });
+      return jr({ sent: n });
+    } catch (e) { return jr({ error: "failed" }, 500); }
+  }
 
   // A player challenged someone to a trivia duel: notify the invited player (once per game). Needs the challenger's login token.
   const ch = url.searchParams.get("challenge");

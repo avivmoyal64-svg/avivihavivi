@@ -42,10 +42,46 @@ function ctx() {
 }
 const entry = (C, n) => C.ALL.find(x => nz(x.f.n) === nz(n));
 
-/* One question per kind of fact about a fighter (so a game never repeats the same template). Kinds share a group and a game takes at most 2 per group. */
-const GROUP = { div: "d", limit: "d", mate: "d", nick: "n", base: "s", sdef: "s", orig: "s", opp: "o", rec: "r", und: "r", res: "w" };
+/* ---------- facts we can use ---------- */
+const LIM = { Flyweight: [125, 56.7], Bantamweight: [135, 61.2], Featherweight: [145, 65.8], Lightweight: [155, 70.3], Welterweight: [170, 77.1], Middleweight: [185, 83.9], "Light Heavyweight": [205, 93.0], Heavyweight: [265, 120.2] };
+const lim = c => LIM[c] ? `${LIM[c][0]} lb (${LIM[c][1]} kg)` : "";
+const SDESC = {
+  BJJ: "Ground fighting built on submissions", Wrestling: "Takedowns and controlling the opponent", Boxing: "Striking with punches",
+  "Muay Thai": "Striking with fists, elbows, knees and shins", Kickboxing: "Striking with punches and kicks", Judo: "Throws, pins and chokes",
+  Sambo: "Russian grappling with throws and leg locks", Karate: "Striking art built on straight-line punches and kicks", Taekwondo: "Kicking art known for fast, high kicks",
+  "Greco-Roman": "Wrestling with holds only above the waist", "Greco-Roman Wrestling": "Wrestling with holds only above the waist",
+  "Dirty Boxing": "Close-range punching from the clinch", "Well-rounded": "Skilled in both striking and grappling"
+};
+const SORIG = { BJJ: "Brazil", "Muay Thai": "Thailand", Judo: "Japan", Karate: "Japan", Taekwondo: "Korea", Sambo: "Russia" };
+const COUNTRIES = ["Brazil", "Thailand", "Japan", "Korea", "Russia", "Mexico", "Ireland"];
+/* the country each fighter represents (only fighters we are sure about) */
+const CTRY = {};
+[["USA", "Demetrious Johnson|Brandon Royval|Charles Johnson|Dominick Cruz|T.J. Dillashaw|Henry Cejudo|Sean O'Malley|Mario Bautista|Cory Sandhagen|Raul Rosas Jr.|Payton Talbott|Bryce Mitchell|Aljamain Sterling|Aaron Pico|Steve Garcia|Josh Emmett|Brian Ortega|Dustin Poirier|Eddie Alvarez|Tony Ferguson|Justin Gaethje|Max Holloway|Beneil Dariush|Michael Chandler|Terrance McKinney|King Green|Jorge Masvidal|Colby Covington|Tyron Woodley|Robbie Lawler|Sean Brady|Belal Muhammad|Joaquin Buckley|Jacobe Smith|Kevin Holland|Neil Magny|Geoff Neal|Chris Weidman|Sean Strickland|Brendan Allen|Joe Pyfer|Bo Nickal|Jared Cannonier|Dominick Reyes|Khalil Rountree Jr.|Stipe Miocic|Cain Velasquez|Daniel Cormier|Jon Jones|Josh Hokit|Curtis Blaydes|Derrick Lewis|Gable Steveson"],
+ ["Brazil", "Alexandre Pantoja|Raoni Barcelos|Deiveson Figueiredo|Jose Aldo|Jean Silva|Melquizael Costa|Patricio Pitbull|Charles Oliveira|Maurício Ruffy|Renato Moicano|Diego Lopes|Gilbert Burns|Carlos Prates|Gabriel Bonfim|Anderson Silva|Caio Borralho|Gregory Rodrigues|Glover Teixeira|Paulo Costa|Junior dos Santos|Alex Pereira|Johnny Walker|Valter Walker|Tallison Teixeira"],
+ ["Russia", "Petr Yan|Umar Nurmagomedov|Movsar Evloev|Khabib Nurmagomedov|Usman Nurmagomedov|Magomed Zaynukov|Islam Makhachev|Ikram Aliskerov|Roman Kopylov|Shara Magomedov|Magomed Ankalaev|Alexander Volkov|Sergei Pavlovich|Rizvan Kuniev"],
+ ["England", "Paddy Pimblett|Lerone Murphy|Arnold Allen|Leon Edwards|Michael Bisping|Christian Leroy Duncan|Tom Aspinall"],
+ ["Australia", "Alexander Volkanovski|Steve Erceg|Quillan Salkilld|Tom Nolan|Jack Della Maddalena|Robert Whittaker|Tai Tuivasa"],
+ ["Japan", "Tatsuro Taira|Kyoji Horiguchi"], ["Canada", "Aiemann Zahabi|Georges St-Pierre|Mike Malott"], ["France", "Salahdine Parnasse|Benoît Saint Denis|Axel Sola|Nassourdine Imavov|Ciryl Gane"],
+ ["Mexico", "Brandon Moreno|Yair Rodriguez"], ["Ireland", "Conor McGregor|Ian Garry"], ["Poland", "Mateusz Gamrot|Jan Błachowicz"], ["Kazakhstan", "Asu Almabayev|Shavkat Rakhmonov"],
+ ["Georgia", "Merab Dvalishvili|Aleksandre Topuria"], ["Ecuador", "Marlon Vera|Michael Morales"], ["Argentina", "Kevin Vallejos|Esteban Ribovics"], ["New Zealand", "Dan Hooker|Carlos Ulberg"],
+ ["Nigeria", "Kamaru Usman"], ["Cuba", "Yoel Romero"], ["Sweden", "Alexander Gustafsson"], ["South Africa", "Dricus Du Plessis"], ["Czech Republic", "Jiří Procházka"], ["Netherlands", "Reinier de Ridder"],
+ ["Cameroon", "Francis Ngannou"], ["Austria", "Aleksandar Rakić"], ["Serbia", "Uroš Medić"], ["Croatia", "Roberto Soldić"], ["Ukraine", "Yaroslav Amosov|Azamat Murzakanov"], ["Uzbekistan", "Akbar Abdullaev"],
+ ["Dominican Republic", "Waldo Cortes Acosta"], ["Portugal", "Mario Pinto"], ["Moldova", "Serghei Spivac"], ["Morocco", "Youssef Zalal"], ["Armenia", "Arman Tsarukyan"], ["China", "Song Yadong"], ["Myanmar", "Joshua Van"], ["Austria ", ""]
+].forEach(([c, s]) => s.split("|").forEach(n => { if (n) CTRY[nz(n)] = c.trim(); }));
+const ctryOf = n => CTRY[nz(n)] || "";
+const ALLC = uniq(Object.values(CTRY));
+const rankNum = t => { const s = String(t || "").trim().toUpperCase(); if (s === "CHAMP") return 0; const m = /^#(\d+)$/.exec(s); return m ? +m[1] : null; };
+const rankLabel = n => n === 0 ? "Champion" : "#" + n;
+const recOf = (C, f) => { const r = C.RN[nz(f.n)], rec = r ? r.rec : f.rec, p = String(rec || "").split("-"); const W = r && r.w ? r.w : parseInt(p[0], 10), L = parseInt(p[1], 10); return isNaN(W) || isNaN(L) ? null : { W, L }; };
+const STRIKE = ["Boxing", "Kickboxing", "Muay Thai", "Karate", "Taekwondo", "Dirty Boxing"];
+const sdesc = (s, F) => mk(F || `What is ${s}?`, SDESC[s], Object.keys(SDESC).filter(k => SDESC[k] !== SDESC[s] && (!STRIKE.includes(s) || !STRIKE.includes(k))).map(k => SDESC[k]));
+const sorig = s => mk(`Which country does ${s} come from?`, SORIG[s], COUNTRIES);
+const DIVS = () => Object.keys(D);
+
+/* ---------- one fighter (random fighter, specific fighter, fighter swap) ---------- */
+const GROUP = { div: "d", limit: "d", mate: "d", nick: "n", base: "s", sdef: "s", orig: "s", opp: "o", rec: "r", loss: "r", und: "r", res: "w", rank: "k", ctry: "c" };
 function slotQs(x, C) {
-  const f = x.f, n = f.n, c = x.c, S = {};
+  const f = x.f, n = f.n, c = x.c, S = {}, tf = [];
   S.div = mk(`Which weight class does ${n} fight in?`, c, C.DIV);
   if (LIM[c]) S.limit = mk(`${n} fights at ${c}. What is the weight limit of that division?`, lim(c), C.DIV.map(lim));
   if (clean(f.nick)) S.nick = mk(`Which nickname belongs to ${n}?`, f.nick, C.NK);
@@ -58,20 +94,38 @@ function slotQs(x, C) {
     const og = arts.filter(s => SORIG[s]); if (og.length) S.orig = sorig(rnd(og));
   }
   const opp = uniq((f.ff || []).concat(f.hl || []).map(o => { const p = String(o).split(/\s+vs\.?\s+/i); return base(p.length > 1 ? (p.find(z => nz(base(z)) !== nz(n)) || "") : o); })).filter(o => o && nz(o) !== nz(n)), oz = new Set(opp.map(nz));
-  /* wrong options only come from other weight classes, so they cannot be a real opponent by accident */
   if (opp.length) S.opp = mk(`Which of these fighters has ${n} fought?`, rnd(opp), C.ALL.filter(y => y.c !== c && !oz.has(nz(y.f.n))).map(y => y.f.n));
   const mates = C.ALL.filter(y => y.c === c && y.f.n !== n).map(y => y.f.n), others = C.ALL.filter(y => y.c !== c).map(y => y.f.n);
   if (mates.length) S.mate = mk(`Which of these fighters is in ${n}'s weight class?`, rnd(mates), others);
-  const r = C.RN[nz(n)], rec = r ? r.rec : f.rec;
-  const W = r && r.w ? r.w : parseInt(String(rec || "").split("-")[0], 10), L = parseInt(String(rec || "").split("-")[1], 10);
-  if (W > 0) S.rec = mk(`How many wins does ${n} have on the record?`, "" + W, ["" + (W - 4), "" + (W + 3), "" + (W - 8), "" + (W + 7)].filter(v => +v > 0));
-  if (!isNaN(L) && W > 0) S.und = { q: `Is ${n} undefeated as a pro?`, o: ["Yes", "No"], a: L === 0 ? 0 : 1, alt: [] };
+  const rc = recOf(C, f);
+  if (rc && rc.W > 0) {
+    S.rec = mk(`How many wins does ${n} have on the record?`, "" + rc.W, ["" + (rc.W - 4), "" + (rc.W + 3), "" + (rc.W - 8), "" + (rc.W + 7)].filter(v => +v > 0));
+    const lw = uniq([rc.L + 1, rc.L + 2, rc.L + 4, rc.L + 6, rc.L - 1, rc.L - 2].filter(v => v >= 0).map(String));
+    S.loss = mk(`How many losses does ${n} have?`, "" + rc.L, lw);
+    S.und = { q: `Is ${n} undefeated as a pro?`, o: ["Yes", "No"], a: rc.L === 0 ? 0 : 1, alt: [] };
+  }
+  const r = C.RN[nz(n)];
   if (r) {
     if (r.ko != null) { const m = [["Knockout", r.ko], ["Submission", r.sub], ["Decision", r.dec]].sort((p, q) => q[1] - p[1]); if (m[0][1] > m[1][1]) S.res = { q: `How did ${n} win most of the fights?`, o: ["Knockout", "Submission", "Decision"], a: ["Knockout", "Submission", "Decision"].indexOf(m[0][0]), alt: [] }; }
     const seen = new Set((r.beat || []).concat(r.lost || []).map(nz));
     if ((r.beat || []).length && !S.res) S.res = mk(`Which of these fighters has ${n} beaten?`, rnd(r.beat), C.sur.filter(s => !seen.has(nz(s)) && nz(s) !== nz(last(n))));
   }
-  return S;
+  const rk = rankNum(f.tag);
+  if (rk != null) {
+    const labels = ["Champion"].concat(Array.from({ length: 15 }, (_, i) => "#" + (i + 1))), mine = rankLabel(rk);
+    S.rank = mk(`What is ${n}'s ranking in the ${c} division?`, mine, labels.filter(l => Math.abs((l === "Champion" ? 0 : +l.slice(1)) - rk) >= 2));
+    tf.push({ q: `True or false: ${n} is ranked in the top 5 of the ${c} division.`, o: ["True", "False"], a: rk <= 5 ? 0 : 1, alt: [] });
+  }
+  const ct = ctryOf(n);
+  if (ct) {
+    S.ctry = mk(`Which country is ${n} from?`, ct, ALLC);
+    const t = Math.random() < 0.5; tf.push({ q: `True or false: ${n} is from ${t ? ct : rnd(ALLC.filter(z => z !== ct))}.`, o: ["True", "False"], a: 0, alt: [] });
+    tf[tf.length - 1].a = tf[tf.length - 1].q.endsWith(" is from " + ct + ".") ? 0 : 1;
+  }
+  { const t = Math.random() < 0.5, dv = t ? c : rnd(C.DIV.filter(z => z !== c)); tf.push({ q: `True or false: ${n} fights at ${dv}.`, o: ["True", "False"], a: dv === c ? 0 : 1, alt: [] }); }
+  if (clean(f.nick)) { const t = Math.random() < 0.5, k = t ? f.nick : rnd(C.NK.filter(y => y !== f.nick)); tf.push({ q: `True or false: ${n}'s nickname is “${k}”.`, o: ["True", "False"], a: t ? 0 : 1, alt: [] }); }
+  if (arts.length) { const t = Math.random() < 0.5, s = t ? rnd(arts) : rnd(Object.keys(SDESC).filter(z => z !== "Well-rounded" && !all.includes(z))); tf.push({ q: `True or false: ${n} has a ${s} background.`, o: ["True", "False"], a: t ? 0 : 1, alt: [] }); }
+  return { S, tf };
 }
 /* fill slots round-robin over the queues; repeated question text gets its alternative wording */
 function rr(queues, need, used, dupOk) {
@@ -93,13 +147,26 @@ function rr(queues, need, used, dupOk) {
   return out;
 }
 function setFor(x, C) {
-  const S = slotQs(x, C), cnt = {}, out = [], used = new Set();
-  shuf(Object.keys(S).filter(k => S[k])).forEach(k => { const g = GROUP[k]; if ((cnt[g] || 0) < 2 && !used.has(S[k].q)) { cnt[g] = (cnt[g] || 0) + 1; out.push(S[k]); used.add(S[k].q); } });
-  for (const q of ruleQs()) { if (out.length >= 10) break; if (!used.has(q.q)) { out.push(q); used.add(q.q); } }
-  return out.length === 10 ? shuf(out) : null;
+  const { S, tf } = slotQs(x, C), out = [], used = new Set();
+  const keys = shuf(Object.keys(S).filter(k => S[k]));
+  for (const cap of [2, 3]) {
+    const cnt = {}; out.length = 0; used.clear();
+    keys.forEach(k => { const g = GROUP[k]; if ((cnt[g] || 0) < cap && !used.has(S[k].q)) { cnt[g] = (cnt[g] || 0) + 1; out.push(S[k]); used.add(S[k].q); } });
+    if (out.length >= 10) break;
+  }
+  for (const q of shuf(tf)) { if (out.length >= 10) break; if (!used.has(q.q)) { out.push(q); used.add(q.q); } }
+  /* very thin profile: add more about the same weight class */
+  if (out.length < 10) {
+    const mates = shuf(C.ALL.filter(y => y.c === x.c && y.f.n !== x.f.n)), others = C.ALL.filter(y => y.c !== x.c).map(y => y.f.n);
+    for (const m of mates) {
+      if (out.length >= 10) break;
+      const q = mk(`Which of these fighters is in ${x.f.n}'s weight class?`, m.f.n, others, [`Which of these fighters competes at ${x.f.n}'s weight?`, `Which of these fighters fights at ${x.c} like ${x.f.n}?`]);
+      if (!q) continue; const t = used.has(q.q) ? q.alt.find(z => !used.has(z)) : q.q; if (!t) continue; q.q = t; used.add(t); out.push(q);
+    }
+  }
+  return out.length >= 10 ? shuf(out.slice(0, 10)) : null;
 }
 const pack = (fighter, out) => ({ fighter, q: out.map(z => ({ q: z.q, o: z.o })), ans: out.map(z => z.a) });
-
 function genRandom() {
   const C = ctx();
   for (const x of shuf(C.ALL)) { const o = setFor(x, C); if (o) return pack(x.f.n, o); }
@@ -109,81 +176,63 @@ function genFighter(name) {
   const C = ctx(), x = entry(C, name); if (!x) return null;
   const o = setFor(x, C); return o ? pack(x.f.n, o) : null;
 }
-/* ---------- educational questions (weight class + this week's card) ---------- */
-const LIM = { Flyweight: [125, 56.7], Bantamweight: [135, 61.2], Featherweight: [145, 65.8], Lightweight: [155, 70.3], Welterweight: [170, 77.1], Middleweight: [185, 83.9], "Light Heavyweight": [205, 93.0], Heavyweight: [265, 120.2] };
-const lim = c => LIM[c] ? `${LIM[c][0]} lb (${LIM[c][1]} kg)` : "";
-const SDESC = {
-  BJJ: "Ground fighting built on submissions", Wrestling: "Takedowns and controlling the opponent", Boxing: "Striking with punches",
-  "Muay Thai": "Striking with fists, elbows, knees and shins", Kickboxing: "Striking with punches and kicks", Judo: "Throws, pins and chokes",
-  Sambo: "Russian grappling with throws and leg locks", Karate: "Striking art built on straight-line punches and kicks", Taekwondo: "Kicking art known for fast, high kicks",
-  "Greco-Roman": "Wrestling with holds only above the waist", "Greco-Roman Wrestling": "Wrestling with holds only above the waist",
-  "Dirty Boxing": "Close-range punching from the clinch", "Well-rounded": "Skilled in both striking and grappling"
-};
-const SORIG = { BJJ: "Brazil", "Muay Thai": "Thailand", Judo: "Japan", Karate: "Japan", Taekwondo: "Korea", Sambo: "Russia" };
-const COUNTRIES = ["Brazil", "Thailand", "Japan", "Korea", "Russia", "Mexico", "Ireland"];
-const STRIKE = ["Boxing", "Kickboxing", "Muay Thai", "Karate", "Taekwondo", "Dirty Boxing"];
-const sdesc = (s, F) => mk(F || `What is ${s}?`, SDESC[s], Object.keys(SDESC).filter(k => SDESC[k] !== SDESC[s] && (!STRIKE.includes(s) || !STRIKE.includes(k))).map(k => SDESC[k]));
-const sorig = s => mk(`Which country does ${s} come from?`, SORIG[s], COUNTRIES);
-function weightQs(c) {
-  const DIV = Object.keys(D), i = DIV.indexOf(c), out = [];
-  if (!LIM[c]) return out;
-  out.push(mk(`What is the weight limit of the ${c} division?`, lim(c), DIV.map(lim)));
-  if (i < DIV.length - 1) out.push(mk(`Which division is the next one up from ${c}?`, DIV[i + 1], DIV));
-  else if (i > 0) out.push(mk(`Which division is the next one down from ${c}?`, DIV[i - 1], DIV));
-  return out.filter(Boolean);
-}
-function ruleQs() {
-  const S = (q, right, wr) => mk(q, right, wr);
-  return shuf([
-    S("How long is a standard UFC round?", "5 minutes", ["3 minutes", "7 minutes", "10 minutes"]),
-    S("How long is the rest between rounds?", "1 minute", ["30 seconds", "2 minutes", "5 minutes"]),
-    S("How many rounds is a UFC title fight?", "5 rounds", ["3 rounds", "4 rounds", "7 rounds"]),
-    S("How many rounds is a standard non-title UFC fight?", "3 rounds", ["2 rounds", "4 rounds", "5 rounds"]),
-    S("How many sides does the Octagon have?", "8", ["6", "10", "12"]),
-    S("What does TKO stand for?", "Technical knockout", ["Total knockout", "Timed knockout", "Tag knockout"]),
-    S("What happens when a fighter taps out?", "They submit and the fight ends", ["The round is paused", "The fight is a draw", "They get a free break"]),
-    S("How many judges score a UFC fight?", "3", ["1", "2", "5"]),
-    S("What is the judges' scoring system called?", "10-point must system", ["5-point system", "Round-win system", "100-point system"]),
-    S("In a normal round, how many points do the judges give?", "10 to the winner and 9 to the loser", ["5 to the winner and 4 to the loser", "10 to both fighters", "100 to the winner and 90 to the loser"]),
-    S("What happens if nobody wins by knockout or submission before the last round ends?", "The judges decide the winner", ["A sudden-death round is fought", "The fight is always a draw", "The fight is replayed another day"]),
-    S("In which year was the first UFC event held?", "1993", ["1988", "1996", "2001"]),
-    S("How many men's weight classes does the UFC list here?", "8", ["5", "6", "10"]),
-    S("In non-title fights, how much over the division limit can a fighter weigh?", "1 pound", ["5 pounds", "10 pounds", "There is no limit"]),
-    S("When do official weigh-ins take place?", "The day before the fight", ["Right after the fight", "A week before the fight", "One hour before the fight"]),
-    S("What can happen if a fighter misses weight?", "Part of their purse can be forfeited", ["Nothing at all", "They automatically win", "The fight gets more rounds"])
-  ].filter(Boolean));
-}
+
+/* ---------- weight class duel: questions about the division itself ---------- */
 function genClass(cls) {
-  const C = ctx(), mem = shuf(C.ALL.filter(x => x.c === cls));
-  const W = weightQs(cls);
-  const outside = C.ALL.filter(x => x.c !== cls).map(x => x.f.n), F = [];
-  const aT = [`Which of these fighters is in the ${cls} division?`, `Which of these fighters competes at ${cls}?`, `Who fights at ${cls}?`];
-  mem.slice(0, 2).forEach((x, i) => F.push(mk(aT[i % 3], x.f.n, outside)));
-  mem.filter(x => clean(x.f.nick)).slice(0, 2).forEach(x => F.push(mk(`Who is known as “${x.f.nick}”?`, x.f.n, mem.map(y => y.f.n))));
-  const styles = shuf(uniq(mem.flatMap(x => x.f.base || [])).filter(s => SDESC[s])), S = [];
-  styles.slice(0, 3).forEach(s => S.push(sdesc(s)));
-  styles.filter(s => SORIG[s]).slice(0, 1).forEach(s => S.push(sorig(s)));
-  const q = rr([W, shuf(F.filter(Boolean)), shuf(S.filter(Boolean)), ruleQs()], 10, new Set(), true);
+  const C = ctx(), mem = shuf(C.ALL.filter(x => x.c === cls)), names = mem.map(x => x.f.n), DIV = DIVS(), i = DIV.indexOf(cls);
+  const W = [], R = [], M = [], S = [], REC = [], CT = [];
+  if (LIM[cls]) {
+    W.push(mk(`What is the weight limit of the ${cls} division?`, lim(cls), DIV.map(lim)));
+    if (i < DIV.length - 1) W.push(mk(`Which division is the next one up from ${cls}?`, DIV[i + 1], DIV)); else if (i > 0) W.push(mk(`Which division is the next one down from ${cls}?`, DIV[i - 1], DIV));
+  }
+  const outside = C.ALL.filter(x => x.c !== cls).map(x => x.f.n);
+  const tagged = mem.filter(x => rankNum(x.f.tag) != null), by = {}; tagged.forEach(x => { const k = rankNum(x.f.tag); (by[k] = by[k] || []).push(x); });
+  if (by[0] && by[0].length === 1) R.push(mk(`Who is the champion of the ${cls} division?`, by[0][0].f.n, names.filter(n => n !== by[0][0].f.n)));
+  shuf([1, 2, 3, 4, 5]).filter(k => by[k] && by[k].length === 1).slice(0, 3).forEach(k => R.push(mk(`Who is ranked #${k} in the ${cls} division?`, by[k][0].f.n, names.filter(n => n !== by[k][0].f.n))));
+  { const rk = shuf(tagged.filter(x => rankNum(x.f.tag) > 0)); if (rk.length >= 2) { const [p, q] = rk.slice(0, 2); if (rankNum(p.f.tag) !== rankNum(q.f.tag)) R.push({ q: `Who is ranked higher in the ${cls} division: ${p.f.n} or ${q.f.n}?`, o: [p.f.n, q.f.n], a: rankNum(p.f.tag) < rankNum(q.f.tag) ? 0 : 1, alt: [] }); } }
+  const aT = [`Which of these fighters is in the ${cls} division?`, `Which of these fighters competes at ${cls}?`];
+  mem.slice(0, 2).forEach((x, k) => M.push(mk(aT[k], x.f.n, outside)));
+  mem.filter(x => clean(x.f.nick)).slice(0, 2).forEach(x => M.push(mk(`Who is known as “${x.f.nick}”?`, x.f.n, names)));
+  uniq(mem.flatMap(x => (x.f.base || []).filter(b => SDESC[b] && b !== "Well-rounded"))).slice(0, 8).forEach(b => {
+    const has = mem.filter(x => (x.f.base || []).includes(b)), no = mem.filter(x => !(x.f.base || []).includes(b));
+    if (has.length === 1 && no.length >= 3) S.push(mk(`Which of these ${cls} fighters has a ${b} background?`, has[0].f.n, no.map(x => x.f.n)));
+  });
+  const withRec = mem.map(x => ({ x, r: recOf(C, x.f) })).filter(z => z.r);
+  if (withRec.length >= 4) {
+    const t = shuf(withRec).slice(0, 4).sort((p, q) => q.r.W - p.r.W); if (t[0].r.W > t[1].r.W) { const o = shuf(t.map(z => z.x.f.n)); REC.push({ q: `Which of these ${cls} fighters has the most wins?`, o, a: o.indexOf(t[0].x.f.n), alt: [] }); }
+    const u = shuf(withRec).slice(0, 4).sort((p, q) => p.r.L - q.r.L); if (u[0].r.L < u[1].r.L) { const o = shuf(u.map(z => z.x.f.n)); REC.push({ q: `Which of these ${cls} fighters has the fewest losses?`, o, a: o.indexOf(u[0].x.f.n), alt: [] }); }
+  }
+  const byC = {}; mem.forEach(x => { const c = ctryOf(x.f.n); if (c) (byC[c] = byC[c] || []).push(x); });
+  Object.keys(byC).filter(c => byC[c].length === 1).slice(0, 4).forEach(c => { const rest = mem.filter(x => ctryOf(x.f.n) && ctryOf(x.f.n) !== c); if (rest.length >= 3) CT.push(mk(`Which of these ${cls} fighters is from ${c}?`, byC[c][0].f.n, rest.map(x => x.f.n))); });
+  const q = rr([W, R, M, S, REC, CT].map(a => shuf(a.filter(Boolean))), 10, new Set(), true);
   return q.length === 10 ? pack(cls, shuf(q)) : null;
 }
+
+/* ---------- this week's card: questions about the fights on the card ---------- */
 const cardFighters = () => { const C = ctx(), L = []; (EV.fights || []).forEach(f => [f.a, f.b].forEach(n => { const x = n && entry(C, n); if (x && !L.some(y => y.f.n === x.f.n)) L.push(x); })); return L; };
 const winsOf = r => { const m = /^(\d+)-/.exec(String(r || "")); return m ? +m[1] : null; };
-const rankOf = t => { const s = String(t || "").toUpperCase(); if (/CHAMP/.test(s)) return 0; const m = /#(\d+)/.exec(s); return m ? +m[1] : null; };
 function genCard() {
-  const C = ctx(), L = shuf(cardFighters()); if (L.length < 3) return null;
-  const fs = shuf(EV.fights || []), used = new Set();
-  const R = [], LM = [], WN = [], RK = [], SD = [], OR = [];
+  const C = ctx(), L = cardFighters(); if (L.length < 3) return null;
+  const fs = shuf((EV.fights || []).filter(f => f.a && f.b)), cn = uniq(fs.flatMap(f => [f.a, f.b]));
+  const MU = [], R = [], LM = [], WN = [], RK = [], NK = [], ST = [], CT = [], EVN = [], DV = [];
   fs.forEach(f => {
-    if (f.a && f.b && (f.rounds === 3 || f.rounds === 5)) R.push(mk(`${f.a} vs ${f.b} is scheduled for how many rounds?`, f.rounds + " rounds", ["3 rounds", "5 rounds", "4 rounds", "2 rounds"]));
-    if (f.a && f.b && LIM[f.cls]) LM.push(mk(`${f.a} vs ${f.b} is a ${f.cls} fight. What is the weight limit?`, lim(f.cls), Object.keys(LIM).map(lim)));
+    const o = Math.random() < 0.5 ? [f.a, f.b] : [f.b, f.a];
+    MU.push(mk(`Who does ${o[0]} fight on this card?`, o[1], cn.filter(z => z !== o[0] && z !== o[1])));
+    if (f.rounds === 3 || f.rounds === 5) R.push(mk(`${f.a} vs ${f.b} is scheduled for how many rounds?`, f.rounds + " rounds", ["3 rounds", "5 rounds", "4 rounds", "2 rounds"]));
+    if (LIM[f.cls]) { LM.push(mk(`${f.a} vs ${f.b} is a ${f.cls} fight. What is the weight limit?`, lim(f.cls), DIVS().map(lim))); DV.push(mk(`Which division is ${f.a} vs ${f.b} in?`, f.cls, DIVS())); }
     [[f.a, f.ra], [f.b, f.rb]].forEach(([n, r]) => { const w = winsOf(r); if (n && w) WN.push(mk(`How many wins does ${n} have going into this fight?`, "" + w, ["" + (w - 3), "" + (w + 2), "" + (w - 6), "" + (w + 5)].filter(v => +v >= 0))); });
-    const ra = rankOf(f.ta), rb = rankOf(f.tb);
-    if (f.a && f.b && ra != null && rb != null && ra !== rb) RK.push({ q: `Who is ranked higher: ${f.a} or ${f.b}?`, o: [f.a, f.b], a: ra < rb ? 0 : 1, alt: [] });
+    const ra = rankNum(f.ta), rb = rankNum(f.tb);
+    if (ra != null && rb != null && ra !== rb) RK.push({ q: `Who is ranked higher: ${f.a} or ${f.b}?`, o: [f.a, f.b], a: ra < rb ? 0 : 1, alt: [] });
   });
-  L.forEach(x => (x.f.base || []).filter(s => SDESC[s]).slice(0, 1).forEach(s => { SD.push(sdesc(s, `${x.f.n}'s background includes ${s}. What is ${s}?`)); if (SORIG[s]) OR.push(sorig(s)); }));
-  const qs = [R, LM, WN, RK, SD, OR, ruleQs().slice(0, 2)].map(a => shuf(a.filter(Boolean)));
-  let out = rr(qs, 10, used);
-  if (out.length < 10) out = out.concat(rr(L.map(x => shuf(Object.values(slotQs(x, C)).filter(Boolean)).slice(0, 3)), 10 - out.length, used));
+  L.filter(x => clean(x.f.nick)).forEach(x => NK.push(mk(`Which fighter on this card is known as “${x.f.nick}”?`, x.f.n, L.filter(y => y !== x).map(y => y.f.n))));
+  uniq(L.flatMap(x => (x.f.base || []).filter(b => SDESC[b] && b !== "Well-rounded"))).forEach(b => { const has = L.filter(x => (x.f.base || []).includes(b)), no = L.filter(x => !(x.f.base || []).includes(b)); if (has.length === 1 && no.length >= 3) ST.push(mk(`Which fighter on this card has a ${b} background?`, has[0].f.n, no.map(x => x.f.n))); });
+  const byC = {}; L.forEach(x => { const c = ctryOf(x.f.n); if (c) (byC[c] = byC[c] || []).push(x); });
+  Object.keys(byC).filter(c => byC[c].length === 1).forEach(c => { const rest = L.filter(x => ctryOf(x.f.n) && ctryOf(x.f.n) !== c); if (rest.length >= 3) CT.push(mk(`Which fighter on this card is from ${c}?`, byC[c][0].f.n, rest.map(x => x.f.n))); });
+  const lab = f => `${f.a} vs ${f.b}`, main = fs.find(f => f.main), title = fs.filter(f => /title/i.test(f.tag || ""));
+  if (main && fs.length >= 3) EVN.push(mk("Which fight is the main event?", lab(main), fs.filter(f => f !== main).map(lab)));
+  if (title.length === 1 && fs.length >= 3) EVN.push(mk("Which fight on this card is for a title?", lab(title[0]), fs.filter(f => f !== title[0]).map(lab)));
+  const qs = [MU, R, LM, WN, RK, NK, ST, CT, EVN, DV].map(a => shuf(a.filter(Boolean)).slice(0, 3));
+  let out = rr(qs, 10, new Set());
   return out.length === 10 ? pack("This week's card", shuf(out)) : null;
 }
 window.duelGen = genRandom; window.duelGenFighter = genFighter; window.duelGenClass = genClass; window.duelGenCard = genCard;
@@ -303,6 +352,12 @@ window.duelFq = v => {
 };
 
 /* ---------- actions ---------- */
+async function note(id, kind) {
+  try {
+    const s = (await SB.auth.getSession()).data.session; if (!s) return;
+    await fetch(SUPA_URL + "/functions/v1/send-push?duelnote=" + encodeURIComponent(id) + "&kind=" + kind + "&name=" + encodeURIComponent(String(NAMES[ME] || "").slice(0, 24)), { method: "POST", headers: { Authorization: "Bearer " + s.access_token, apikey: SUPA_KEY } });
+  } catch (e) {}
+}
 async function push(id) {
   try {
     const s = (await SB.auth.getSession()).data.session; if (!s) return;
@@ -344,6 +399,7 @@ window.duelPlay = async id => {
     if (q.error || !q.data) throw q.error || 0;
     const d = q.data, mineB = d.mode === "fav" && d.b === ME;
     if (mineB && !d.ready) { BUSY = false; CH = { step: "swapb", game: id, opp: d.a }; MSG = ""; window.duelShow(); return; }
+    if (!d.ready || !Array.isArray(d.questions) || d.questions.length < 10) { BUSY = false; MSG = "They are still choosing a fighter for you. You get a message here when your questions are ready."; await load(); window.duelShow(); return; }
     BUSY = false; startPlay({ id, fighter: mineB ? d.fighter_b : d.fighter, qs: mineB ? d.questions_b : d.questions });
   } catch (e) { BUSY = false; MSG = "Could not open the game. Try again."; window.duelShow(); }
 };
@@ -354,7 +410,7 @@ async function setA(n) {
     const g = genFighter(n); if (!g) throw new Error("no questions");
     const r = await SB.rpc("trivia_set_a", { p_game: gid, p_fighter: g.fighter, p_q: g.q, p_ans: g.ans });
     if (r.error) throw r.error;
-    BUSY = false; CH = null; await load(); await window.duelPlay(gid);
+    BUSY = false; CH = null; note(gid, "ready"); await load(); await window.duelPlay(gid);
   } catch (e) { BUSY = false; MSG = "Could not save your pick. Try again."; window.duelShow(); }
 }
 window.duelAccept = async id => {
@@ -362,6 +418,7 @@ window.duelAccept = async id => {
   try { const r = await SB.rpc("trivia_accept", { p_game: id }); if (r.error) throw r.error; }
   catch (e) { BUSY = false; MSG = "Could not accept the invite. Try again."; try { openPage("duel"); } catch (x) {} await load(); return; }
   BUSY = false; CH = null; MSG = "";
+  const gg = G.find(x => x.id === id); if (!gg || gg.mode !== "fav") note(id, "accepted");
   await load();
   try { openPage("duel"); } catch (e) {}
   await window.duelPlay(id);
@@ -443,6 +500,7 @@ async function finish() {
     if (r.error) throw r.error;
     PL = null; OUT = { id: p.id, score: r.data };
     await load(); window.duelShow();
+    { const gg = G.find(x => x.id === p.id); if (gg && gg.status === "done") note(p.id, "done"); }
   } catch (e) {
     PL = null; MSG = /already played/i.test(String((e && e.message) || e)) ? "You already played this game." : "Could not save your answers. Open the game and try again.";
     await load(); window.duelShow();
@@ -463,5 +521,6 @@ window.closePage = function () { PL = null; OUT = null; CH = null; MSG = ""; ret
   try { if (ME && SB) { load(); SB.channel("duel").on("postgres_changes", { event: "*", schema: "public", table: "trivia_games" }, () => { clearTimeout(T); T = setTimeout(load, 500); }).subscribe(); return; } } catch (e) {}
   if (n < 40) setTimeout(() => w(n + 1), 400);
 })(0);
+setInterval(() => { try { if (ME && OK && !document.hidden && !PL && (G.some(g => g.status === "invited" || g.status === "active") || ($("pgD") && !$("pgD").hidden))) load(); } catch (e) {} }, 6000);
 document.addEventListener("visibilitychange", () => { if (!document.hidden && ME) { try { load(); } catch (e) {} } });
 })();
