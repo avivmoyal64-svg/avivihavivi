@@ -1,0 +1,84 @@
+// @ts-nocheck
+// Sends push notifications: "picks are open", "picks lock in 1 hour" (only to people who have not finished picking)
+// and "results are in". Runs every 10 minutes from pg_cron. It remembers what it already sent in site_data (key "push_state").
+// Secrets to set in Supabase -> Edge Functions -> Secrets: VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT (mailto:you@example.com),
+// optional PUSH_TEST_KEY (lets you send a test message with ?test=THE_KEY).
+import webpush from "npm:web-push@3.6.7";
+
+const SB_URL = Deno.env.get("SUPABASE_URL")!, SB_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const dbH = { apikey: SB_KEY, Authorization: "Bearer " + SB_KEY, "content-type": "application/json" };
+const LOCK_H = 5, REMIND_MIN = 60;
+webpush.setVapidDetails(Deno.env.get("VAPID_SUBJECT") || "mailto:admin@example.com", Deno.env.get("VAPID_PUBLIC_KEY")!, Deno.env.get("VAPID_PRIVATE_KEY")!);
+
+const get = async (path: string) => { const r = await fetch(SB_URL + "/rest/v1/" + path, { headers: dbH }); return r.ok ? await r.json() : []; };
+const readKey = async (k: string) => { const j = await get("site_data?key=eq." + k + "&select=value"); return j[0] ? j[0].value : null; };
+const writeKey = async (k: string, v: unknown) => { await fetch(SB_URL + "/rest/v1/site_data?on_conflict=key", { method: "POST", headers: { ...dbH, Prefer: "resolution=merge-duplicates" }, body: JSON.stringify({ key: k, value: v, updated_at: new Date() }) }); };
+
+const T = {
+  en: {
+    open: (n: string) => ({ title: "Picks are open", body: n + ": choose your winners and earn coins." }),
+    remind: (n: string, done: number, tot: number) => ({ title: "Picks lock in about 1 hour", body: n + ": you picked " + done + " of " + tot + " fights." }),
+    results: (n: string) => ({ title: "Results are in", body: n + " is over. See how you did on the scoreboard." }),
+    test: () => ({ title: "Notifications work", body: "This is a test message." }),
+  },
+  he: {
+    open: (n: string) => ({ title: "הבחירות נפתחו", body: n + ": בחרו מנצחים והרוויחו מטבעות." }),
+    remind: (n: string, done: number, tot: number) => ({ title: "הבחירות ננעלות בעוד כשעה", body: n + ": בחרתם " + done + " מתוך " + tot + " קרבות." }),
+    results: (n: string) => ({ title: "התוצאות מוכנות", body: n + " הסתיים. בדקו בלוח התוצאות איך הלך לכם." }),
+    test: () => ({ title: "ההתראות עובדות", body: "זו הודעת בדיקה." }),
+  },
+};
+
+async function send(subs: any[], make: (s: any) => any, dead: string[]) {
+  let ok = 0;
+  await Promise.all(subs.map(async (s) => {
+    const m = make(s); if (!m) return;
+    try {
+      await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...m, url: "/", tag: m.tag }), { TTL: 3600 });
+      ok++;
+    } catch (e) { if (e && (e.statusCode === 404 || e.statusCode === 410)) dead.push(s.endpoint); }
+  }));
+  return ok;
+}
+
+Deno.serve(async (req) => {
+  const url = new URL(req.url), dead: string[] = [], log: string[] = [];
+  const subs = await get("push_subs?select=endpoint,user_id,p256dh,auth,lang");
+  const L = (s: any) => (s.lang === "he" ? T.he : T.en);
+
+  const tk = Deno.env.get("PUSH_TEST_KEY");
+  if (tk && url.searchParams.get("test") === tk) {
+    const n = await send(subs, (s) => L(s).test(), dead);
+    if (dead.length) await fetch(SB_URL + "/rest/v1/push_subs?endpoint=in.(" + dead.map(encodeURIComponent).join(",") + ")", { method: "DELETE", headers: dbH });
+    return new Response(JSON.stringify({ test: true, subscribers: subs.length, sent: n, removed: dead.length }), { headers: { "content-type": "application/json" } });
+  }
+
+  const ev = await readKey("events"); if (!ev) return new Response("no events");
+  const first = !(await readKey("push_state")), st = (await readKey("push_state")) || {};
+  const now = Date.now(), nx = ev.next, last = ev.last;
+
+  if (nx && nx.lock) {
+    const lockAt = nx.lock - LOCK_H * 3600e3;
+    // 1) picks are open (a new event shows up while picks are still open)
+    if (st.open !== nx.id && now < lockAt) {
+      if (!first) log.push("open:" + await send(subs, (s) => L(s).open(nx.name), dead));
+      st.open = nx.id;
+    }
+    // 2) one hour before the lock, only to people who have not finished
+    if (st.remind !== nx.id && now >= lockAt - REMIND_MIN * 60e3 && now < lockAt) {
+      const ids = new Set((nx.fights || []).map((f: any) => f.id)), tot = ids.size;
+      const picks = await get("picks?select=user_id,fights"), cnt: Record<string, number> = {};
+      picks.forEach((p: any) => { cnt[p.user_id] = Object.keys(p.fights || {}).filter((k) => ids.has(k)).length; });
+      log.push("remind:" + await send(subs, (s) => { const d = cnt[s.user_id] || 0; return d >= tot ? null : L(s).remind(nx.name, d, tot); }, dead));
+      st.remind = nx.id;
+    }
+  }
+  // 3) results are in (a finished event appears as "last")
+  if (last && last.id && st.results !== last.id) {
+    if (!first && (last.fights || []).length) log.push("results:" + await send(subs, (s) => L(s).results(last.name), dead));
+    st.results = last.id;
+  }
+  await writeKey("push_state", st);
+  if (dead.length) await fetch(SB_URL + "/rest/v1/push_subs?endpoint=in.(" + dead.map(encodeURIComponent).join(",") + ")", { method: "DELETE", headers: dbH });
+  return new Response(JSON.stringify({ first, subscribers: subs.length, log, removed: dead.length }), { headers: { "content-type": "application/json" } });
+});

@@ -429,7 +429,9 @@ nav button,.btn,.pgt button,.pgbk,.chip,.swt{clip-path:polygon(var(--para) 0,100
 /* Hebrew option */
 .lgtg{border:1px solid rgba(255,255,255,.28);border-radius:17px;background:rgba(40,40,44,.88);color:#fff;font:700 14px/1 "Barlow Condensed","Heebo",Arial,sans-serif;cursor:pointer}
 .lgtg.top{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));left:12px;z-index:30;min-width:40px;height:34px;padding:0 12px}
-.lgrow{display:flex;justify-content:center;margin:10px 0 0}
+.lgrow{display:flex;justify-content:center;margin:12px 0 4px}
+#pnw{margin:10px 0}
+#pnw+.arw{margin-top:10px}
 .lgtg.ac{height:32px;padding:0 16px}
 .lgtg.ft{height:28px;padding:0 12px;margin-inline-start:8px}
 .lgtg:hover{border-color:var(--red)}
@@ -485,6 +487,7 @@ html[dir=rtl] *{font-style:normal!important}
 <div id="sp" style="height:80svh"></div>
 <div id="content">
 <h2 class="sec">Your <span>profile</span></h2><div class="pnl rv" id="acct"></div>
+<div class="arw" id="pnw" hidden><button class="arb" id="pushb" onclick="pushToggle()">🔔 Notifications</button></div>
 <div class="arw" id="inw"><button class="arb" onclick="openInstall()">📲 Install the app</button></div>
 <h2 class="sec">Fight <span>night</span></h2><div id="rmn"></div><div class="pnl hn" id="hn"></div>
 <h2 class="sec" id="rh">Fighter <span>roster</span></h2>
@@ -746,7 +749,7 @@ function openProf(id){const P=PICKS[id]||{},mine=id===ME,hid=!!P.hidden,B=board(
  goatBlock(id)+(hid?'<div class="pfn">This player keeps their picks private.</div>':(keys.length?rows:'<div class="pfn">'+(!mine&&P.n?'Their picks stay hidden until each fight is over.':'No picks yet.')+'</div>')+(!mine&&P.n>keys.length&&keys.length?'<div class="pfn">Picks for fights that are not over yet stay hidden.</div>':''));
  document.getElementById("pf").dataset.id=id;if(!arguments[1])document.getElementById("pf").showModal()}
 function openSettings(){if(!SB||!ME)return;
- document.getElementById("stb").innerHTML=`<h2>Settings</h2><div class="stx"><h3>Change password</h3><input type="password" id="stp1" placeholder="New password (6+ characters)" autocomplete="new-password" minlength="6"><input type="password" id="stp2" placeholder="Repeat new password" autocomplete="new-password"><button class="btn" type="button" onclick="chgPw()">Change password</button><div class="st" id="stm" role="status"></div><h3>Install the app</h3><div id="stinst">${instHtml()}</div></div>`;
+ document.getElementById("stb").innerHTML=`<h2>Settings</h2><div class="stx"><h3>Change password</h3><input type="password" id="stp1" placeholder="New password (6+ characters)" autocomplete="new-password" minlength="6"><input type="password" id="stp2" placeholder="Repeat new password" autocomplete="new-password"><button class="btn" type="button" onclick="chgPw()">Change password</button><div class="st" id="stm" role="status"></div><h3>Notifications</h3><div id="stpush"></div><h3>Install the app</h3><div id="stinst">${instHtml()}</div></div>`;pushUI();
  document.getElementById("st").showModal()}
 const stmsg=t=>{const e=document.getElementById("stm");if(e)e.textContent=t};
 function ren_nm(){let n="";try{n=localStorage.getItem("ufcname")||""}catch(e){}return(n||NAMES[ME]||"Fight fan").slice(0,24)}
@@ -965,6 +968,32 @@ function goatList(q){const k=nz(q),all=[];for(const c in D)D[c].forEach(f=>all.p
  const t=String(q||"").trim().slice(0,40);if(t&&!r.some(x=>nz(x[0])===k))o+=`<button type="button" data-n="${esc(t)}" onclick="goatChoose(this.dataset.n)"><i class="ga">+</i><span>Add "${esc(t)}"</span><small>not on the site</small></button>`;
  document.getElementById("gpl").innerHTML=o||'<div class="pfn">No match.</div>'}
 function goatChoose(n){document.getElementById("gp").close();goatSet(GSLOT,n)}
+
+
+/* ===== push notifications ===== */
+const VAPID_PUB="BNZuMaKAsSBGlSAe69-2EehhO3ZGT7UgK9dfAoWVEOiDZWoUfkYNR0uOv6xCYV3St09yhRmb6MZr1uy8Nc2OeXY";
+const pushOK=()=>"serviceWorker"in navigator&&"PushManager"in window&&"Notification"in window;
+const b64u=s=>{const p="=".repeat((4-s.length%4)%4),b=(s+p).replace(/-/g,"+").replace(/_/g,"/"),r=atob(b);return Uint8Array.from([...r].map(c=>c.charCodeAt(0)))};
+async function pushSub(){try{const reg=await navigator.serviceWorker.getRegistration();return reg?await reg.pushManager.getSubscription():null}catch(e){return null}}
+async function pushState(){if(!pushOK())return isIOS()&&!standalone()?"ios":"unsupported";if(Notification.permission==="denied")return"denied";return(await pushSub())?"on":"off"}
+async function pushUI(){const w=document.getElementById("pnw"),b=document.getElementById("pushb");if(!w||!b)return;
+ if(!SB||!ME){w.hidden=true;return}w.hidden=false;const s=await pushState();
+ b.textContent=s==="on"?"🔔 Notifications: on":"🔔 Notifications";b.dataset.s=s;
+ const t=document.getElementById("stpush");if(t)t.innerHTML=pushHtml(s)}
+const pushMsg={ios:"On iPhone: first tap Share, then Add to Home Screen, open the app from your Home Screen, and turn notifications on there.",unsupported:"This browser does not support notifications.",denied:"Notifications are blocked for this site. Allow them in your browser or phone settings, then try again.",on:"You will get a message when picks open, 1 hour before they lock, and when results are in. Tap to turn off.",off:"Get a message when picks open, 1 hour before they lock, and when results are in."};
+function pushHtml(s){return `<div class="cpn" style="text-align:left;margin:0 0 8px">${pushMsg[s]||""}</div>`+(s==="on"||s==="off"?`<button class="btn" type="button" onclick="pushToggle()">${s==="on"?"Turn off notifications":"Turn on notifications"}</button>`:"")}
+async function pushToggle(){const s=await pushState();
+ if(s!=="on"&&s!=="off"){alert(pushMsg[s]);return}
+ try{
+  if(s==="on"){const sub=await pushSub();if(sub){const ep=sub.endpoint;await sub.unsubscribe();try{await SB.rpc("push_unregister",{p_endpoint:ep})}catch(e){}}}
+  else{const perm=await Notification.requestPermission();if(perm!=="granted"){pushUI();return}
+   const reg=await navigator.serviceWorker.ready;let sub=await reg.pushManager.getSubscription();
+   if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(VAPID_PUB)});
+   const j=sub.toJSON();const{error}=await SB.rpc("push_register",{p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth,p_lang:window.LANGHE?"he":"en"});
+   if(error)throw error}
+ }catch(e){alert("Could not change notifications: "+(e&&e.message?e.message:e))}
+ pushUI()}
+(function w(n){try{if(ME){pushUI();return}}catch(e){}if(n<40)setTimeout(()=>w(n+1),400)})(0);
 
 /* load after login */
 (function w(n){try{if(ME){goatLoad();return}}catch(e){}if(n<40)setTimeout(()=>w(n+1),400)})(0);
