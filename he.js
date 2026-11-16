@@ -150,7 +150,33 @@ var X={
 "Could not open the game. Try again.":"לא הצלחנו לפתוח את המשחק. נסו שוב.",
 "You already played this game.":"כבר שיחקתם במשחק הזה.",
 "Could not save your answers. Open the game and try again.":"לא הצלחנו לשמור את התשובות. פתחו את המשחק ונסו שוב.",
-"Could not change the game. Try again.":"לא הצלחנו לשנות את המשחק. נסו שוב."
+"Could not change the game. Try again.":"לא הצלחנו לשנות את המשחק. נסו שוב.",
+"Weight class":"קטגוריית משקל",
+"Specific fighter":"לוחם מסוים",
+"Random fighter":"לוחם אקראי",
+"This week's card":"הקלף של השבוע",
+"Favorite fighters":"הלוחמים האהובים",
+"🎲 Random fighter":"🎲 לוחם אקראי",
+"🏋️ Weight class":"🏋️ קטגוריית משקל",
+"🥊 Specific fighter":"🥊 לוחם מסוים",
+"📅 This week's card":"📅 הקלף של השבוע",
+"⭐ Favorite fighters":"⭐ הלוחמים האהובים",
+"10 questions about a random fighter":"10 שאלות על לוחם אקראי",
+"Questions about the fighters of one division":"שאלות על הלוחמים של קטגוריית משקל אחת",
+"Pick one fighter to be quizzed on":"בחרו לוחם אחד לשאלות עליו",
+"Questions about the fighters on the upcoming card":"שאלות על הלוחמים בקלף הקרוב",
+"You get questions on their favorite, they get yours":"אתם מקבלים שאלות על האהוב שלו, והוא מקבל על האהוב שלכם",
+"Choose a duel type":"בחרו סוג דו-קרב",
+"Choose a weight class":"בחרו קטגוריית משקל",
+"Choose a fighter":"בחרו לוחם",
+"‹ Back":"‹ חזרה",
+"Not enough profiled fighters on this week's card":"אין מספיק לוחמים עם פרופיל בקלף של השבוע",
+"They have not chosen a favorite fighter yet":"הוא עדיין לא בחר לוחם אהוב",
+"Choose your own favorite fighter first":"קודם בחרו לוחם אהוב משלכם",
+"You both need a favorite fighter for this duel.":"לשניכם צריך להיות לוחם אהוב בשביל הדו-קרב הזה.",
+"Challenge a player · win up to 25 coins":"אתגרו שחקן · עד 25 מטבעות למנצח",
+"Your coins":"המטבעות שלכם",
+"10 easy questions. The player with the most right answers wins the coins. A tie goes to whoever answered faster. Pick a duel type when you challenge someone: random fighter 25 coins, weight class 10, a specific fighter 10, this week's card 10, or favorite fighters 15.":"10 שאלות קלות. מי שענה נכון על הכי הרבה שאלות מקבל את המטבעות. בתיקו מנצח מי שענה מהר יותר. בוחרים סוג דו-קרב כשמאתגרים: לוחם אקראי 25 מטבעות, קטגוריית משקל 10, לוחם מסוים 10, הקלף של השבוע 10, או לוחמים אהובים 15."
 };
 
 /* ---------- dates ---------- */
@@ -168,6 +194,14 @@ function dateFix(s){
 /* ---------- patterns ---------- */
 function ord(n){return n}
 var P=[
+ [/^\+(\d+) coins$/,function(m){return "‎+"+m[1]+" מטבעות"}],
+ [/^You won! \+(\d+) coins$/,function(m){return "ניצחתם! ‎+"+m[1]+" מטבעות"}],
+ [/^Which of these fighters is in the (.+) division\?$/,function(m){return "איזה מהלוחמים הבאים נמצא בקטגוריית "+m[1]+"?"}],
+ [/^Which of these fighters competes at (.+)\?$/,function(m){return "איזה מהלוחמים הבאים מתחרה ב-"+m[1]+"?"}],
+ [/^Who fights at (.+)\?$/,function(m){return "מי מתחרה ב-"+m[1]+"?"}],
+ [/^Who is known as “(.+)”\?$/,function(m){return "מי מכונה “"+m[1]+"”?"}],
+ [/^Which of these fighters has a (.+) background\?$/,function(m){return "לאיזה מהלוחמים הבאים יש רקע ב-"+m[1]+"?"}],
+ [/^Which of these fighters lost to (.+)\?$/,function(m){return "מי מהלוחמים הבאים הפסיד ל-"+m[1]+"?"}],
  [/^(\d+) players? challenged you!$/,function(m){return +m[1]===1?"שחקן אחד אתגר אתכם!":m[1]+" שחקנים אתגרו אתכם!"}],
  [/^Waiting for (.+) to play\. The result shows up here when they finish\.$/,function(m){return "מחכים ש-"+m[1]+" ישחק. התוצאה תופיע כאן כשיסיים."}],
  [/^(.+) won this one\.$/,function(m){return m[1]+" ניצח/ה הפעם."}],

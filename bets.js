@@ -3,6 +3,7 @@
 "use strict";
 const $ = id => document.getElementById(id);
 const FAV = {};
+window.FAVMAP = FAV;
 let FAVOK = false, BW = null, T = 0;
 
 function redraw() { try { const d = $("pk"); if (d && d.open && CF) drawPk(); } catch (e) {} }
