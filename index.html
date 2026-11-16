@@ -964,12 +964,15 @@ const gcl=a=>Array.from({length:GN},(_,i)=>String((a||[])[i]||"").slice(0,40));
 function gRefresh(){try{if(!document.getElementById("pgG").hidden)drawPage()}catch(e){}try{const p=document.getElementById("pf");if(p.open&&p.dataset.id)openProf(p.dataset.id,1)}catch(e){}}
 async function goatLoad(){
  if(SB){try{let q=await SB.from("goat_lists").select("user_id,list,bonus");if(q.error)q=await SB.from("goat_lists").select("user_id,list");const{data,error}=q;if(!error&&data){GOATOK=true;data.forEach(r=>{GOAT[r.user_id]=gcl(r.list);if(r.bonus)GBON[r.user_id]=true})}}catch(e){}}
- if(ME&&!(GOAT[ME]||[]).some(Boolean)){try{const l=JSON.parse(localStorage.getItem("ufcgoat")||"null");if(Array.isArray(l))GOAT[ME]=gcl(l)}catch(e){}}
+ const cloudHad=!!ME&&(GOAT[ME]||[]).some(Boolean);
+ if(ME&&!cloudHad){try{const l=JSON.parse(localStorage.getItem("ufcgoat")||"null");if(Array.isArray(l))GOAT[ME]=gcl(l)}catch(e){}}
 try{ren()}catch(e){}
- gRefresh()}
+ gRefresh();
+ /* automatic: a list saved only on this device is uploaded once the table exists, and an unseen gift is shown */
+ try{if(ME&&GOATOK){if(!cloudHad&&(GOAT[ME]||[]).some(Boolean))await goatSave();else if(GBON[ME]&&!localStorage.getItem("ufcgift"))showGift(100)}}catch(e){}}
 
 /* ===== gift pop-up (first completed GOAT list) ===== */
-function showGift(amount){amount=amount||100;if(document.getElementById("gift"))return;
+function showGift(amount){amount=amount||100;if(document.getElementById("gift"))return;try{localStorage.setItem("ufcgift","1")}catch(e){}
  const g=document.createElement("div");g.id="gift";g.setAttribute("role","dialog");g.setAttribute("aria-label","Gift");
  g.innerHTML='<div class="gwrap"><div class="gbox" id="gbox">🎁</div><div class="gtx" id="gtx"><div class="gt1">GOAT list <b>complete!</b></div><div class="gt2"><span id="gnum">0</span> <i class="coin" style="font-size:.8em"></i></div><div class="gt3">Your gift: 100 coins added to your total.</div><button type="button" id="gok">Collect</button></div></div>';
  document.body.appendChild(g);

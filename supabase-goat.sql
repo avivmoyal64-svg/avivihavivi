@@ -24,3 +24,6 @@ begin
 end $$;
 drop trigger if exists goat_bonus on public.goat_lists;
 create trigger goat_bonus before insert or update on public.goat_lists for each row execute function public.goat_bonus();
+
+-- Give the bonus to lists that were already complete before this script ran (fires the trigger once for every row)
+update public.goat_lists set list = list;
