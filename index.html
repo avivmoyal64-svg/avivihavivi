@@ -619,6 +619,28 @@ button.rx{cursor:pointer}.rx small{font:700 13px Barlow,Arial,sans-serif;color:v
 .csor{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #3a3b42;font:15px Barlow,Heebo,Arial,sans-serif}.csor:last-of-type{border:0}.csor .csd{width:10px;height:10px;border-radius:50%}.csor b{flex:1}.csor em{font-style:normal;color:var(--mut)}.cso p{margin:8px 0 0;color:var(--mut);font:13px/1.4 Barlow,Heebo,Arial,sans-serif}
 .hcard.cshot{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 22px rgba(var(--rgb),.35)}.hcard.cshot small{color:var(--gold)}
 .gsb{display:block;width:100%;box-sizing:border-box;margin:10px 0;padding:12px;font-size:15px;text-align:center}.gsr em{font:italic 900 18px "Barlow Condensed",Arial,sans-serif;font-style:normal;color:var(--gold);min-width:24px}.dlr.gsr>div{flex:1;min-width:0}.dlr.gsr b{white-space:normal;overflow:visible;text-overflow:clip}.gsr.lk{opacity:.45}.gsa .fvb,.gsb{background:none;border:1px solid #6b6c75;color:#fff;cursor:pointer;font:700 15px Barlow,Heebo,Arial,sans-serif}.gsb.go{background:linear-gradient(90deg,var(--red),var(--red2));border-color:transparent}.gsa{display:flex;gap:10px}.gsa .fvb{flex:1;padding:12px}.gsa .fvb:disabled{opacity:.45}.gst{display:flex;gap:10px;margin:14px 0}.gst span{flex:1;padding:12px;background:#2c2d32;border:1px solid #4d4e55;text-align:center;color:#fff}.gst b{display:block;font:italic 900 24px "Barlow Condensed",Arial,sans-serif}.gst small{color:var(--mut)}#gqinv{position:fixed;z-index:65;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);max-width:520px;margin:0 auto}#gqinv[hidden]{display:none}
+.cst.cq .cqm{font:italic 900 46px "Barlow Condensed",Arial,sans-serif;font-style:normal;color:#ffcc33;text-shadow:0 0 14px rgba(255,204,51,.7)}.cst.cq b{color:#ffcc33}
+#cgold{position:fixed;inset:0;z-index:90;display:grid;place-items:center;background:rgba(10,10,12,.92);animation:cgin .3s ease-out both;text-align:center;overflow:hidden}#cgold.out{animation:cgout .25s ease-in both}
+#cgold .cgr{position:absolute;left:50%;top:50%;width:160vmax;height:160vmax;margin:-80vmax 0 0 -80vmax;background:repeating-conic-gradient(from 0deg,rgba(255,204,51,.28) 0 7deg,transparent 7deg 20deg);animation:cgspin 14s linear infinite;-webkit-mask:radial-gradient(circle,#000 0,transparent 55%);mask:radial-gradient(circle,#000 0,transparent 55%)}
+#cgold .cgb{position:relative;padding:0 24px;max-width:420px;color:#fff}#cgold .cgc{position:relative;width:170px;height:170px;margin:0 auto 18px;border:4px solid #ffcc33;background:#2c2d32;box-shadow:0 0 60px rgba(255,204,51,.65),inset 0 0 30px rgba(255,204,51,.25);display:grid;place-items:center;animation:cgpop 1.9s cubic-bezier(.2,1.4,.4,1) both}
+#cgold .cgq{position:absolute;font:italic 900 110px "Barlow Condensed",Arial,sans-serif;font-style:normal;color:#ffcc33;animation:cgq 1.9s ease both}#cgold .cgi{font-size:84px;line-height:1;opacity:0;animation:cgi 1.9s ease both}#cgold .cgi .coin{width:84px;height:84px}
+#cgold h1{margin:0;font:italic 900 46px "Barlow Condensed","Heebo",Arial,sans-serif;text-transform:uppercase;color:#ffcc33;text-shadow:0 0 24px rgba(255,204,51,.6);opacity:0;animation:cgt .6s ease 1.6s both}#cgold p{margin:10px 0 0;color:#e8e8ec;font:16px Barlow,Heebo,Arial,sans-serif;opacity:0;animation:cgt .6s ease 1.9s both}#cgold em{display:block;margin-top:22px;color:var(--mut);font:13px Barlow,Arial,sans-serif;font-style:normal;opacity:0;animation:cgt .6s ease 2.3s both}
+#cgold.calm *{animation-duration:.01s!important;animation-delay:0s!important}
+@keyframes cgin{from{opacity:0}to{opacity:1}}@keyframes cgout{to{opacity:0}}@keyframes cgspin{to{transform:rotate(360deg)}}
+@keyframes cgpop{0%{transform:scale(.3) rotate(-8deg)}35%{transform:scale(1) rotate(0)}45%{transform:translateX(-6px)}50%{transform:translateX(6px)}55%{transform:translateX(-4px)}60%{transform:translateX(0) scale(1.1)}100%{transform:scale(1)}}
+@keyframes cgq{0%,55%{opacity:1;transform:scale(1)}65%{opacity:0;transform:scale(2.2)}100%{opacity:0}}@keyframes cgi{0%,58%{opacity:0;transform:scale(.2)}75%{opacity:1;transform:scale(1.3)}100%{opacity:1;transform:scale(1)}}
+@keyframes cgt{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.csbo{display:grid;gap:6px;border-color:#ffcc33}.csbo b{color:#ffcc33}.csbo span{color:var(--mut);font-size:14px}.csbo .csb{margin-top:6px}
+#lb .lb{padding:12px 12px 12px 10px;border-radius:0;background:none;border-bottom:1px solid #4d4e55;border-inline-start:5px solid transparent;gap:10px}
+#lb .lb:nth-child(1){border-inline-start-color:#ffcc33}#lb .lb:nth-child(2){border-inline-start-color:#c4cad2}#lb .lb:nth-child(3){border-inline-start-color:#cd7f32}
+#lb .lb.me{background:linear-gradient(90deg,rgba(var(--rgb),.24),rgba(var(--rgb),0));border-inline-start-color:var(--red2)}
+#lb .lb .n{width:36px;font:italic 900 30px "Barlow Condensed","Oswald",Impact,"Arial Narrow",Arial,sans-serif}
+#lb .lb .nm{font:italic 800 21px/1.15 "Barlow Condensed","Oswald",Impact,"Arial Narrow",Arial,sans-serif;text-transform:uppercase;letter-spacing:.7px;color:#fff}
+#lb .lb .nm small{display:inline-block;margin-top:2px;font:italic 400 13px Barlow,Arial,sans-serif;text-transform:none;letter-spacing:0}
+#lb .lb .c{display:flex;align-items:center;gap:6px;font:italic 900 28px "Barlow Condensed","Oswald",Impact,"Arial Narrow",Arial,sans-serif;letter-spacing:.5px}
+details.ev{border-radius:0;border-color:var(--red2);border-inline-start:5px solid var(--red2)}
+details.ev summary{font:italic 800 21px/1.2 "Barlow Condensed","Oswald",Impact,"Arial Narrow",Arial,sans-serif;text-transform:uppercase;letter-spacing:.7px}
+details.ev summary small{font:italic 400 13px Barlow,Arial,sans-serif;text-transform:none;letter-spacing:0;margin-top:2px}
 .dlbox{margin:14px 0 10px;padding:14px 16px;background:#2c2d32;border-inline-start:6px solid var(--red2)}.dlbox b{font:italic 900 20px "Barlow Condensed","Heebo",Arial,sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#fff}.dlbox p{margin:6px 0 0;color:var(--mut);font-size:14px}
 .dlh3{margin:18px 0 8px;font:italic 900 20px "Barlow Condensed","Heebo",Arial,sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#fff}
 .dlr{display:flex;align-items:center;gap:10px;margin:6px 0;padding:10px 12px;background:#2c2d32;border:1px solid #4d4e55}.dlr>div:first-child{flex:1;min-width:0}.dlr b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dlr small{display:block;color:var(--mut)}
@@ -875,13 +897,13 @@ const mainOf=id=>id in MAINF?MAINF[id]:(AUTO[id]&&AUTO[id].main);
 const rsOf=x=>x?(x.nc?{w:"",m:x.m||"NC",nc:1}:x.w?{w:x.w,m:x.m,r:x.r}:null):null,ncTxt=r=>r&&r.m==="DRAW"?"Draw":"No contest";
 const BETS={},BSTAKE=100;let LEGM=null,BETOK=false;
 const betOf=(u,k)=>((BETS[u]||{})[k])||0,legM=k=>!LEGM||LEGM.has(k);
-const pts=(p,r,main,k,u)=>{if(!p||!r||r.nc||p.w!==r.w)return 0;let v=100;if(r.m&&nm(p.m)===nm(r.m)){v+=50;if(r.m==="DEC"||!r.r||+p.r===+r.r)v+=50}if(main&&legM(k))v*=2;if(k&&u&&betOf(u,k))v*=2;return v};
+const pts=(p,r,main,k,u)=>{if(!p||!r||r.nc||p.w!==r.w)return 0;let v=100;if(r.m&&nm(p.m)===nm(r.m)){v+=50;if(r.m==="DEC"||!r.r||+p.r===+r.r)v+=50}if(main&&legM(k))v*=2;if(k&&u&&betOf(u,k))v*=2;if(k&&u&&BOOSTF[u]&&BOOSTF[u].has(k))v=Math.round(v*1.2);return v};
 const lost=(p,r,k,u)=>p&&r&&!r.nc&&r.w&&p.w!==r.w?betOf(u,k):0;
 const betPt=(p,r,main,k,u)=>{const l=lost(p,r,k,u);return l?`<b class="pt neg">−${l}<i class="coin"></i></b>`:`<b class="pt">+${pts(p,r,main,k,u)}<i class="coin"></i></b>`};
 const LOCKH=5,lockAt=()=>EV.lock-LOCKH*3600e3,locked=()=>Date.now()>=lockAt();
 const realK=k=>/^e\d+-/.test(k)||(EV.fights||[]).some(x=>x.id===k);
 const SK=id=>window.stk?window.stk(id):"";
-const GBON={},GBONUS=100,CASEC={},DUELC={};let FPUSE=null;
+const GBON={},GBONUS=100,CASEC={},DUELC={},BOOSTF={};let FPUSE=null;
 const coins=id=>{const b=(GBON[id]?GBONUS:0)+(CASEC[id]||0)+(DUELC[id]||0);if((PICKS[id]||{}).hidden)return(PICKS[id].sc||0)+b;const f=(PICKS[id]||{}).fights||{};return b+Object.keys(f).reduce((s,k)=>s+pts(f[k],res(k),mainOf(k),k,id)-lost(f[k],res(k),k,id),0)};
 function board(){return Object.keys(PICKS).map(id=>({id,c:coins(id),n:(PICKS[id]||{}).hidden?(PICKS[id].n||0):Object.keys((PICKS[id]||{}).fights||{}).filter(realK).length})).sort((a,b)=>b.c-a.c||b.n-a.n)}
 function filt(){const fm=fmap(),out={};Object.keys(PRAW).forEach(id=>{const p=PRAW[id]||{};if(id===ME||!p.fights){out[id]=p;return}const f={};Object.keys(p.fights).forEach(k=>{if(res(k)||(fm[k]&&fm[k].w))f[k]=p.fights[k]});out[id]=Object.assign({},p,{fights:f})});PICKS=out}

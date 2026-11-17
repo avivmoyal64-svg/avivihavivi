@@ -360,7 +360,19 @@ var X={
  "Pick a fighter for them to guess":"בחרו להם לוחם לנחש",
  "🕵️ Guess the fighter":"🕵️ נחשו את הלוחם",
  "Random mystery fighter":"לוחם מסתורי אקראי",
- "No match.":"אין התאמה."
+ "No match.":"אין התאמה.",
+ "Coin boost":"בוסט מטבעות",
+ "Coin boost!":"בוסט מטבעות!",
+ "⚡ Coin boost active":"⚡ בוסט מטבעות פעיל",
+ "+20% coins on every pick of one week's event. You choose which week to use it on.":"+20% מטבעות על כל ניחוש באירוע של שבוע אחד. אתם בוחרים באיזה שבוע להשתמש בו.",
+ "Use it on a week's event before the fights start. Every correct pick that week pays 20% more coins.":"השתמשו בו באירוע של שבוע לפני שהקרבות מתחילים. כל ניחוש נכון באותו שבוע משלם 20% יותר מטבעות.",
+ "Tap to continue":"הקישו להמשך",
+ "Nice pick":"בחירה יפה",
+ "Big brain":"מוח גדול",
+ "Dead pick":"בחירה מתה",
+ "Boom":"בום",
+ "Boring":"משעמם",
+ "Lock":"נעילה"
 };
 
 /* ---------- dates ---------- */
@@ -379,6 +391,10 @@ function dateFix(s){
 function ord(n){return n}
 var CT={"USA":"ארצות הברית","Brazil":"ברזיל","Russia":"רוסיה","England":"אנגליה","Australia":"אוסטרליה","Japan":"יפן","Canada":"קנדה","France":"צרפת","Mexico":"מקסיקו","Ireland":"אירלנד","Poland":"פולין","Kazakhstan":"קזחסטן","Georgia":"גאורגיה","Ecuador":"אקוודור","Argentina":"ארגנטינה","New Zealand":"ניו זילנד","Nigeria":"ניגריה","Cuba":"קובה","Sweden":"שוודיה","South Africa":"דרום אפריקה","Czech Republic":"צ'כיה","Netherlands":"הולנד","Cameroon":"קמרון","Austria":"אוסטריה","Serbia":"סרביה","Croatia":"קרואטיה","Ukraine":"אוקראינה","Uzbekistan":"אוזבקיסטן","Dominican Republic":"הרפובליקה הדומיניקנית","Portugal":"פורטוגל","Moldova":"מולדובה","Morocco":"מרוקו","Armenia":"ארמניה","China":"סין","Myanmar":"מיאנמר","Thailand":"תאילנד","Korea":"קוריאה"};
 var P=[
+ [/^⚡ Coin boosts: (\d+)$/,function(m){return "⚡ בוסטים של מטבעות: "+m[1]}],
+ [/^Use one on (.+)\. It adds 20% coins to every correct pick of that event\. Use it before the fights start\.$/,function(m){return "השתמשו באחד על "+m[1]+". הוא מוסיף 20% מטבעות לכל ניחוש נכון באירוע. השתמשו בו לפני שהקרבות מתחילים."}],
+ [/^Use a boost on (.+)$/,function(m){return "השתמשו בבוסט על "+m[1]}],
+ [/^(.+): every correct pick pays 20% more coins\.$/,function(m){return m[1]+": כל ניחוש נכון משלם 20% יותר מטבעות."}],
  [/^Pick the fighter (.+) has to guess$/,function(m){return "בחרו את הלוחם ש"+m[1]+" צריך/ה לנחש"}],
  [/^Challenge sent to (.+)\. They get the clues for (.+) once they accept\.$/,function(m){return "האתגר נשלח ל"+m[1]+". הם יקבלו את הרמזים על "+m[2]+" אחרי שיאשרו."}],
  [/^(\d+) more clues? locked$/,function(m){return m[1]+" רמזים נעולים נוספים"}],

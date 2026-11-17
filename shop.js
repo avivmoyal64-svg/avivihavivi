@@ -2,8 +2,8 @@
 (function () {
 "use strict";
 const IT = {
-  e_thumb:{g:"👍",n:"Like"}, e_fire:{g:"🔥",n:"Fire"}, e_laugh:{g:"😂",n:"Laugh"}, e_clap:{g:"👏",n:"Clap"}, e_eyes:{g:"👀",n:"Eyes"},
-  e_skull:{g:"💀",n:"Skull"}, e_clown:{g:"🤡",n:"Clown"}, e_shock:{g:"😱",n:"Shocked"}, e_ice:{g:"🥶",n:"Ice cold"}, e_rocket:{g:"🚀",n:"Rocket"},
+  e_thumb:{g:"🥊",n:"Nice pick"}, e_fire:{g:"🔥",n:"Fire"}, e_laugh:{g:"😂",n:"Laugh"}, e_clap:{g:"👏",n:"Clap"}, e_eyes:{g:"🧠",n:"Big brain"},
+  e_skull:{g:"🪦",n:"Dead pick"}, e_clown:{g:"🤡",n:"Clown"}, e_shock:{g:"💥",n:"Boom"}, e_ice:{g:"🥱",n:"Boring"}, e_rocket:{g:"🔒",n:"Lock"},
   e_crown:{g:"👑",n:"Crown"}, e_goat:{g:"🐐",n:"Goat"},
   t_pink:{v:"pink",n:"Pink",c:"#e0197d"}, t_blue:{v:"blue",n:"Blue",c:"#1a6fe0"}, t_green:{v:"green",n:"Green",c:"#12a150"},
   s_champ:{i:"👑",n:"CHAMP"}, s_ko:{i:"🥊",n:"KO KING"}, s_pick:{i:"🎯",n:"PICK MASTER"}, s_goat:{i:"🐐",n:"THE GOAT"}, s_one:{i:"⭐",n:"THE ONE & ONLY"}

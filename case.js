@@ -7,6 +7,7 @@ const RC = { gold: "#ffcc33", red: "#ff3b3b", pink: "#f253b8", purple: "#9b5cff"
 /* prizes: r = rarity colour, odds = the real chance in % (the server does the draw) */
 const PR = {
   pick:    { r: "gold",   i: "🎟️", t: "Free pick",           odds: 1 },
+  boost:   { r: "gold",   i: "⚡", t: "Coin boost",          odds: 1 },
   c500:    { r: "red",    i: "COIN", t: "500 coins",           odds: 2 },
   c250:    { r: "pink",   i: "COIN", t: "250 coins",           odds: 8 },
   theme:   { r: "pink",   i: "🎨", t: "Free theme",          odds: 5 },
@@ -15,10 +16,10 @@ const PR = {
   emoji:   { r: "blue",   i: "😎", t: "Free emoji",          odds: 10 },
   c25:     { r: "grey",   i: "COIN", t: "25 coins",            odds: 10 },
   spin:    { r: "blue",   i: "🔄", t: "Another spin",        odds: 15 },
-  none:    { r: "grey",   i: "😴", t: "Try again tomorrow",  odds: 34 }
+  none:    { r: "grey",   i: "😴", t: "Try again tomorrow",  odds: 33 }
 };
 /* what the reel SHOWS is skewed toward the good colours so it looks like a better chance than it is */
-const POOL = { gold: ["pick"], red: ["c500"], pink: ["c250", "theme"], purple: ["c100", "sticker"], blue: ["emoji", "spin"], grey: ["c25", "none"] };
+const POOL = { gold: ["pick", "boost"], red: ["c500"], pink: ["c250", "theme"], purple: ["c100", "sticker"], blue: ["emoji", "spin"], grey: ["c25", "none"] };
 const VIS = [["gold", 6], ["red", 10], ["pink", 17], ["purple", 20], ["blue", 22], ["grey", 25]];
 const pickR = () => { let x = Math.random() * 100; for (const [r, w] of VIS) { if ((x -= w) < 0) return r; } return "grey"; };
 const rnd = a => a[Math.floor(Math.random() * a.length)];
@@ -26,7 +27,7 @@ const randKey = () => rnd(POOL[pickR()]);
 const randNon = () => rnd(POOL[rnd(["pink", "purple", "blue", "grey"])]);
 
 let ST = null, CASEOK = false, busy = false, SIG = "", LAST = null, KEEP = false;
-window.FPN = 0;
+window.FPN = 0; window.BSN = 0;
 
 function keyOf(r) {
   if (!r) return "none";
@@ -42,16 +43,23 @@ function real(k, item) {   /* the winning tile shows the real item that was won 
   return null;
 }
 const ic = i => i === "COIN" ? '<i class="coin cc"></i>' : "<i>" + i + "</i>";
-const tile = (k, o) => { const p = PR[k], x = o || p; return `<div class="cst r-${p.r}" style="width:${TW}px">${ic(x.i)}<b>${esc(x.t)}</b></div>`; };
+/* gold prizes are hidden as "?" on the reel until the winning one lands and is revealed */
+const tile = (k, o, rev) => { const p = PR[k], x = o || p; if (p.r === "gold" && !rev) return `<div class="cst r-gold cq" style="width:${TW}px"><i class="cqm">?</i><b>?</b></div>`; return `<div class="cst r-${p.r}" style="width:${TW}px">${ic(x.i)}<b>${esc(x.t)}</b></div>`; };
 
 /* ---------- data ---------- */
 async function load() {
   if (!SB || !ME) return;
-  try { const r = await SB.rpc("case_status"); if (r.error || !r.data) throw 0; ST = r.data; CASEOK = true; window.FPN = ST.free_picks || 0; } catch (e) { CASEOK = false; }
+  try { const r = await SB.rpc("case_status"); if (r.error || !r.data) throw 0; ST = r.data; CASEOK = true; window.FPN = ST.free_picks || 0; window.BSN = ST.boosts || 0; } catch (e) { CASEOK = false; }
   if (CASEOK) {
     try {
       const q = await SB.from("case_opens").select("user_id,prize,amount");
       if (!q.error) { Object.keys(CASEC).forEach(k => delete CASEC[k]); (q.data || []).forEach(x => { if (x.prize === "coins") CASEC[x.user_id] = (CASEC[x.user_id] || 0) + (x.amount || 0); }); }
+    } catch (e) {}
+  }
+  if (CASEOK) {
+    try {
+      const b = await SB.from("coin_boosts").select("user_id,fights");
+      if (!b.error) { Object.keys(BOOSTF).forEach(k => delete BOOSTF[k]); (b.data || []).forEach(x => { BOOSTF[x.user_id] = new Set((BOOSTF[x.user_id] ? Array.from(BOOSTF[x.user_id]) : []).concat(x.fights || [])); }); }
     } catch (e) {}
   }
   try { hnav(); } catch (e) {}
@@ -71,6 +79,7 @@ window.caseCard = () => {
 /* ---------- page ---------- */
 const MEAN = {
   pick: "Change one locked pick, as long as that fight is not over.",
+  boost: "+20% coins on every pick of one week's event. You choose which week to use it on.",
   c500: "500 coins added to your total.", c250: "250 coins added to your total.",
   c100: "100 coins added to your total.", c25: "25 coins added to your total.",
   theme: "Unlocks a color theme for the whole site. Use it in the Shop.",
@@ -80,7 +89,7 @@ const MEAN = {
   none: "Nothing this time. A new free case opens tomorrow."
 };
 function prizes() {
-  const order = ["pick", "c500", "c250", "theme", "c100", "sticker", "emoji", "spin", "c25", "none"];
+  const order = ["pick", "boost", "c500", "c250", "theme", "c100", "sticker", "emoji", "spin", "c25", "none"];
   return `<div class="cspz"><h3>Possible prizes</h3>${order.map(k => `<div class="cspr r-${PR[k].r}">${ic(PR[k].i)}<div><b>${esc(PR[k].t)}</b><span>${esc(MEAN[k])}</span></div></div>`).join("")}</div>`;
 }
 function resultCard(r) {
@@ -89,9 +98,10 @@ function resultCard(r) {
   if (k === "none") msg = "Nothing this time. Come back tomorrow for another free case.";
   else if (k === "spin") msg = "You get to spin the case again right now.";
   else if (k === "pick") msg = "You can now change one locked pick, as long as that fight is not over. Open the pick and tap “Change this pick”.";
+  else if (k === "boost") msg = "Use it on a week's event before the fights start. Every correct pick that week pays 20% more coins.";
   else if (r.prize === "coins") msg = "+" + r.amount + " coins were added to your total.";
   else msg = "It is yours now. Find it in the Shop to use it.";
-  const head = k === "none" ? "Try again tomorrow" : k === "pick" ? "Free pick!" : k === "spin" ? "Another spin!" : r.prize === "coins" ? r.amount + " coins" : o.t;
+  const head = k === "none" ? "Try again tomorrow" : k === "pick" ? "Free pick!" : k === "boost" ? "Coin boost!" : k === "spin" ? "Another spin!" : r.prize === "coins" ? r.amount + " coins" : o.t;
   return `<div class="csres r-${p.r}" role="status">${ic(o.i)}<div><small>${k === "none" ? "Today's case" : "You won"}</small><b>${esc(head)}</b><span>${esc(msg)}</span></div></div>`;
 }
 function stripKeys(final, item) {
@@ -101,7 +111,7 @@ function stripKeys(final, item) {
   const rr = PR[final].r;
   if (rr !== "gold" && rr !== "red" && Math.random() < 0.8) {          /* 80%: stop right next to a very good prize */
     near = true; const s = Math.random() < 0.5 ? 1 : -1;
-    keys[W + s] = Math.random() < 0.4 ? "pick" : "c500";
+    keys[W + s] = Math.random() < 0.4 ? rnd(["pick", "boost"]) : "c500";
     f = s > 0 ? 0.9 + Math.random() * 0.07 : 0.03 + Math.random() * 0.07;
   } else { [W - 1, W + 1].forEach(i => { if (PR[keys[i]].r === "gold" || PR[keys[i]].r === "red") keys[i] = randNon(); }); }
   keys[W] = final;
@@ -109,21 +119,35 @@ function stripKeys(final, item) {
 }
 const stripHtml = (keys, W, o) => keys.map((k, i) => tile(k, i === W ? o : null)).join("");
 
+const boostOn = () => { const s = BOOSTF[ME]; return !!(s && (EV.fights || []).some(f => s.has(f.id))); };
+function boostBox() {
+  const n = window.BSN || 0, on = boostOn();
+  if (!n && !on) return "";
+  if (on) return `<div class="csfp csbo"><b>⚡ Coin boost active</b><span>${esc(EV.name || "This week")}: every correct pick pays 20% more coins.</span></div>`;
+  return `<div class="csfp csbo"><b>⚡ Coin boosts: ${n}</b><span>Use one on ${esc(EV.name || "this week's event")}. It adds 20% coins to every correct pick of that event. Use it before the fights start.</span><button class="btn csb" type="button" onclick="boostUse()">Use a boost on ${esc(EV.name || "this week")}</button></div>`;
+}
+window.boostUse = async function () {
+  if (!SB || !ME || busy) return; busy = true;
+  try { const r = await SB.rpc("use_boost"); if (r.error) throw r.error; }
+  catch (e) { const t = String((e && e.message) || e); try { alert(/already started/i.test(t) ? "This week's event already started, so a boost can't be used on it." : /already active/i.test(t) ? "A boost is already active for this event." : "Could not use the boost. Try again."); } catch (x) {} }
+  busy = false; await load();
+  try { const o = document.querySelector(".csbo"); if (o) o.outerHTML = boostBox() || ""; } catch (e) {}
+};
 function html() {
   if (!ME) return '<div class="box"><div class="pfn">Log in to open your free daily case.</div></div>';
   const open = ST && ST.opened, again = !!(ST && !ST.opened && ST.prize === "spin"), idle = stripKeys(randKey(), null);
-  const fp = window.FPN > 0 ? `<div class="csfp">🎟️ Free picks: <b>${window.FPN}</b></div>` : "";
+  const bx = boostBox(), fp = window.FPN > 0 ? `<div class="csfp">🎟️ Free picks: <b>${window.FPN}</b></div>` : "";
   return `<div class="csh"><div class="csn">Free daily case</div><small>One free spin every day</small></div>
   <div class="cswrap" dir="ltr"><div class="csstrip" id="csr">${stripHtml(idle.keys, -1, null)}</div><div class="cspt"></div></div>
   ${open || again ? resultCard(ST) : ""}
   <div class="csact">${open ? `<button class="btn csb" type="button" disabled id="csb">Come back tomorrow</button><div class="csnext" id="csnx">Next free case in ${esc(left() || "a moment")}</div>` : `<button class="btn csb" type="button" id="csb" onclick="caseOpen()">${again ? "Spin again" : "Open free case"}</button><div class="csnext" id="csnx"></div>`}</div>
-  ${fp}${prizes()}`;
+  ${bx}${fp}${prizes()}`;
 }
 window.caseShow = function () {
   const el = $("pgcs"); if (!el || busy) return;
   if (KEEP && el.querySelector(".cst.win")) return;   /* keep the finished reel on screen until the page is closed */
   if (!CASEOK) { const t = '<div class="box"><div class="pfn">The daily case is not open yet.</div></div>'; if (SIG !== t) { el.innerHTML = t; SIG = t; } return; }
-  const sig = JSON.stringify([ME, ST, window.FPN]);
+  const sig = JSON.stringify([ME, ST, window.FPN, window.BSN, BOOSTF[ME] ? BOOSTF[ME].size : 0, EV && EV.id]);
   if (sig === SIG && el.firstChild) return;
   SIG = sig; el.innerHTML = html();
 };
@@ -148,6 +172,19 @@ function spin(strip, vw, target, dur) {
     requestAnimationFrame(step);
   });
 }
+function goldReveal(k) {
+  return new Promise(done => {
+    const p = PR[k], calm = reduced();
+    const el = document.createElement("div"); el.id = "cgold"; el.className = calm ? "calm" : "";
+    el.innerHTML = `<div class="cgr" aria-hidden="true"></div><div class="cgb"><div class="cgc"><span class="cgq">?</span><span class="cgi">${ic(p.i)}</span></div><h1>${esc(p.t)}!</h1><p>${esc(MEAN[k])}</p><em>Tap to continue</em></div>`;
+    document.body.appendChild(el);
+    try { navigator.vibrate && navigator.vibrate([80, 60, 80, 60, 220]); } catch (e) {}
+    let fin = false;
+    const end = () => { if (fin) return; fin = true; el.classList.add("out"); setTimeout(() => { el.remove(); done(); }, 260); };
+    setTimeout(() => { el.onclick = end; }, calm ? 300 : 2200);
+    setTimeout(end, calm ? 2200 : 7000);
+  });
+}
 window.caseOpen = async function () {
   if (busy || !SB || !ME) return;
   const btn = $("csb"), strip = $("csr"); if (!btn || !strip) return;
@@ -168,11 +205,18 @@ window.caseOpen = async function () {
   const wrap = strip.parentNode, vw = wrap.clientWidth, target = S.W * TW + S.f * TW - vw / 2;
   void strip.offsetWidth;
   await spin(strip, vw, target, reduced() ? 1400 : 7000);
-  const tiles = strip.children; for (let i = 0; i < tiles.length; i++) tiles[i].classList.add(i === S.W ? "win" : "dim");
+  const tiles = strip.children;
+  if (PR[k].r === "gold") {                      /* gold: the "?" is revealed with a big animation */
+    for (let i = 0; i < tiles.length; i++) tiles[i].classList.add(i === S.W ? "win" : "dim");
+    await goldReveal(k);
+    tiles[S.W].outerHTML = tile(k, o, true); tiles[S.W].classList.add("win");
+  }
+  for (let i = 0; i < tiles.length; i++) { tiles[i].classList.remove("win", "dim"); tiles[i].classList.add(i === S.W ? "win" : "dim"); }
   try { navigator.vibrate && navigator.vibrate(k === "none" ? [60] : [40, 50, 40, 50, 140]); } catch (e) {}
   const again = r.prize === "spin";
   LAST = r; ST = Object.assign({}, ST || {}, r, { opened: !again });
   window.FPN = r.free_picks != null ? r.free_picks : window.FPN;
+  window.BSN = r.boosts != null ? r.boosts : window.BSN;
   const act = wrap.parentNode.querySelector(".csact");
   wrap.insertAdjacentHTML("afterend", resultCard(r));
   if (act) act.innerHTML = again ? '<button class="btn csb" type="button" id="csb" onclick="caseOpen()">Spin again</button><div class="csnext" id="csnx"></div>' : '<button class="btn csb" type="button" disabled id="csb">Come back tomorrow</button><div class="csnext" id="csnx">Next free case in ' + esc(left() || "a moment") + "</div>";
@@ -180,7 +224,7 @@ window.caseOpen = async function () {
   if (r.prize === "coins") { try { CASEC[ME] = (CASEC[ME] || 0) + (r.amount || 0); } catch (e) {} }
   try { window.shopLoad && window.shopLoad(); } catch (e) {}
   try { hnav(); ren(); } catch (e) {}
-  SIG = JSON.stringify([ME, ST, window.FPN]);
+  SIG = ""; 
   load();
 };
 
