@@ -189,6 +189,10 @@ async function challenge(id) {
   } catch (e) { MSG = ERR(e); CH = null; }
   BUSY = false; await load(); window.whoShow();
 }
+window.whoChallenge = async id => {
+  try { CH = null; S = null; M = null; V = null; MSG = ""; openPage("who"); } catch (e) {}
+  await load(); await challenge(id);
+};
 window.whoAccept = async id => {
   if (BUSY) return; BUSY = true;
   try { openPage("who"); } catch (e) {}
@@ -263,6 +267,7 @@ setInterval(poll, 700);
 /* ---------- entry card, invite pop-up ---------- */
 window.whoCard = () => {
   const n = OK && ME ? invitesIn().length : 0, t = OK && ME ? playable().length : 0;
+  if (!n && !t) return "";
   return `<button class="dlmo" type="button" onclick="openPage('who')"><i>⚡</i><span><b>Who's Who race</b><small>${n ? (n === 1 ? "1 player challenged you!" : n + " players challenged you!") : t ? "A race is waiting for you" : "Race another player: name the blurred fighter first"}</small></span><em>5 coins</em></button>`;
 };
 function ui() {

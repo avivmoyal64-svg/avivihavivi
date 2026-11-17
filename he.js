@@ -445,7 +445,8 @@ var X={
 "The race is not ready yet. Try again later.":"המרוץ עדיין לא מוכן. נסו שוב מאוחר יותר.",
 "Could not do that. Try again.":"לא הצלחנו לבצע. נסו שוב.",
 "Wait a moment…":"המתינו רגע…",
-"Could not send that guess. Try again.":"לא ניתן היה לשלוח את הניחוש. נסו שוב."
+"Could not send that guess. Try again.":"לא ניתן היה לשלוח את הניחוש. נסו שוב.",
+"Race to name a blurred fighter first. Best of 5, live at the same time":"התחרו מי מזהה ראשון לוחם מטושטש. הטוב מ-5, בו זמנית"
 };
 
 /* ---------- dates ---------- */

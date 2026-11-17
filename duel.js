@@ -8,7 +8,8 @@ const MODES = {
   "class": { c: 5, i: "🏋️", t: "Weight class",       d: "Questions about the fighters of one division" },
   fighter: { c: 5, i: "🥊", t: "Specific fighter",   d: "Pick one fighter to be quizzed on" },
   card:    { c: 5, i: "📅", t: "This week's card",   d: "Questions about the fighters on the upcoming card" },
-  fav:     { c: 5, i: "🔄", t: "Fighter swap",       d: "You each pick a fighter. Your opponent is quizzed on yours and you on theirs" }
+  fav:     { c: 5, i: "🔄", t: "Fighter swap",       d: "You each pick a fighter. Your opponent is quizzed on yours and you on theirs" },
+  who:     { c: 5, i: "⚡", t: "Who's Who race",     d: "Race to name a blurred fighter first. Best of 5, live at the same time" }
 };
 let G = [], OK = false, PL = null, OUT = null, CH = null, MSG = "", BUSY = false, T = 0, LOCK = 0, LT = 0;
 const DISM = {};
@@ -339,7 +340,7 @@ function panel() {
   if (CH.step === "fighter" || CH.step === "swap1") return `<div class="dlr conf dlpn">${head}<input class="gpq" id="dlfq" type="search" placeholder="Search a fighter" autocomplete="off" oninput="duelFq(this.value)"><div class="dlfl" id="dlfl"></div><button class="fvb" type="button" onclick="duelStep('mode')">‹ Back</button></div>`;
   const cardOk = cardFighters().length >= 3;
   const opt = (k, ok, why, act) => { const m = MODES[k]; return `<button class="dlmo" type="button" ${ok ? "" : "disabled"} onclick="${act}"><i>${m.i}</i><span><b>${m.t}</b><small>${ok ? m.d : why}</small></span><em>${m.c} coins</em></button>`; };
-  return `<div class="dlr conf dlpn">${head}<div class="dlmos">${opt("random", 1, "", "duelSend('random','')")}${opt("class", 1, "", "duelStep('class')")}${opt("fighter", 1, "", "duelStep('fighter')")}${opt("card", cardOk, "Not enough profiled fighters on this week's card", "duelSend('card','')")}${opt("fav", 1, "", "duelStep('swap1')")}</div></div>`;
+  return `<div class="dlr conf dlpn">${head}<div class="dlmos">${opt("random", 1, "", "duelSend('random','')")}${opt("class", 1, "", "duelStep('class')")}${opt("fighter", 1, "", "duelStep('fighter')")}${opt("card", cardOk, "Not enough profiled fighters on this week's card", "duelSend('card','')")}${opt("fav", 1, "", "duelStep('swap1')")}${window.whoChallenge ? opt("who", 1, "", "whoChallenge('" + esc(id) + "')") : ""}</div></div>`;
 }
 window.duelShow = () => {
   const el = $("pgds"); if (!el) return;
