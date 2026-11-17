@@ -210,3 +210,19 @@ begin
 end $function$;
 
 -- cron-free: games clean themselves up (stale ones are cancelled the next time anyone opens them)
+
+-- quitting a race counts as a loss: the other player wins
+create or replace function public.who_forfeit(p_game uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); g public.who_games;
+begin
+  select * into g from public.who_games where id = p_game for update;
+  if not found or uid is null or (uid <> g.a and uid <> g.b) then raise exception 'no such game'; end if;
+  if g.status <> 'active' then return; end if;
+  update public.who_games set status = 'done', finished_at = now(), round_done = true, draw = false,
+    winner = case when uid = g.a then g.b else g.a end,
+    wa = case when uid = g.a then wa else greatest(wa, 3) end,
+    wb = case when uid = g.b then wb else greatest(wb, 3) end
+  where id = p_game;
+end $$;
+grant execute on function public.who_forfeit(uuid) to authenticated;

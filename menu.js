@@ -64,5 +64,5 @@ window.smGo = k => {
   try { openPage(k); } catch (e) {}
 };
 build();
-setInterval(() => { const h = $("smh"); if (h) h.hidden = !(typeof ME !== "undefined" && ME && typeof READY !== "undefined" && READY); }, 800);
+setInterval(() => { const h = $("smh"); if (h) h.hidden = !(typeof ME !== "undefined" && ME && typeof READY !== "undefined" && READY) || !!(window.inGame && window.inGame()); }, 800);
 })();

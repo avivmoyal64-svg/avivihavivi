@@ -209,6 +209,11 @@ window.whoPlay = async id => {
   await buildPk(); S = null; CH = null; M = id; V = null; WR = []; Q = ""; LK = 0; MSG = ""; await pull(); window.whoShow();
 };
 window.whoNo = async id => { try { await SB.rpc("who_decline", { p_game: id }); } catch (e) {} await load(); window.whoShow(); };
+window.whoInGame = () => { const m = model(); return !!(m && m.phase !== "end" && (S ? m.phase === "live" : V && V.status === "active")); };
+window.whoQuit = async () => {
+  if (M && V && V.status === "active") { try { await SB.rpc("who_forfeit", { p_game: M }); } catch (e) {} }
+  leave();
+};
 window.whoLater = id => { DISM[id] = 1; ui(); };
 async function guess(name) {
   const m = model(); if (!m || m.phase !== "live") return;

@@ -127,6 +127,12 @@ async function acceptWith(n) {
 window.guessAccept = id => { const g = G.find(x => x.id === id); if (!g) return; try { openPage("guess"); } catch (e) {} S = null; M = null; MV = null; Q = ""; MSG = ""; CH = { step: "pick", mode: "accept", gid: id, opp: g.a }; window.guessShow(); };
 window.guessNo = async id => { try { await SB.rpc("guess_decline", { p_game: id }); } catch (e) {} await load(); window.guessShow(); };
 window.guessPlay = async id => { try { openPage("guess"); } catch (e) {} S = null; CH = null; M = id; WR = []; Q = ""; MSG = ""; await loadView(); window.guessShow(); };
+window.guessInGame = () => !!((S && !S.done) || (M && MV && MV.status === "active" && !MV.res));
+window.guessQuit = async () => {
+  if (S) { S = null; CH = null; MSG = ""; Q = ""; window.guessShow(); return; }
+  if (M && MV && !MV.res) { try { await SB.rpc("guess_step", { p_game: M, p_do: "giveup", p_name: null }); } catch (e) {} }
+  S = null; M = null; MV = null; CH = null; MSG = ""; Q = ""; WR = []; await load(); window.guessShow();
+};
 window.guessLater = id => { DISM[id] = 1; ui(); };
 window.guessGo = id => { try { $("pf").close(); } catch (e) {} S = null; M = null; MV = null; Q = ""; MSG = ""; CH = { step: "pick", mode: "create", to: id }; openPage("guess"); window.guessShow(); };
 window.guessBtn = id => (!OK || !ME || id === ME) ? "" : `<div class="fvt"><div><small>Guess the fighter</small><b>Pick a fighter for them to guess</b></div><button class="fvb" type="button" onclick="guessGo('${esc(id)}')">🕵️ 1v1</button></div>`;

@@ -537,6 +537,7 @@ async function finish() {
   }
 }
 window.duelQuit = () => { PL = null; window.duelShow(); };
+window.duelInGame = () => !!PL;
 window.duelBack = () => { OUT = null; window.duelShow(); };
 window.duelNo = async id => {
   LOCK = 0;

@@ -717,6 +717,8 @@ dialog{max-height:calc(100dvh - 28px - env(safe-area-inset-top,0px) - env(safe-a
 .wwb u{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--red),var(--red2));text-decoration:none}
 .wwlk .dlfl{opacity:.4;pointer-events:none}
 .wwmsg{min-height:20px;margin:8px 0;text-align:center;color:var(--mut);font:700 14px Barlow,Heebo,Arial,sans-serif}
+.pgs.ing .pgh .pgbk:not(.pgq){display:none}
+.pgq{margin-inline-start:auto;order:3}
 </style></head><body>
 <div id="prog"></div>
 <section id="hero"><div class="hp one"><canvas id="c1" width="1920" height="1080"></canvas></div><div class="hc" id="hc"><h1>UFC <span>Fighter</span> Roster</h1><p class="sub" style="color:#ddd">Scroll to bring the fighters to life</p><span class="hint">Scroll ↓</span></div></section>
@@ -1071,11 +1073,11 @@ function pgTab(k,dir){const old=PS;PS=k;drawPage();const s=document.getElementBy
 s.addEventListener("touchstart",e=>{const t=e.touches[0];x0=t.clientX;y0=t.clientY;t0=Date.now();ok=e.touches.length===1&&!e.target.closest("input,textarea,button.pgbk")},{passive:true});
 s.addEventListener("touchend",e=>{if(!ok)return;ok=false;const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.5||Date.now()-t0>700)return;const i=PGO.indexOf(PS),n=i+((window.LANGHE?dx>0:dx<0)?1:-1);if(n<0||n>=PGO.length)return;pgTab(PGO[n],dx<0?1:-1)},{passive:true})})();
 function openPage(k){const pg=k==="picks"?"picks":k==="goat"?"goat":k==="shop"?"shop":k==="case"?"case":k==="duel"?"duel":k==="guess"?"guess":k==="who"?"who":"score";if(pg==="score"&&k!=="score")PS=k==="recent"?"recent":k==="last"?"last":"board";
- const was=anyPage(),tgt=pgEl(pg),oth=["picks","score","goat","shop","case","duel","guess","who"].filter(x=>x!==pg).map(pgEl);if(!tgt)return;oth.forEach(e=>e.hidden=true);tgt.hidden=false;if(!was)lockS();
- const h="#"+(pg==="picks"?"picks":pg==="goat"?"goat":pg==="shop"?"shop":pg==="case"?"case":pg==="duel"?"duel":pg==="guess"?"guess":pg==="who"?"who":"scoreboard");try{if(location.hash!==h){was?history.replaceState({pg:1},"",h):history.pushState({pg:1},"",h)}}catch(e){}
+ const was=anyPage(),tgt=pgEl(pg);if(window.inGame&&window.inGame()&&tgt&&tgt.hidden)return;const oth=["picks","score","goat","shop","case","duel","guess","who"].filter(x=>x!==pg).map(pgEl);if(!tgt)return;oth.forEach(e=>e.hidden=true);tgt.hidden=false;if(!was)lockS();
+ const h="#"+(pg==="picks"?"picks":pg==="goat"?"goat":pg==="shop"?"shop":pg==="case"?"case":pg==="duel"?"duel":pg==="guess"?"guess":pg==="who"?"who":"scoreboard");window.__pgh=h;try{if(location.hash!==h){was?history.replaceState({pg:1},"",h):history.pushState({pg:1},"",h)}}catch(e){}
  drawPage();tgt.scrollTop=0}
-function closePage(pop){if(!anyPage())return;["pgP","pgS","pgG","pgH","pgC","pgD","pgQ","pgW"].forEach(i=>{document.getElementById(i).hidden=true});unlockS();if(!pop&&history.state&&history.state.pg){try{history.back()}catch(e){}}}
-addEventListener("popstate",()=>{if(anyPage()&&!/^#(picks|scoreboard|goat|shop|case|duel|guess|who)$/.test(location.hash))closePage(true)});
+function closePage(pop){if(!anyPage())return;if(!pop&&window.inGame&&window.inGame())return;["pgP","pgS","pgG","pgH","pgC","pgD","pgQ","pgW"].forEach(i=>{document.getElementById(i).hidden=true});unlockS();if(!pop&&history.state&&history.state.pg){try{history.back()}catch(e){}}}
+addEventListener("popstate",()=>{if(anyPage()&&window.inGame&&window.inGame()){try{history.pushState({pg:1},"",window.__pgh||"#")}catch(e){}return}if(anyPage()&&!/^#(picks|scoreboard|goat|shop|case|duel|guess|who)$/.test(location.hash))closePage(true)});
 function hnav(){const el=document.getElementById("hn");if(!el)return;const mine=(PICKS[ME]||{}).fights||{},t=(EV.fights||[]).length,n=(EV.fights||[]).filter(f=>mine[f.id]).length,B=board(),rank=B.findIndex(x=>x.id===ME)+1;
  el.innerHTML=`<button class="hcard" onclick="openPage('picks')"><i>🥊</i><span><b>This week's picks</b><small>${esc(EV.name||"")} · ${ME&&DB?n+" of "+t+" picked · ":""}${locked()?"picks locked":"picks lock "+new Date(lockAt()).toLocaleString(LOC(),{weekday:"short",hour:"2-digit",minute:"2-digit"})}</small></span><em>›</em></button><button class="hcard" onclick="openPage('score')"><i>🏆</i><span><b>Scoreboard, last week &amp; past events</b><small>${ME&&DB&&rank?"You're #"+rank+" · "+coins(ME)+" coins":"See who's winning"}</small></span><em>›</em></button><button class="hcard" onclick="openPage('goat')"><i>🐐</i><span><b>GOAT list</b><small>Your top 20 fighters of all time</small></span><em>›</em></button><button class="hcard" onclick="openPage('shop')"><i>🛍️</i><span><b>Shop</b><small>Emojis, color themes & stickers</small></span><em>›</em></button>${window.caseCard?window.caseCard():""}${window.duelCard?window.duelCard():""}${window.guessCard?window.guessCard():""}`}
 let SWO=false;
@@ -1321,5 +1323,15 @@ document.addEventListener("touchend",e=>{if(!ts)return;const t=e.changedTouches[
 (function(){let b;function el(){if(!b){b=document.createElement("div");b.id="offb";b.setAttribute("role","status");b.textContent="You are offline. Showing saved data.";document.body.appendChild(b)}return b}
 function upd(){const o=navigator.onLine===false;if(o||b){const e=el();e.classList.toggle("on",o)}}
 addEventListener("offline",upd);addEventListener("online",upd);addEventListener("load",upd)})();
+</script>
+<script>/* in a game: no Back (button or gesture), only Quit */
+(function(){const MAP={pgD:["duelInGame","duelQuit"],pgQ:["guessInGame","guessQuit"],pgW:["whoInGame","whoQuit"]};
+function sync(){for(const id in MAP){const pg=document.getElementById(id);if(!pg)continue;const on=!pg.hidden&&typeof window[MAP[id][0]]==="function"&&!!window[MAP[id][0]]();
+pg.classList.toggle("ing",on);let q=pg.querySelector(".pgq");
+if(on&&!q){const h=pg.querySelector(".pgh");if(!h)continue;q=document.createElement("button");q.className="pgbk pgq";q.type="button";q.textContent="Quit";
+q.onclick=()=>{const ok=confirm(window.LANGHE?"לצאת מהמשחק?":"Quit this game?");if(ok&&typeof window[MAP[id][1]]==="function")window[MAP[id][1]]()};h.appendChild(q)}
+if(!on&&q)q.remove()}}
+setInterval(sync,300);
+window.inGame=()=>Object.keys(MAP).some(id=>{const p=document.getElementById(id);return !!(p&&!p.hidden&&p.classList.contains("ing"))})})();
 </script>
 </body></html>
