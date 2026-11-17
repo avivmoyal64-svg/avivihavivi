@@ -2,7 +2,7 @@
 // Offline: the app shell and scripts are saved (network first, so updates still arrive instantly), fighter/event data
 // (public site_data rows) is saved after each load, and photos / fonts / libraries are saved as you look at them.
 // Private data (picks, coins, profiles) and the password page are never saved.
-const V = "ufc-v1", SHELL = ["/", "/index.html", "/he.js", "/shop.js", "/bets.js", "/case.js", "/duel.js", "/guess.js", "/who.js", "/menu.js", "/coinbar.js", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png", "/apple-touch-icon.png", "/terms.html", "/privacy.html", "/copyright.html", "/contact.html", "/legal.css"];
+const V = "ufc-v2", SHELL = ["/", "/index.html", "/he.js", "/shop.js", "/bets.js", "/case.js", "/duel.js", "/guess.js", "/who.js", "/menu.js", "/coinbar.js", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png", "/apple-touch-icon.png", "/terms.html", "/privacy.html", "/copyright.html", "/contact.html", "/legal.css"];
 const SUPA = "hauxmxemyvgbgkbholln.supabase.co";
 // only store real pages, never the password gate (it is sent with Cache-Control: no-store)
 const good = r => r && r.status === 200 && !/no-store/i.test(r.headers.get("cache-control") || "");
@@ -54,7 +54,8 @@ self.addEventListener("fetch", e => {
     if (u.pathname.startsWith("/rest/v1/site_data")) return e.respondWith(netFirst(req, u.pathname + u.search, 5000));
     return;
   }
-  if (u.hostname === "cdn.jsdelivr.net" || u.hostname === "fonts.googleapis.com" || u.hostname === "fonts.gstatic.com" || u.hostname === "a.espncdn.com") return e.respondWith(cacheFirst(req, req.url));
+  // Other sites (login library CDN, fonts, ESPN photos) are NOT handled here: the site security policy only lets a service worker fetch our own server and Supabase,
+  // so the browser loads those itself, exactly as before.
 });
 self.addEventListener("push", e => {
   let d = {};
