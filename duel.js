@@ -509,8 +509,8 @@ function ui() {
   el.dataset.k = k;
   const m = MODES[g.mode] || MODES.random, more = inc ? invitesIn().length - 1 : 0;
   el.innerHTML = inc
-    ? `<div class="dli"><div><b><span>${esc(nm(g.a))}</span> <span>challenged you ⚔️</span></b><small>${m.i} ${m.t} · ${g.reward || 5} coins</small>${more > 0 ? `<small>+${more}</small>` : ""}</div><button type="button" class="dla" onclick="duelAccept('${g.id}')">Accept</button><button type="button" class="dld" onclick="duelNo('${g.id}')">Decline</button></div>`
-    : `<div class="dli"><div><b><span>${esc(nm(g.b))}</span> <span>accepted your challenge</span></b><small>Play now</small></div><button type="button" class="dla" onclick="openPage('duel');duelPlay('${g.id}')">Play</button><button type="button" class="dld" onclick="duelLater('${g.id}')">Later</button></div>`;
+    ? `<div class="dli"><i class="dlig">${m.i}</i><div><b><span>${esc(nm(g.a))}</span> <span>challenged you ⚔️</span></b><small>${m.i} ${m.t} · ${g.reward || 5} coins</small>${more > 0 ? `<small>+${more}</small>` : ""}</div><button type="button" class="dla" onclick="duelAccept('${g.id}')">Accept</button><button type="button" class="dld" onclick="duelNo('${g.id}')">Decline</button></div>`
+    : `<div class="dli"><i class="dlig">✅</i><div><b><span>${esc(nm(g.b))}</span> <span>accepted your challenge</span></b><small>Play now</small></div><button type="button" class="dla" onclick="openPage('duel');duelPlay('${g.id}')">Play</button><button type="button" class="dld" onclick="duelLater('${g.id}')">Later</button></div>`;
 }
 window.duelLater = id => { DISM[id] = 1; ui(); };
 setInterval(() => { try { ui(); } catch (e) {} }, 800);

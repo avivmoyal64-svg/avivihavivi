@@ -717,6 +717,22 @@ dialog{max-height:calc(100dvh - 28px - env(safe-area-inset-top,0px) - env(safe-a
 .wwmsg{min-height:20px;margin:8px 0;text-align:center;color:var(--mut);font:700 14px Barlow,Heebo,Arial,sans-serif}
 .pgs.ing .pgh .pgbk:not(.pgq){display:none}
 .pgq{margin-inline-start:auto;order:3}
+/* bigger, more enticing invite cards */
+#dlinv,#gqinv,#wwinv{left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);max-width:560px;animation:invUp .45s cubic-bezier(.2,1.2,.3,1) both}
+@keyframes invUp{from{transform:translateY(120%);opacity:0}to{transform:none;opacity:1}}
+@keyframes invGlow{0%,100%{box-shadow:0 10px 40px rgba(0,0,0,.7),0 0 0 0 rgba(var(--rgb),.55)}50%{box-shadow:0 10px 40px rgba(0,0,0,.7),0 0 26px 6px rgba(var(--rgb),.45)}}
+@keyframes invWig{0%,70%,100%{transform:rotate(0) scale(1)}78%{transform:rotate(-14deg) scale(1.12)}86%{transform:rotate(12deg) scale(1.12)}94%{transform:rotate(-6deg) scale(1.06)}}
+.dli{display:grid;grid-template-columns:76px 1fr 1fr;grid-template-areas:"ic tx tx" "ac ac dc";gap:12px 12px;align-items:center;padding:18px 18px 16px;background:linear-gradient(160deg,#34353b,#26272b);border:2px solid var(--gold);border-inline-start:10px solid var(--red2);animation:invGlow 1.8s ease-in-out infinite}
+.dli .dlig{grid-area:ic;display:grid;place-items:center;width:76px;height:76px;font-style:normal;font-size:42px;background:linear-gradient(135deg,var(--red),var(--red2));clip-path:polygon(14% 0,100% 0,86% 100%,0 100%);animation:invWig 2.4s ease-in-out infinite}
+.dli>div{grid-area:tx}
+.dli b{font-weight:700}
+.dli b span:first-child{display:block;font:italic 900 28px/1.05 "Barlow Condensed","Heebo",Arial,sans-serif;text-transform:uppercase;letter-spacing:.6px;color:#fff;overflow-wrap:anywhere}
+.dli b span:last-child{display:block;margin-top:2px;font:800 17px Barlow,Heebo,Arial,sans-serif;color:var(--gold)}
+.dli small{margin-top:4px;font-size:14px;color:#c9c9d0}
+.dli button{padding:15px 12px;text-align:center;font:italic 900 19px "Barlow Condensed","Heebo",Arial,sans-serif;text-transform:uppercase;letter-spacing:1px;border:1px solid #6b6c75}
+.dli .dla{grid-area:ac;border:0;box-shadow:0 4px 18px rgba(var(--rgb),.35)}
+.dli .dla:active{transform:scale(.98)}
+.dli button:not(.dla){grid-area:dc;color:#d0d0d6;font-size:15px}
 </style></head><body>
 <div id="prog"></div>
 <section id="hero"><div class="hp one"><canvas id="c1" width="1920" height="1080"></canvas></div><div class="hc" id="hc"><h1>UFC <span>Fighter</span> Roster</h1><p class="sub" style="color:#ddd">Scroll to bring the fighters to life</p><span class="hint">Scroll ↓</span></div></section>

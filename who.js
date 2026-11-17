@@ -288,8 +288,8 @@ function ui() {
   const g = inc || acc, k = (inc ? "i" : "a") + g.id; el.hidden = false;
   if (el.dataset.k === k) return; el.dataset.k = k;
   el.innerHTML = inc
-    ? `<div class="dli"><div><b><span>${esc(nm(g.a))}</span> <span>challenged you ⚡</span></b><small>Who's Who race · first to 3</small></div><button type="button" class="dla" onclick="whoAccept('${g.id}')">Accept</button><button type="button" onclick="whoNo('${g.id}')">Decline</button></div>`
-    : `<div class="dli"><div><b><span>${esc(nm(g.b))}</span> <span>accepted your challenge ⚡</span></b><small>Who's Who race · join now</small></div><button type="button" class="dla" onclick="whoPlay('${g.id}')">Join</button><button type="button" onclick="whoLater('${g.id}')">Later</button></div>`;
+    ? `<div class="dli"><i class="dlig">⚡</i><div><b><span>${esc(nm(g.a))}</span> <span>challenged you ⚡</span></b><small>Who's Who race · first to 3</small></div><button type="button" class="dla" onclick="whoAccept('${g.id}')">Accept</button><button type="button" onclick="whoNo('${g.id}')">Decline</button></div>`
+    : `<div class="dli"><i class="dlig">✅</i><div><b><span>${esc(nm(g.b))}</span> <span>accepted your challenge ⚡</span></b><small>Who's Who race · join now</small></div><button type="button" class="dla" onclick="whoPlay('${g.id}')">Join</button><button type="button" onclick="whoLater('${g.id}')">Later</button></div>`;
 }
 setInterval(() => { try { ui(); } catch (e) {} }, 900);
 async function refresh() {
