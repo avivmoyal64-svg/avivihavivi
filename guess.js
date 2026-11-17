@@ -7,6 +7,8 @@ const nm = id => (typeof NAMES !== "undefined" && NAMES[id]) || "Player";
 const KEY = "ufcguess";
 let S = null, M = null, MV = null, CH = null, Q = "", MSG = "", OK = false, G = [], BUSY = false, WR = [];
 const DISM = {};
+const recentG = g => Date.parse(g.created_at) > Date.now() - 864e5;
+window.pendGuess = () => G.some(g => g.a === ME && g.status === "invited" && recentG(g));
 let ST = { best: 0, played: 0, won: 0 };
 try { ST = Object.assign(ST, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(ST)); } catch (e) {} };
@@ -101,9 +103,9 @@ async function gnote(id, kind) {
     await fetch(SUPA_URL + "/functions/v1/send-push?guessnote=" + encodeURIComponent(id) + "&kind=" + kind + "&name=" + encodeURIComponent(String(NAMES[ME] || "").slice(0, 24)), { method: "POST", headers: { Authorization: "Bearer " + s.access_token, apikey: SUPA_KEY } });
   } catch (e) {}
 }
-const ERR = e => { const t = String((e && e.message) || e); return /wait a few/i.test(t) ? "Wait a few seconds before sending another invite, or cancel the one you sent." : /already open/i.test(t) ? "You already have an open game with this player." : /too many/i.test(t) ? "You sent too many challenges today. Try again tomorrow." : "Something went wrong. Try again."; };
+const ERR = e => { const t = String((e && e.message) || e); return /pending invite/i.test(t) ? window.PENDMSG : /wait a few/i.test(t) ? "Wait a few seconds before sending another invite, or cancel the one you sent." : /already open/i.test(t) ? "You already have an open game with this player." : /too many/i.test(t) ? "You sent too many challenges today. Try again tomorrow." : "Something went wrong. Try again."; };
 async function sendChallenge(n) {
-  if (BUSY) return; const g = window.guessFacts(n); if (!g) { MSG = "Could not build clues for that fighter. Try another one."; return window.guessShow(); }
+  if (BUSY) return; if (window.invitePending && window.invitePending()) { MSG = window.PENDMSG; CH = null; return window.guessShow(); } const g = window.guessFacts(n); if (!g) { MSG = "Could not build clues for that fighter. Try another one."; return window.guessShow(); }
   BUSY = true;
   try {
     const r = await SB.rpc("guess_create", { p_to: CH.to, p_name: g.name, p_clues: g.facts });
@@ -134,7 +136,7 @@ window.guessQuit = async () => {
   S = null; M = null; MV = null; CH = null; MSG = ""; Q = ""; WR = []; await load(); window.guessShow();
 };
 window.guessLater = id => { DISM[id] = 1; ui(); };
-window.guessGo = id => { try { $("pf").close(); } catch (e) {} S = null; M = null; MV = null; Q = ""; MSG = ""; CH = { step: "pick", mode: "create", to: id }; openPage("guess"); window.guessShow(); };
+window.guessGo = id => { if (window.invitePending && window.invitePending()) { try { $("pf").close(); } catch (e) {} try { openPage("guess"); } catch (e) {} S = null; M = null; MV = null; CH = null; MSG = window.PENDMSG; return window.guessShow(); } try { $("pf").close(); } catch (e) {} S = null; M = null; MV = null; Q = ""; MSG = ""; CH = { step: "pick", mode: "create", to: id }; openPage("guess"); window.guessShow(); };
 window.guessBtn = id => (!OK || !ME || id === ME) ? "" : `<div class="fvt"><div><small>Guess the fighter</small><b>Pick a fighter for them to guess</b></div><button class="fvb" type="button" onclick="guessGo('${esc(id)}')">🕵️ 1v1</button></div>`;
 
 /* ---------- views ---------- */
@@ -201,7 +203,7 @@ window.guessShow = function () {
   if (inp) { inp.oninput = () => { Q = inp.value; fillList(); }; fillList(); if (had) { inp.focus(); try { inp.setSelectionRange(pos, pos); } catch (e) {} } }
   const b = (id, f) => { const e = $(id); if (e) e.onclick = f; };
   b("gsrand", () => { M = null; MV = null; soloStart(); });
-  b("gsvs", () => { CH = { step: "who" }; MSG = ""; window.guessShow(); });
+  b("gsvs", () => { if (window.invitePending && window.invitePending()) { MSG = window.PENDMSG; return window.guessShow(); } CH = { step: "who" }; MSG = ""; window.guessShow(); });
   b("gsagain", () => soloStart());
   b("gsmenu", () => { S = null; M = null; MV = null; CH = null; MSG = ""; Q = ""; WR = []; window.guessShow(); });
   b("gsnext", () => act("next")); b("gsgive", () => act("giveup"));

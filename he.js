@@ -445,7 +445,8 @@ var X={
 "Could not do that. Try again.":"לא הצלחנו לבצע. נסו שוב.",
 "Wait a moment…":"המתינו רגע…",
 "Could not send that guess. Try again.":"לא ניתן היה לשלוח את הניחוש. נסו שוב.",
-"Race to name a blurred fighter first. Best of 5, live at the same time":"התחרו מי מזהה ראשון לוחם מטושטש. הטוב מ-5, בו זמנית"
+"Race to name a blurred fighter first. Best of 5, live at the same time":"התחרו מי מזהה ראשון לוחם מטושטש. הטוב מ-5, בו זמנית",
+"You already sent an invite that is still waiting. You can send another one when it is accepted, declined or cancelled.":"כבר שלחתם הזמנה שעדיין ממתינה. אפשר לשלוח עוד אחת כשהיא תאושר, תידחה או תבוטל."
 };
 
 /* ---------- dates ---------- */

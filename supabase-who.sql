@@ -226,3 +226,5 @@ begin
   where id = p_game;
 end $$;
 grant execute on function public.who_forfeit(uuid) to authenticated;
+
+-- one pending invite at a time (any game): see invite_pending() and the checks in trivia_create / guess_create / who_create (applied via migration one_pending_invite_at_a_time)

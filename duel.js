@@ -13,6 +13,10 @@ const MODES = {
 };
 let G = [], OK = false, PL = null, OUT = null, CH = null, MSG = "", BUSY = false, T = 0, LOCK = 0, LT = 0;
 const DISM = {};
+window.PENDMSG = "You already sent an invite that is still waiting. You can send another one when it is accepted, declined or cancelled.";
+const recent = g => Date.parse(g.created_at) > Date.now() - 864e5;
+window.pendDuel = () => G.some(g => g.a === ME && g.status === "invited" && recent(g));
+window.invitePending = () => !!((window.pendDuel && window.pendDuel()) || (window.pendGuess && window.pendGuess()) || (window.pendWho && window.pendWho()));
 
 const rnd = a => a[Math.floor(Math.random() * a.length)];
 const shuf = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -354,18 +358,17 @@ window.duelShow = () => {
   const ids = Object.keys(NAMES).filter(id => id !== ME && NAMES[id]).sort((a, b) => nm(a).localeCompare(nm(b)));
   const open = new Set(G.filter(g => g.status === "invited" || g.status === "active").map(g => g.a === ME ? g.b : g.a));
   const players = ids.map(id => CH && CH.to === id ? panel()
-    : `<div class="dlr"><div><b>${esc(nm(id))}</b></div><button class="fvb" type="button" ${open.has(id) || BUSY || lockLeft() ? "disabled" : ""} onclick="duelCf('${esc(id)}')">${lockLeft() && !open.has(id) ? "Wait " + lockLeft() + "s" : "⚔️ Challenge"}</button></div>`).join("");
+    : `<div class="dlr"><div><b>${esc(nm(id))}</b></div><button class="fvb" type="button" ${open.has(id) || BUSY || lockLeft() || window.invitePending() ? "disabled" : ""} onclick="duelCf('${esc(id)}')">${lockLeft() && !open.has(id) ? "Wait " + lockLeft() + "s" : "⚔️ Challenge"}</button></div>`).join("");
   const todo = G.filter(g => (g.status === "invited" || g.status === "active")).map(row).join("");
   const done = G.filter(g => g.status === "done").slice(0, 8).map(row).join("");
   el.innerHTML = `<div class="dlbox"><b>1v1 Trivia duel</b><p>10 easy questions. The player with the most right answers wins the coins. A tie is a draw and nobody gets coins. Pick a duel type when you challenge someone: random fighter, weight class, a specific fighter, this week's card, or fighter swap. The winner gets 5 coins.</p></div>${window.DBN > 0 ? `<div class="dlr conf"><div><b>⚔️ Duel boost · ${window.DBN}</b><small>Your next rewarded win pays double (10 coins).</small></div></div>` : ""}
 ${MSG ? `<div class="dlm" role="status">${esc(MSG)}</div>` : ""}
-${window.whoCard ? window.whoCard() : ""}
 ${todo ? `<h3 class="dlh3">Your games</h3>${todo}` : ""}
 <h3 class="dlh3">Challenge a player</h3>${players || '<div class="pfn">No other players yet.</div>'}
 ${done ? `<h3 class="dlh3">Results</h3>${done}` : ""}`;
   if (CH && /^(fighter|swap1|swapb)$/.test(CH.step)) window.duelFq($("dlfq") ? $("dlfq").value : "");
 };
-window.duelCf = id => { CH = id ? { to: id, step: "mode" } : null; MSG = ""; window.duelShow(); };
+window.duelCf = id => { if (id && window.invitePending()) { CH = null; MSG = window.PENDMSG; return window.duelShow(); } CH = id ? { to: id, step: "mode" } : null; MSG = ""; window.duelShow(); };
 window.duelStep = s => { if (CH) { CH.step = s; window.duelShow(); } };
 window.duelPickF = n => {
   if (!CH) return;
@@ -417,7 +420,7 @@ window.duelSend = async (mode, topic) => {
   } catch (e) {
     BUSY = false;
     const t = String((e && e.message) || e);
-    MSG = /wait a few/i.test(t) ? "Wait a few seconds before sending another invite, or cancel the one you sent." : /already open/i.test(t) ? "You already have an open game with this player." : /too many/i.test(t) ? "You sent too many challenges today. Try again tomorrow." : "Could not send the challenge. Try again.";
+    MSG = /pending invite/i.test(t) ? window.PENDMSG : /wait a few/i.test(t) ? "Wait a few seconds before sending another invite, or cancel the one you sent." : /already open/i.test(t) ? "You already have an open game with this player." : /too many/i.test(t) ? "You sent too many challenges today. Try again tomorrow." : "Could not send the challenge. Try again.";
     window.duelShow();
   }
 };

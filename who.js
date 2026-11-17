@@ -7,6 +7,7 @@ const nm = id => (typeof NAMES !== "undefined" && NAMES[id]) || "Player";
 const ROUND_MS = 30000, CLEAR_MS = 24000, MAXBLUR = 28;
 let G = [], OK = false, M = null, V = null, OFF = 0, S = null, CH = null, MSG = "", BUSY = false, PK = null, KEY = "", WR = [], LK = 0, Q = "", RK = "";
 const DISM = {};
+window.pendWho = () => G.some(g => g.a === ME && g.status === "invited" && Date.parse(g.created_at) > Date.now() - 864e5);
 const norm = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const fighters = () => { const a = []; for (const c in D) D[c].forEach(f => a.push(f.n)); return a; };
 const srv = () => Date.now() + OFF;
@@ -124,7 +125,7 @@ ${lst ? `<div class="dlbox"><b>Your races</b></div>${lst}` : ""}`;
 function pickPlayer() {
   const ps = Object.keys(NAMES || {}).filter(id => id !== ME && NAMES[id]).sort((a, b) => nm(a).localeCompare(nm(b)));
   const open = new Set(G.filter(g => live(g)).map(g => g.a === ME ? g.b : g.a));
-  return `<div class="dlbox"><b>Race a player</b><p>Choose who to challenge. They get a notification and the race starts when they accept.</p></div>${ps.map(id => `<div class="dlr"><div><b>${esc(nm(id))}</b></div><button class="fvb go" type="button" data-p="${esc(id)}" ${open.has(id) || BUSY ? "disabled" : ""}>Challenge</button></div>`).join("") || '<div class="pfn">No other players yet.</div>'}<button class="fvb gsb" type="button" id="wwback">‹ Back</button>`;
+  return `<div class="dlbox"><b>Race a player</b><p>Choose who to challenge. They get a notification and the race starts when they accept.</p></div>${ps.map(id => `<div class="dlr"><div><b>${esc(nm(id))}</b></div><button class="fvb go" type="button" data-p="${esc(id)}" ${open.has(id) || BUSY || (window.invitePending && window.invitePending()) ? "disabled" : ""}>Challenge</button></div>`).join("") || '<div class="pfn">No other players yet.</div>'}<button class="fvb gsb" type="button" id="wwback">‹ Back</button>`;
 }
 function head(m) {
   if (S) return `<div class="dlbox"><b>Solo practice</b><p>Who is this fighter?</p></div>`;
@@ -162,7 +163,7 @@ window.whoShow = function () {
   const inp = $("wwq");
   if (inp) { inp.oninput = () => { Q = inp.value; fillList(); }; fillList(); if (had) { inp.focus(); try { inp.setSelectionRange(pos, pos); } catch (e) {} } }
   const b = (id, f) => { const e = $(id); if (e) e.onclick = f; };
-  b("wwvs", () => { CH = { step: "who" }; MSG = ""; window.whoShow(); });
+  b("wwvs", () => { if (window.invitePending && window.invitePending()) { MSG = window.PENDMSG; return window.whoShow(); } CH = { step: "who" }; MSG = ""; window.whoShow(); });
   b("wwsolo", () => startSolo());
   b("wwagain", () => startSolo());
   b("wwback", () => { CH = null; window.whoShow(); });
@@ -178,9 +179,10 @@ function startSolo() {
   S = { id: Date.now(), name: all[Math.floor(Math.random() * all.length)], t0: Date.now(), done: 0 };
   M = null; V = null; CH = null; Q = ""; WR = []; LK = 0; MSG = ""; window.whoShow();
 }
-const ERR = e => { const t = String((e && e.message) || e); return /wait a few/i.test(t) ? "Wait a few seconds before sending another challenge, or cancel the one you sent." : /already open/i.test(t) ? "You already have an open race with this player." : /too many/i.test(t) ? "You sent too many challenges today. Try again tomorrow." : /not enough/i.test(t) ? "The race is not ready yet. Try again later." : "Could not do that. Try again."; };
+const ERR = e => { const t = String((e && e.message) || e); return /pending invite/i.test(t) ? window.PENDMSG : /wait a few/i.test(t) ? "Wait a few seconds before sending another challenge, or cancel the one you sent." : /already open/i.test(t) ? "You already have an open race with this player." : /too many/i.test(t) ? "You sent too many challenges today. Try again tomorrow." : /not enough/i.test(t) ? "The race is not ready yet. Try again later." : "Could not do that. Try again."; };
 async function challenge(id) {
-  if (BUSY) return; BUSY = true;
+  if (BUSY) return; if (window.invitePending && window.invitePending()) { MSG = window.PENDMSG; CH = null; return window.whoShow(); }
+  BUSY = true;
   try {
     const r = await SB.rpc("who_create", { p_to: id });
     if (r.error) throw r.error;
