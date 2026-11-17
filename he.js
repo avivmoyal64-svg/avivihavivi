@@ -405,7 +405,6 @@ var X={
  "Users":"משתמשים",
  "Search a user":"חפשו משתמש",
  "No users found.":"לא נמצאו משתמשים.",
-"You are offline. Showing saved data.":"אין חיבור לאינטרנט. מוצגים נתונים שמורים.",
 "Who's Who race":"מרוץ מי זה",
 "Who's Who":"מי זה",
 "A blurred fighter photo gets clearer every second. Tap the right fighter before the other player does. Best of 5, first to 3 round wins. A wrong guess locks you out for 2 seconds. The winner gets 5 coins.":"תמונה מטושטשת של לוחם נעשית ברורה יותר בכל שנייה. לחצו על הלוחם הנכון לפני השחקן השני. הטוב מ-5, הראשון ל-3 סיבובים מנצח. ניחוש שגוי נועל אתכם ל-2 שניות. המנצח מקבל 5 מטבעות.",
