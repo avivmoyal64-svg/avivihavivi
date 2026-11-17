@@ -88,7 +88,6 @@ function fillList() {
 function picked(n) {
   if (pv() && !(pv().res)) { act("try", n); return; }
   if (CH && CH.step === "pick") {
-    if (CH.mode === "solo") { soloStart(n); return; }
     if (CH.mode === "create") return sendChallenge(n);
     if (CH.mode === "accept") return acceptWith(n);
   }
@@ -144,7 +143,6 @@ function menu() {
 ${MSG ? `<div class="dlr conf"><div><small>${esc(MSG)}</small></div></div>` : ""}
 <div class="dlmos">
 <button class="dlmo" type="button" id="gsrand"><i>🎲</i><span><b>Random fighter</b><small>The game picks the mystery fighter</small></span></button>
-<button class="dlmo" type="button" id="gspick"><i>🎯</i><span><b>Pick the fighter</b><small>Practice on a fighter you choose</small></span></button>
 ${OK ? `<button class="dlmo" type="button" id="gsvs"><i>⚔️</i><span><b>1v1 challenge</b><small>You pick the fighter they guess, they pick yours</small></span></button>` : ""}
 </div>
 ${lst.length ? `<div class="dlbox"><b>Your 1v1 games</b></div>${lst.map(sumRow).join("")}` : ""}
@@ -156,8 +154,8 @@ function view() {
     return `<div class="dlbox"><b>1v1 challenge</b><p>Choose a player. You pick the fighter they have to guess.</p></div>${ps.map(id => `<div class="dlr"><div><b>${esc(nm(id))}</b></div><button class="fvb go" type="button" data-p="${esc(id)}">Challenge</button></div>`).join("") || '<div class="pfn">No other players yet.</div>'}<button class="fvb gsb" type="button" id="gsmenu">‹ Back</button>`;
   }
   if (CH && CH.step === "pick") {
-    const t = CH.mode === "create" ? `Pick the fighter ${esc(nm(CH.to))} has to guess` : CH.mode === "accept" ? `Pick the fighter ${esc(nm(CH.opp))} has to guess` : "Pick the mystery fighter";
-    const sub = CH.mode === "accept" ? "Accepting starts the game. You both guess at the same time." : CH.mode === "create" ? "They get 10 clues about this fighter." : "You will get 10 clues about this fighter.";
+    const t = CH.mode === "create" ? `Pick the fighter ${esc(nm(CH.to))} has to guess` : CH.mode === "accept" ? `Pick the fighter ${esc(nm(CH.opp))} has to guess` : "Pick a fighter";
+    const sub = CH.mode === "accept" ? "Accepting starts the game. You both guess at the same time." : CH.mode === "create" ? "They get 10 clues about this fighter." : "";
     return `<div class="dlbox"><b>${t}</b><p>${sub}</p></div><div class="dlr conf dlpn">${searchBox("Search a fighter")}</div><button class="fvb gsb" type="button" id="gsmenu">‹ Back</button>`;
   }
   const v = pv();
@@ -188,7 +186,6 @@ window.guessShow = function () {
   if (inp) { inp.oninput = () => { Q = inp.value; fillList(); }; fillList(); if (had) { inp.focus(); try { inp.setSelectionRange(pos, pos); } catch (e) {} } }
   const b = (id, f) => { const e = $(id); if (e) e.onclick = f; };
   b("gsrand", () => { M = null; MV = null; soloStart(); });
-  b("gspick", () => { CH = { step: "pick", mode: "solo" }; Q = ""; MSG = ""; window.guessShow(); });
   b("gsvs", () => { CH = { step: "who" }; MSG = ""; window.guessShow(); });
   b("gsagain", () => soloStart());
   b("gsmenu", () => { S = null; M = null; MV = null; CH = null; MSG = ""; Q = ""; WR = []; window.guessShow(); });
