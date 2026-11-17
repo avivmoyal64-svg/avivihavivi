@@ -693,6 +693,13 @@ details.ev summary small{font:italic 400 13px Barlow,Arial,sans-serif;text-trans
 .cspr{display:flex;align-items:center;gap:12px;margin:0 0 6px;padding:8px 12px;background:#2c2d32;border-inline-start:5px solid var(--rc)}
 .cspr>i{flex:none;width:34px;text-align:center;font-style:normal;font-size:28px}.cspr>i.cc{display:block;width:32px;height:32px;margin:0;font-size:32px}
 .cspr b{display:block;font:italic 900 17px "Barlow Condensed","Heebo",Arial,sans-serif;letter-spacing:.5px;text-transform:uppercase;color:var(--rc)}.cspr span{color:#d6d6dc;font:14px/1.35 Barlow,Heebo,Arial,sans-serif}
+/* easier-to-hit close / back buttons (iPhone safe areas) */
+dialog{max-height:calc(100dvh - 28px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
+.top{padding:calc(14px + env(safe-area-inset-top,0px)*0) 12px 6px}
+.top button,.pgbk,#zx{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.top button{width:44px;height:44px;margin-top:6px;font-size:18px}
+.pgh{padding-top:calc(18px + env(safe-area-inset-top,0px));padding-bottom:12px}
+.pgbk{min-height:40px;display:inline-flex;align-items:center;padding-top:10px;padding-bottom:10px}
 </style></head><body>
 <div id="prog"></div>
 <section id="hero"><div class="hp one"><canvas id="c1" width="1920" height="1080"></canvas></div><div class="hc" id="hc"><h1>UFC <span>Fighter</span> Roster</h1><p class="sub" style="color:#ddd">Scroll to bring the fighters to life</p><span class="hint">Scroll ↓</span></div></section>
@@ -1286,4 +1293,9 @@ async function pushToggle(){const s=await pushState();
 /* load after login */
 (function w(n){try{if(ME){goatLoad();return}}catch(e){}if(n<40)setTimeout(()=>w(n+1),400)})(0);
 </script>
-<script src="shop.js"></script><script src="bets.js"></script><script src="case.js"></script><script src="duel.js"></script><script src="guess.js"></script><script src="menu.js"></script><script src="coinbar.js"></script></body></html>
+<script src="shop.js"></script><script src="bets.js"></script><script src="case.js"></script><script src="duel.js"></script><script src="guess.js"></script><script src="menu.js"></script><script src="coinbar.js"></script><script>/* close buttons: fire on touchend so a tiny finger drift (or the swipe-to-close handlers) can't swallow the tap */
+(function(){let ts=null;
+document.addEventListener("touchstart",e=>{const b=e.target.closest&&e.target.closest(".top button,.pgbk,#zx,.smx");ts=b&&e.touches.length===1?{b,x:e.touches[0].clientX,y:e.touches[0].clientY,t:Date.now()}:null},{passive:true,capture:true});
+document.addEventListener("touchend",e=>{if(!ts)return;const t=e.changedTouches[0],m=ts;ts=null;if(Math.hypot(t.clientX-m.x,t.clientY-m.y)>14||Date.now()-m.t>600)return;if(e.cancelable)e.preventDefault();m.b.click()},{capture:true})})();
+</script>
+</body></html>

@@ -13,6 +13,27 @@ function build() {
   const d = document.createElement("aside"); d.id = "smd"; d.setAttribute("aria-label", "Menu");
   document.body.appendChild(h); document.body.appendChild(o); document.body.appendChild(d);
   document.addEventListener("keydown", e => { if (e.key === "Escape" && isOpen()) window.smClose(); });
+  /* slide the drawer shut: drag it toward the edge it came from (follows the finger) */
+  let x0 = 0, y0 = 0, dx = 0, on = false, lock = 0, t0 = 0;
+  const rtl = () => getComputedStyle(d).direction === "rtl";
+  d.addEventListener("touchstart", e => { if (e.touches.length !== 1) { on = false; return; } x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; dx = 0; lock = 0; on = true; t0 = Date.now(); }, { passive: true });
+  d.addEventListener("touchmove", e => {
+    if (!on) return;
+    const x = e.touches[0].clientX - x0, y = e.touches[0].clientY - y0;
+    if (!lock) { if (Math.abs(x) < 8 && Math.abs(y) < 8) return; lock = Math.abs(x) > Math.abs(y) * 1.2 ? 1 : 2; }
+    if (lock !== 1) { on = false; return; }
+    const v = rtl() ? Math.max(0, x) : Math.min(0, x);
+    dx = v; d.style.transition = "none"; d.style.transform = "translateX(" + v + "px)";
+    if (e.cancelable) e.preventDefault();
+  }, { passive: false });
+  const end = () => {
+    if (!on && !dx) return; on = false;
+    d.style.transition = ""; d.style.transform = "";
+    const w = d.offsetWidth || 300, v = Math.abs(dx) / (Date.now() - t0 + 1);
+    const shut = Math.abs(dx) > w * 0.3 || (v > 0.5 && Math.abs(dx) > 30);
+    dx = 0; if (shut) window.smClose();
+  };
+  d.addEventListener("touchend", end); d.addEventListener("touchcancel", end);
 }
 function draw() {
   const d = $("smd"); if (!d) return;
