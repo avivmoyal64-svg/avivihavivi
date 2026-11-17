@@ -356,7 +356,7 @@ window.duelShow = () => {
     : `<div class="dlr"><div><b>${esc(nm(id))}</b></div><button class="fvb" type="button" ${open.has(id) || BUSY || lockLeft() ? "disabled" : ""} onclick="duelCf('${esc(id)}')">${lockLeft() && !open.has(id) ? "Wait " + lockLeft() + "s" : "⚔️ Challenge"}</button></div>`).join("");
   const todo = G.filter(g => (g.status === "invited" || g.status === "active")).map(row).join("");
   const done = G.filter(g => g.status === "done").slice(0, 8).map(row).join("");
-  el.innerHTML = `<div class="dlbox"><b>1v1 Trivia duel</b><p>10 easy questions. The player with the most right answers wins the coins. A tie is a draw and nobody gets coins. Pick a duel type when you challenge someone: random fighter, weight class, a specific fighter, this week's card, or fighter swap. The winner gets 5 coins.</p></div>
+  el.innerHTML = `<div class="dlbox"><b>1v1 Trivia duel</b><p>10 easy questions. The player with the most right answers wins the coins. A tie is a draw and nobody gets coins. Pick a duel type when you challenge someone: random fighter, weight class, a specific fighter, this week's card, or fighter swap. The winner gets 5 coins.</p></div>${window.DBN > 0 ? `<div class="dlr conf"><div><b>⚔️ Duel boost · ${window.DBN}</b><small>Your next rewarded win pays double (10 coins).</small></div></div>` : ""}
 ${MSG ? `<div class="dlm" role="status">${esc(MSG)}</div>` : ""}
 ${todo ? `<h3 class="dlh3">Your games</h3>${todo}` : ""}
 <h3 class="dlh3">Challenge a player</h3>${players || '<div class="pfn">No other players yet.</div>'}

@@ -2,16 +2,13 @@
 (function () {
 "use strict";
 const IT = {
-  e_thumb:{g:"🥊",n:"Nice pick"}, e_fire:{g:"🔥",n:"Fire"}, e_laugh:{g:"😂",n:"Laugh"}, e_clap:{g:"👏",n:"Clap"}, e_eyes:{g:"🧠",n:"Big brain"},
-  e_skull:{g:"🪦",n:"Dead pick"}, e_clown:{g:"🤡",n:"Clown"}, e_shock:{g:"💥",n:"Boom"}, e_ice:{g:"🥱",n:"Boring"}, e_rocket:{g:"🔒",n:"Lock"},
-  e_crown:{g:"👑",n:"Crown"}, e_goat:{g:"🐐",n:"Goat"},
   t_pink:{v:"pink",n:"Pink",c:"#e0197d"}, t_blue:{v:"blue",n:"Blue",c:"#1a6fe0"}, t_green:{v:"green",n:"Green",c:"#12a150"},
   s_champ:{i:"👑",n:"CHAMP"}, s_ko:{i:"🥊",n:"KO KING"}, s_pick:{i:"🎯",n:"PICK MASTER"}, s_goat:{i:"🐐",n:"THE GOAT"}, s_one:{i:"⭐",n:"THE ONE & ONLY"}
 };
+IT.b_banner = { n: "Profile banner" };
 window.SHOPIT = IT;
-const kind = id => id[0] === "e" ? "emoji" : id[0] === "t" ? "theme" : "sticker";
+const kind = id => id[0] === "b" ? "banner" : id[0] === "t" ? "theme" : "sticker";
 const SHOP = { ok: false, price: {}, owned: new Set(), prof: {}, wallet: 0, msg: "" };
-let REACT = {};
 const $ = id => document.getElementById(id);
 const owned = id => SHOP.price[id] === 0 || SHOP.owned.has(id);
 
@@ -23,21 +20,18 @@ function applyTheme(id) {
 window.stk = id => { const p = SHOP.prof[id], s = p && IT[p.sticker]; return s ? `<span class="stk ${p.sticker}">${s.i} ${s.n}</span>` : ""; };
 
 /* ---------- loading ---------- */
-function setReact(rows) { REACT = {}; (rows || []).forEach(x => { (REACT[x.target_id + "|" + x.fight_id] = REACT[x.target_id + "|" + x.fight_id] || []).push({ u: x.user_id, e: x.emoji }); }); }
-async function reactLoad() { if (!SB || !SHOP.ok) return; try { const { data, error } = await SB.from("reactions").select("user_id,target_id,fight_id,emoji"); if (!error) { setReact(data); document.querySelectorAll(".rxb").forEach(fill); } } catch (e) {} }
-window.reactLoad = reactLoad;
+window.reactLoad = () => {};
 async function shopLoad() {
   if (!SB || !ME) return;
   try {
-    const [c, o, p, r, w] = await Promise.all([
+    const [c, o, p, w] = await Promise.all([
       SB.from("shop_catalog").select("item,price"), SB.from("shop_owned").select("item"),
-      SB.from("shop_profile").select("user_id,sticker,theme"), SB.from("reactions").select("user_id,target_id,fight_id,emoji"), SB.rpc("shop_wallet")]);
+      SB.from("shop_profile").select("*"), SB.rpc("shop_wallet")]);
     if (c.error || !c.data || !c.data.length) return;
     SHOP.ok = true; SHOP.price = {}; c.data.forEach(x => { SHOP.price[x.item] = x.price; });
     SHOP.owned = new Set((o.data || []).map(x => x.item));
     SHOP.prof = {}; (p.data || []).forEach(x => { SHOP.prof[x.user_id] = x; });
     if (!w.error && typeof w.data === "number") SHOP.wallet = w.data;
-    setReact(r.data);
     const mine = SHOP.prof[ME]; if (mine && mine.theme) applyTheme(mine.theme); else if (mine) applyTheme(null);
     try { ren(); } catch (e) {}
     if (!$("pgH").hidden) drawPage();
@@ -59,10 +53,41 @@ window.shopHtml = function () {
   const th = (SHOP.prof[ME] || {}).theme;
   return `<div class="shwal"><span>Your wallet</span><b>${SHOP.wallet} <i class="coin"></i></b></div>
   <div class="gnote" style="margin-top:6px">Spending coins does not lower your rank.</div>${SHOP.msg ? `<div class="gnote" style="color:#fff;font-weight:700">${SHOP.msg}</div>` : ""}
-  <div class="pgl">Reaction emojis</div><div class="gnote" style="margin:0 0 8px">Use them to react to other players' picks.</div><div class="shgrid">${by("emoji").map(cardEm).join("")}</div>
   <div class="pgl">Color themes</div><div class="shgrid"><div class="shc own"><div class="shg"><span class="shw" style="background:#d20a0a"></span></div><b>Red</b>${!th ? '<span class="shb on">In use</span>' : '<button type="button" class="shb use" data-k="theme" onclick="shopOff(this.dataset.k)">Use</button>'}</div>${by("theme").map(cardTh).join("")}</div>
   <div class="pgl">Stickers</div><div class="gnote" style="margin:0 0 8px">A sticker sits next to your name for everyone to see.</div><div class="shgrid shone">${by("sticker").map(cardSt).join("")}</div>`;
 };
+
+/* ---------- profile banner (a fighter + a colour on your profile) ---------- */
+window.hasBanner = () => SHOP.owned.has("b_banner");
+window.bannerOf = uid => { const p = SHOP.prof[uid]; return p && (p.banner_fighter || p.banner_color) ? { f: p.banner_fighter || "", c: p.banner_color || "" } : null; };
+window.setBanner = async function (f, c) {
+  if (!SB || !ME) return false;
+  const { error } = await SB.rpc("set_banner", { p_fighter: f || "", p_color: c || "" });
+  if (error) { fail(error); return false; }
+  const p = SHOP.prof[ME] = SHOP.prof[ME] || { user_id: ME }; p.banner_fighter = f || null; p.banner_color = c || null;
+  return true;
+};
+
+const SWATCH = ["#d20a0a", "#ff6a00", "#ffcc33", "#3fbf6a", "#1a9fe0", "#3d5afe", "#9b5cff", "#f253b8", "#e8e8ec"];
+window.pfBannerUI = function (id) {
+  if (id !== ME || !SB) return "";
+  if (!window.hasBanner()) return SHOP.ok ? '<div class="pfn" style="margin-bottom:12px">🖼️ Win a <b>Profile banner</b> in the daily case to show a fighter and your own colour on your profile.</div>' : "";
+  const b = window.bannerOf(ME) || { f: "", c: "" };
+  return `<div class="pfcz"><h3>Your profile banner</h3><div class="pfn">Pick a fighter to show big on your profile and choose your colour.</div>
+  <input class="gpq" id="pfq" type="search" placeholder="Search a fighter" autocomplete="off" oninput="pfbList(this.value)"><div class="dlfl" id="pfl"></div>
+  <div class="pfsw">${SWATCH.map(c => `<button type="button" style="background:${c}" class="${b.c === c ? "on" : ""}" aria-label="${c}" onclick="pfbColor('${c}')"></button>`).join("")}<input type="color" value="${/^#[0-9a-f]{6}$/i.test(b.c) ? b.c : "#d20a0a"}" aria-label="Custom colour" onchange="pfbColor(this.value)"></div>
+  ${b.f || b.c ? '<button type="button" class="fvb" onclick="pfbClear()">Remove banner</button>' : ""}</div>`;
+};
+window.pfbList = function (v) {
+  const out = $("pfl"); if (!out) return; const k = nz(v || ""), all = [];
+  for (const c in D) D[c].forEach(f => all.push(f.n));
+  if (!k) { out.innerHTML = ""; return; }
+  out.innerHTML = all.filter(n => nz(n).includes(k)).sort().slice(0, 8).map(n => `<button type="button" data-n="${esc(n)}" onclick="pfbPick(this.dataset.n)">${avZ(n).replace("<i ", '<i class="ga" ')}<span>${esc(n)}</span></button>`).join("") || '<div class="pfn">No match.</div>';
+};
+const pfbSave = async (f, c) => { if (await window.setBanner(f, c)) { try { openProf(ME, 1); } catch (e) {} } };
+window.pfbPick = n => pfbSave(n, (window.bannerOf(ME) || {}).c || "");
+window.pfbColor = c => pfbSave((window.bannerOf(ME) || {}).f || "", c);
+window.pfbClear = () => pfbSave("", "");
 
 /* ---------- buy / use ---------- */
 const MSG = { "not enough coins": "Not enough coins.", "already owned": "You already own this." };
@@ -90,38 +115,8 @@ window.shopAct = async function (id) {
 };
 window.shopOff = async function (k) { try { if (await equip(k, "")) { SHOP.msg = ""; try { ren(); } catch (e) {} } } catch (e) { fail(e); } drawPage(); };
 
-/* ---------- reactions ---------- */
-function inner(uid, k) {
-  const L = REACT[uid + "|" + k] || [], g = {}; L.forEach(x => { const o = g[x.e] = g[x.e] || { n: 0, me: false }; o.n++; if (x.u === ME) o.me = true; });
-  const can = !!ME && uid !== ME && SHOP.ok;
-  let o = Object.keys(g).filter(e => IT[e]).map(e => can ? `<button type="button" class="rx${g[e].me ? " me" : ""}" data-e="${e}">${IT[e].g}<small>${g[e].n}</small></button>` : `<span class="rx">${IT[e].g}<small>${g[e].n}</small></span>`).join("");
-  if (can) o += '<button type="button" class="rx add" data-add="1" aria-label="React">☺<small>+</small></button>';
-  return o;
-}
-function fill(b) { b.innerHTML = inner(b.dataset.u, b.dataset.f); }
-window.rxStrip = (uid, k) => SHOP.ok && uid ? `<div class="rxb" data-u="${esc(uid)}" data-f="${esc(k)}">${inner(uid, k)}</div>` : "";
-function mineOf(uid, k) { const x = (REACT[uid + "|" + k] || []).find(r => r.u === ME); return x ? x.e : ""; }
-async function setR(uid, k, e) {
-  const key = uid + "|" + k, old = (REACT[key] || []).slice();
-  REACT[key] = old.filter(x => x.u !== ME); if (e) REACT[key].push({ u: ME, e });
-  document.querySelectorAll(".rxb").forEach(b => { if (b.dataset.u === uid && b.dataset.f === k) fill(b); });
-  try { const { error } = await SB.rpc("shop_react", { p_target: uid, p_fight: k, p_emoji: e || "" }); if (error) throw error; }
-  catch (x) { REACT[key] = old; document.querySelectorAll(".rxb").forEach(b => { if (b.dataset.u === uid && b.dataset.f === k) fill(b); }); fail(x); }
-}
-function palette(uid, k) {
-  const have = Object.keys(IT).filter(i => kind(i) === "emoji" && SHOP.price[i] !== undefined && owned(i)), cur = mineOf(uid, k);
-  $("rpb").innerHTML = `<h2>React</h2><div class="rpg">${have.map(i => `<button type="button" class="${cur === i ? "me" : ""}" data-e="${i}">${IT[i].g}</button>`).join("")}</div>${cur ? '<button type="button" class="btn" data-e="">Remove my reaction</button>' : ""}<div class="gnote">More emojis are in the Shop on the home screen.</div>`;
-  $("rpb").dataset.u = uid; $("rpb").dataset.f = k; const d = $("rp"); if (!d.open) d.showModal();
-}
-document.addEventListener("click", e => {
-  const b = e.target.closest && e.target.closest(".rxb button"); if (b) {
-    const w = b.closest(".rxb"), uid = w.dataset.u, k = w.dataset.f;
-    if (b.dataset.add) palette(uid, k); else setR(uid, k, mineOf(uid, k) === b.dataset.e ? "" : b.dataset.e);
-    return;
-  }
-  const p = e.target.closest && e.target.closest("#rpb button[data-e]"); if (p) { const r = $("rpb"); $("rp").close(); setR(r.dataset.u, r.dataset.f, p.dataset.e); }
-});
-$("rp") && $("rp").addEventListener("click", e => { if (e.target === $("rp")) $("rp").close(); });
+/* reaction emojis were removed from the site */
+window.rxStrip = () => "";
 
 /* ---------- start ---------- */
 (function w(n) { try { if (ME && SB) { shopLoad(); return; } } catch (e) {} if (n < 40) setTimeout(() => w(n + 1), 400); })(0);

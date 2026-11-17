@@ -372,7 +372,35 @@ var X={
  "Dead pick":"בחירה מתה",
  "Boom":"בום",
  "Boring":"משעמם",
- "Lock":"נעילה"
+ "Lock":"נעילה",
+ "Peek token":"אסימון הצצה",
+ "Peek token!":"אסימון הצצה!",
+ "Duel boost":"בוסט דו-קרב",
+ "Duel boost!":"בוסט דו-קרב!",
+ "Profile banner":"באנר פרופיל",
+ "Profile banner!":"באנר פרופיל!",
+ "Your items":"הפריטים שלכם",
+ "These change how this week's picks work.":"אלה משנים את אופן הפעולה של הניחושים השבוע.",
+ "Every correct pick this week pays 20% more coins.":"כל ניחוש נכון השבוע משלם 20% יותר מטבעות.",
+ "Open a locked pick and tap “Change this pick”.":"פתחו ניחוש נעול והקישו על “שנו את הניחוש”.",
+ "See how many other players picked each fighter in a fight.":"ראו כמה שחקנים אחרים בחרו בכל לוחם בקרב.",
+ "Not peeked yet":"עוד לא הצצתם",
+ "Peek":"הצצה",
+ "other players":"שחקנים אחרים",
+ "other player":"שחקן אחר",
+ "Your next rewarded win pays double (10 coins).":"הניצחון הבא שלכם עם פרס ישלם כפול (10 מטבעות).",
+ "See how many other players picked each fighter in one fight, before it starts. Use it on the This week page.":"ראו כמה שחקנים אחרים בחרו בכל לוחם בקרב אחד, לפני שהוא מתחיל. השתמשו בו בעמוד של השבוע.",
+ "Your next rewarded duel win pays double (10 coins instead of 5).":"הניצחון הבא שלכם בדו-קרב עם פרס ישלם כפול (10 מטבעות במקום 5).",
+ "Unlocks your profile banner: pick a fighter to show big on your profile and choose a colour.":"פותח את באנר הפרופיל: בחרו לוחם שיוצג בגדול בפרופיל ובחרו צבע.",
+ "Open This week's picks and tap Peek on a fighter to see how the other players picked it.":"פתחו את הניחושים של השבוע והקישו על הצצה כדי לראות איך שחקנים אחרים בחרו.",
+ "Open This week's picks and tap Peek on a fight to see how the other players picked it.":"פתחו את הניחושים של השבוע והקישו על הצצה בקרב כדי לראות איך שחקנים אחרים בחרו.",
+ "Your next rewarded duel win pays double.":"הניצחון הבא שלכם בדו-קרב עם פרס ישלם כפול.",
+ "Open your profile to choose a fighter and a colour.":"פתחו את הפרופיל שלכם כדי לבחור לוחם וצבע.",
+ "Your profile banner":"באנר הפרופיל שלכם",
+ "Pick a fighter to show big on your profile and choose your colour.":"בחרו לוחם שיוצג בגדול בפרופיל ובחרו צבע.",
+ "Remove banner":"הסרת הבאנר",
+ "🖼️ Win a":"🖼️ זכו ב",
+ "in the daily case to show a fighter and your own colour on your profile.":"בקופסה היומית כדי להציג לוחם וצבע משלכם בפרופיל."
 };
 
 /* ---------- dates ---------- */
@@ -391,6 +419,11 @@ function dateFix(s){
 function ord(n){return n}
 var CT={"USA":"ארצות הברית","Brazil":"ברזיל","Russia":"רוסיה","England":"אנגליה","Australia":"אוסטרליה","Japan":"יפן","Canada":"קנדה","France":"צרפת","Mexico":"מקסיקו","Ireland":"אירלנד","Poland":"פולין","Kazakhstan":"קזחסטן","Georgia":"גאורגיה","Ecuador":"אקוודור","Argentina":"ארגנטינה","New Zealand":"ניו זילנד","Nigeria":"ניגריה","Cuba":"קובה","Sweden":"שוודיה","South Africa":"דרום אפריקה","Czech Republic":"צ'כיה","Netherlands":"הולנד","Cameroon":"קמרון","Austria":"אוסטריה","Serbia":"סרביה","Croatia":"קרואטיה","Ukraine":"אוקראינה","Uzbekistan":"אוזבקיסטן","Dominican Republic":"הרפובליקה הדומיניקנית","Portugal":"פורטוגל","Moldova":"מולדובה","Morocco":"מרוקו","Armenia":"ארמניה","China":"סין","Myanmar":"מיאנמר","Thailand":"תאילנד","Korea":"קוריאה"};
 var P=[
+ [/^⚡ Coin boost · (\d+)$/,function(m){return "⚡ בוסט מטבעות · "+m[1]}],
+ [/^Use one on (.+): \+20% coins on every correct pick\.$/,function(m){return "השתמשו באחד על "+m[1]+": +20% מטבעות על כל ניחוש נכון."}],
+ [/^🎟️ Free picks · (\d+)$/,function(m){return "🎟️ ניחושים חינם · "+m[1]}],
+ [/^🔍 Peek tokens · (\d+)$/,function(m){return "🔍 אסימוני הצצה · "+m[1]}],
+ [/^⚔️ Duel boost · (\d+)$/,function(m){return "⚔️ בוסט דו-קרב · "+m[1]}],
  [/^⚡ Coin boosts: (\d+)$/,function(m){return "⚡ בוסטים של מטבעות: "+m[1]}],
  [/^Use one on (.+)\. It adds 20% coins to every correct pick of that event\. Use it before the fights start\.$/,function(m){return "השתמשו באחד על "+m[1]+". הוא מוסיף 20% מטבעות לכל ניחוש נכון באירוע. השתמשו בו לפני שהקרבות מתחילים."}],
  [/^Use a boost on (.+)$/,function(m){return "השתמשו בבוסט על "+m[1]}],

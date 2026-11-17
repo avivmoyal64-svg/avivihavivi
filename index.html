@@ -630,7 +630,7 @@ button.rx{cursor:pointer}.rx small{font:700 13px Barlow,Arial,sans-serif;color:v
 @keyframes cgpop{0%{transform:scale(.3) rotate(-8deg)}35%{transform:scale(1) rotate(0)}45%{transform:translateX(-6px)}50%{transform:translateX(6px)}55%{transform:translateX(-4px)}60%{transform:translateX(0) scale(1.1)}100%{transform:scale(1)}}
 @keyframes cgq{0%,55%{opacity:1;transform:scale(1)}65%{opacity:0;transform:scale(2.2)}100%{opacity:0}}@keyframes cgi{0%,58%{opacity:0;transform:scale(.2)}75%{opacity:1;transform:scale(1.3)}100%{opacity:1;transform:scale(1)}}
 @keyframes cgt{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.csbo{display:grid;gap:6px;border-color:#ffcc33}.csbo b{color:#ffcc33}.csbo span{color:var(--mut);font-size:14px}.csbo .csb{margin-top:6px}
+#evi:empty{display:none}#evi .dlbox{margin-top:0}.pkn{color:#ffcc33}.csbo{display:grid;gap:6px;border-color:#ffcc33}.csbo b{color:#ffcc33}.csbo span{color:var(--mut);font-size:14px}.csbo .csb{margin-top:6px}
 #lb .lb{padding:12px 12px 12px 10px;border-radius:0;background:none;border-bottom:1px solid #4d4e55;border-inline-start:5px solid transparent;gap:10px}
 #lb .lb:nth-child(1){border-inline-start-color:#ffcc33}#lb .lb:nth-child(2){border-inline-start-color:#c4cad2}#lb .lb:nth-child(3){border-inline-start-color:#cd7f32}
 #lb .lb.me{background:linear-gradient(90deg,rgba(var(--rgb),.24),rgba(var(--rgb),0));border-inline-start-color:var(--red2)}
@@ -641,6 +641,16 @@ button.rx{cursor:pointer}.rx small{font:700 13px Barlow,Arial,sans-serif;color:v
 details.ev{border-radius:0;border-color:var(--red2);border-inline-start:5px solid var(--red2)}
 details.ev summary{font:italic 800 21px/1.2 "Barlow Condensed","Oswald",Impact,"Arial Narrow",Arial,sans-serif;text-transform:uppercase;letter-spacing:.7px}
 details.ev summary small{font:italic 400 13px Barlow,Arial,sans-serif;text-transform:none;letter-spacing:0;margin-top:2px}
+#pf{width:min(780px,96vw);max-height:94vh}#pfb.body{padding:14px}
+.pfhero{--pc:var(--red2);position:relative;display:grid;grid-template-columns:1fr;margin:0 0 14px;padding:18px 18px 16px;background:#2c2d32;background:linear-gradient(100deg,color-mix(in srgb,var(--pc) 42%,#2c2d32),#2c2d32 72%);border:1px solid #4d4e55;border-inline-start:8px solid var(--pc);min-height:170px;overflow:hidden}
+.pfhero.pfimg{grid-template-columns:1fr 42%}.pfhero .pft{position:relative;z-index:1;min-width:0}
+.pfhero h2{margin:0 0 6px;font:italic 900 38px/1 "Barlow Condensed","Heebo",Arial,sans-serif;text-transform:uppercase;letter-spacing:.8px;color:#fff;overflow-wrap:anywhere}
+.pfhero .pfs{margin-top:14px}.pfhero .pfs>div b{font-size:30px}
+.pfph{position:relative;margin:-18px -18px -16px 0;min-height:230px;background:center top/cover no-repeat;-webkit-mask-image:linear-gradient(90deg,transparent,#000 38%);mask-image:linear-gradient(90deg,transparent,#000 38%)}
+.pfbn{position:absolute;right:12px;bottom:10px;z-index:2;font:italic 900 15px "Barlow Condensed",Arial,sans-serif;text-transform:uppercase;letter-spacing:1px;color:#fff;text-shadow:0 2px 8px #000}
+.pfcz{margin:0 0 14px;padding:12px 14px;background:#2c2d32;border:1px solid var(--gold)}.pfcz h3{margin:0 0 4px;font:italic 800 20px "Barlow Condensed",Arial,sans-serif;text-transform:uppercase;letter-spacing:.6px;color:#fff}.pfcz .pfn{margin:0 0 8px;padding:0;background:none;text-align:start}
+.pfsw{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.pfsw button{width:34px;height:34px;border:2px solid #5a5b63;border-radius:50%;cursor:pointer;padding:0}.pfsw button.on{border-color:#fff;box-shadow:0 0 0 2px var(--gold)}.pfsw input{width:40px;height:34px;padding:0;border:0;background:none}
+.pfcz .dlfl{max-height:200px}.pfcz .fvb{background:none;border:1px solid #6b6c75;color:#fff;padding:8px 14px;font:700 14px Barlow,Heebo,Arial,sans-serif;cursor:pointer}.pfsw input[type=color]{-webkit-appearance:none;appearance:none;width:34px;height:34px;border:2px solid #5a5b63;border-radius:50%;padding:0;background:none;cursor:pointer}.pfsw input[type=color]::-webkit-color-swatch-wrapper{padding:0}.pfsw input[type=color]::-webkit-color-swatch{border:0;border-radius:50%}
 .dlbox{margin:14px 0 10px;padding:14px 16px;background:#2c2d32;border-inline-start:6px solid var(--red2)}.dlbox b{font:italic 900 20px "Barlow Condensed","Heebo",Arial,sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#fff}.dlbox p{margin:6px 0 0;color:var(--mut);font-size:14px}
 .dlh3{margin:18px 0 8px;font:italic 900 20px "Barlow Condensed","Heebo",Arial,sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#fff}
 .dlr{display:flex;align-items:center;gap:10px;margin:6px 0;padding:10px 12px;background:#2c2d32;border:1px solid #4d4e55}.dlr>div:first-child{flex:1;min-width:0}.dlr b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dlr small{display:block;color:var(--mut)}
@@ -691,7 +701,7 @@ details.ev summary small{font:italic 400 13px Barlow,Arial,sans-serif;text-trans
 <p class="note">Fighter details and images come from your document. Rank tags are from the UFC's official rankings (Oct 27 to Nov 3, 2026 polls).</p>
 <footer class="lf"><div>Unofficial fan project. Not affiliated with, endorsed by or sponsored by UFC or any fighter. Names, logos and images belong to their owners. Coins are virtual and have no cash value.</div><nav aria-label="Legal"><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="copyright.html">Copyright</a><a href="contact.html">Contact</a></nav><div>© 2026 UFC Fighter Roster fan site</div></footer>
 </div>
-<div id="pgP" class="pgs" hidden role="dialog" aria-label="This week's picks"><div class="pgh"><button class="pgbk" onclick="closePage()">‹ Back</button><h2>This week's picks</h2></div><div class="pnl" id="evt"></div><div class="pgc" id="pgw"></div></div>
+<div id="pgP" class="pgs" hidden role="dialog" aria-label="This week's picks"><div class="pgh"><button class="pgbk" onclick="closePage()">‹ Back</button><h2>This week's picks</h2></div><div class="pnl" id="evi"></div><div class="pnl" id="evt"></div><div class="pgc" id="pgw"></div></div>
 <div id="pgS" class="pgs" hidden role="dialog" aria-label="Scoreboard"><div class="pgh"><button class="pgbk" onclick="closePage()">‹ Back</button><h2>Scoreboard</h2></div><div class="pgt" id="pgt"></div>
 <div id="pgp_board"><div class="pnl" id="lb"></div></div>
 <div id="pgp_last" hidden><div class="pnl" id="lw"></div><div class="pgc" id="pglw"></div></div>
@@ -953,8 +963,9 @@ function fightNm(id){const f=(EV.fights||[]).find(x=>x.id===id);if(f)return f.a+
 function openProf(id){try{window.reactLoad&&window.reactLoad()}catch(e){}const P=PICKS[id]||{},mine=id===ME,hid=!!P.hidden,B=board(),rank=B.findIndex(x=>x.id===id)+1,f=P.fights||{};
  const keys=Object.keys(f).filter(realK).sort((a,b)=>((parseInt((b.match(/^e(\d+)/)||[])[1])||0)-(parseInt((a.match(/^e(\d+)/)||[])[1])||0)));
  const rows=keys.map(k=>pickRow(k,f[k],id)).join("");
- document.getElementById("pfb").innerHTML=`<h2>${esc(NAMES[id]||P.name||"Fight fan")}${mine?" (you)":""}${SK(id)}</h2><div class="pfs"><div><b>${coins(id)}<i class="coin"></i></b><small>Coins</small></div><div><b>${hid||(!mine&&P.n!=null)?(P.n||0):keys.length}</b><small>Picks</small></div><div><b>${rank||"–"}</b><small>Rank</small></div></div>`+
- (window.favBlock?window.favBlock(id):"")+(window.duelBtn?window.duelBtn(id):"")+(window.guessBtn?window.guessBtn(id):"")+goatBlock(id)+(hid?'<div class="pfn">This player keeps their picks private.</div>':(keys.length?rows:'<div class="pfn">'+(!mine&&P.n?'Their picks stay hidden until each fight is over.':'No picks yet.')+'</div>')+(!mine&&P.n>keys.length&&keys.length?'<div class="pfn">Picks for fights that are not over yet stay hidden.</div>':''));
+ const bn=window.bannerOf?window.bannerOf(id):null,bc=bn&&/^#[0-9a-f]{6}$/i.test(bn.c)?bn.c:"",bf=bn&&bn.f&&findF(bn.f)?bn.f:"",ph=bf&&typeof photoZ==="function"?photoZ(bf):"";
+ document.getElementById("pfb").innerHTML=`<div class="pfhero${ph?" pfimg":""}"${bc?` style="--pc:${bc}"`:""}><div class="pft"><h2>${esc(NAMES[id]||P.name||"Fight fan")}${mine?" (you)":""}</h2>${SK(id)}<div class="pfs"><div><b>${coins(id)}<i class="coin"></i></b><small>Coins</small></div><div><b>${hid||(!mine&&P.n!=null)?(P.n||0):keys.length}</b><small>Picks</small></div><div><b>${rank||"–"}</b><small>Rank</small></div></div></div>${ph?`<div class="pfph" style="background-image:url(${ph})"></div><b class="pfbn">${esc(bf)}</b>`:""}</div>`+
+ (window.pfBannerUI?window.pfBannerUI(id):"")+(window.favBlock?window.favBlock(id):"")+(window.duelBtn?window.duelBtn(id):"")+(window.guessBtn?window.guessBtn(id):"")+goatBlock(id)+(hid?'<div class="pfn">This player keeps their picks private.</div>':(keys.length?rows:'<div class="pfn">'+(!mine&&P.n?'Their picks stay hidden until each fight is over.':'No picks yet.')+'</div>')+(!mine&&P.n>keys.length&&keys.length?'<div class="pfn">Picks for fights that are not over yet stay hidden.</div>':''));
  document.getElementById("pf").dataset.id=id;if(!arguments[1])document.getElementById("pf").showModal()}
 function openSettings(){if(!SB||!ME)return;
  document.getElementById("stb").innerHTML=`<h2>Settings</h2><div class="stx"><h3>Change password</h3><input type="password" id="stp1" placeholder="New password (6+ characters)" autocomplete="new-password" minlength="6"><input type="password" id="stp2" placeholder="Repeat new password" autocomplete="new-password"><button class="btn" type="button" onclick="chgPw()">Change password</button><div class="st" id="stm" role="status"></div><h3>Notifications</h3><div id="stpush"></div><h3>Install the app</h3><div id="stinst">${instHtml()}</div></div>`;pushUI();
@@ -1011,6 +1022,7 @@ function drawPage(){const P=document.getElementById("pgP"),S=document.getElement
  {const Dd=document.getElementById("pgD");if(Dd&&!Dd.hidden&&window.duelShow)window.duelShow()}
  {const C=document.getElementById("pgC");if(C&&!C.hidden&&window.caseShow)window.caseShow()}
  {const H=document.getElementById("pgH");if(H&&!H.hidden&&window.shopHtml)document.getElementById("pgh").innerHTML=window.shopHtml()}
+ if(P&&!P.hidden){const ei=document.getElementById("evi");if(ei)ei.innerHTML=window.itemsPanel?window.itemsPanel():""}
  if(P&&!P.hidden)document.getElementById("pgw").innerHTML=(!curFs().length||!curFs().every(f=>res(f.id)))?"":evBlock("Everyone's picks this week",(EV.name||"")+(EV.when?" · "+EV.when:"")+(locked()?" · picks locked":""),curFs(),false,true);
  if(S&&!S.hidden){document.getElementById("pgt").innerHTML=[["board","Scoreboard"],["last","Last week"],["next","Next week"],["recent","Recent events"]].map(([k,l])=>`<button class="${PS===k?"on":""}" onclick="pgTab('${k}')">${l}</button>`).join("");
   ["board","last","next","recent"].forEach(k=>{const e=document.getElementById("pgp_"+k);if(e)e.hidden=PS!==k});
