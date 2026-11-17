@@ -700,6 +700,8 @@ dialog{max-height:calc(100dvh - 28px - env(safe-area-inset-top,0px) - env(safe-a
 .top button{width:44px;height:44px;margin-top:6px;font-size:18px}
 .pgh{padding-top:calc(18px + env(safe-area-inset-top,0px));padding-bottom:12px}
 .pgbk{min-height:40px;display:inline-flex;align-items:center;padding-top:10px;padding-bottom:10px}
+#offb{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translate(-50%,40px);opacity:0;pointer-events:none;z-index:90;max-width:90vw;padding:8px 16px;background:#2c2d32;color:#fff;border:1px solid var(--red2);font:700 13px Barlow,Heebo,Arial,sans-serif;letter-spacing:.3px;text-align:center;transition:transform .25s,opacity .25s;box-shadow:0 6px 20px rgba(0,0,0,.5)}
+#offb.on{transform:translate(-50%,0);opacity:1}
 </style></head><body>
 <div id="prog"></div>
 <section id="hero"><div class="hp one"><canvas id="c1" width="1920" height="1080"></canvas></div><div class="hc" id="hc"><h1>UFC <span>Fighter</span> Roster</h1><p class="sub" style="color:#ddd">Scroll to bring the fighters to life</p><span class="hint">Scroll ↓</span></div></section>
@@ -1297,5 +1299,10 @@ async function pushToggle(){const s=await pushState();
 (function(){let ts=null;
 document.addEventListener("touchstart",e=>{const b=e.target.closest&&e.target.closest(".top button,.pgbk,#zx,.smx");ts=b&&e.touches.length===1?{b,x:e.touches[0].clientX,y:e.touches[0].clientY,t:Date.now()}:null},{passive:true,capture:true});
 document.addEventListener("touchend",e=>{if(!ts)return;const t=e.changedTouches[0],m=ts;ts=null;if(Math.hypot(t.clientX-m.x,t.clientY-m.y)>14||Date.now()-m.t>600)return;if(e.cancelable)e.preventDefault();m.b.click()},{capture:true})})();
+</script>
+<script>/* offline indicator */
+(function(){let b;function el(){if(!b){b=document.createElement("div");b.id="offb";b.setAttribute("role","status");b.textContent="You are offline. Showing saved data.";document.body.appendChild(b)}return b}
+function upd(){const o=navigator.onLine===false;if(o||b){const e=el();e.classList.toggle("on",o)}}
+addEventListener("offline",upd);addEventListener("online",upd);addEventListener("load",upd)})();
 </script>
 </body></html>

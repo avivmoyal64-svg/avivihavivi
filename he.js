@@ -404,7 +404,8 @@ var X={
  "Home":"בית",
  "Users":"משתמשים",
  "Search a user":"חפשו משתמש",
- "No users found.":"לא נמצאו משתמשים."
+ "No users found.":"לא נמצאו משתמשים.",
+"You are offline. Showing saved data.":"אין חיבור לאינטרנט. מוצגים נתונים שמורים."
 };
 
 /* ---------- dates ---------- */
