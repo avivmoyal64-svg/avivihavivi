@@ -246,7 +246,7 @@ window.guessFacts = function (name) {
   const arts = (gb(f)).filter(s => clean(s));
   if (arts.length) F.push(arts.length > 1 ? `Their training background includes ${arts.slice(0, 3).join(", ")}.` : `Their training background is ${arts[0]}.`);
   const ct = ctryOf(n); if (ct) F.push(`They represent ${ct}.`);
-  if (rc && rc.W > 0) F.push(rc.W >= 10 ? `They have more than ${Math.floor((rc.W - 1) / 5) * 5} pro wins.` : `They have ${rc.W} pro wins.`);
+  if (rc && rc.W > 0) F.push(`They have ${rc.W} pro wins.`);
   if (LIM[c]) F.push(`Their division's weight limit is ${lim(c)}.`);
   const st = (f.s || []).filter(clean); if (st.length) F.push(`Known strength: ${rnd(st)}.`);
   if (r && r.ko != null) { const m = [["knockout", r.ko], ["submission", r.sub], ["decision", r.dec]].sort((p, q) => q[1] - p[1]); if (m[0][1] > m[1][1]) F.push(`Most of their wins come by ${m[0][0]}.`); }
