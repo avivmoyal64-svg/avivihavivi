@@ -702,6 +702,21 @@ dialog{max-height:calc(100dvh - 28px - env(safe-area-inset-top,0px) - env(safe-a
 .pgbk{min-height:40px;display:inline-flex;align-items:center;padding-top:10px;padding-bottom:10px}
 #offb{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translate(-50%,40px);opacity:0;pointer-events:none;z-index:90;max-width:90vw;padding:8px 16px;background:#2c2d32;color:#fff;border:1px solid var(--red2);font:700 13px Barlow,Heebo,Arial,sans-serif;letter-spacing:.3px;text-align:center;transition:transform .25s,opacity .25s;box-shadow:0 6px 20px rgba(0,0,0,.5)}
 #offb.on{transform:translate(-50%,0);opacity:1}
+#wwinv{position:fixed;z-index:65;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);max-width:520px;margin:0 auto}
+#wwinv[hidden]{display:none}
+.wws{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:12px 14px;background:#2c2d32;border:1px solid #4d4e55;color:#fff}
+.wws>span{flex:1;min-width:0;font:700 15px Barlow,Heebo,Arial,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wws>span:last-child{text-align:end}
+.wws b{font:italic 900 30px "Barlow Condensed",Arial,sans-serif;color:var(--gold);letter-spacing:1px;direction:ltr}
+.wwph{position:relative;width:min(100%,340px);aspect-ratio:1/1;margin:0 auto 10px;overflow:hidden;background:#1f2024;border:2px solid var(--gold)}
+.wwph i{position:absolute;inset:-6%;background-size:cover;background-position:center 22%;background-repeat:no-repeat;transition:filter .2s linear}
+.wwph .wwt{position:absolute;top:8px;inset-inline-end:8px;padding:3px 10px;background:#000b;color:#fff;font:italic 900 20px "Barlow Condensed",Arial,sans-serif;direction:ltr}
+.wwcd{display:grid;place-items:center;width:min(100%,340px);aspect-ratio:1/1;margin:0 auto 10px;background:#2c2d32;border:2px solid #4d4e55;color:#fff;text-align:center;font:italic 900 90px "Barlow Condensed",Arial,sans-serif}
+.wwcd small{display:block;font:700 15px Barlow,Heebo,Arial,sans-serif;color:var(--mut);letter-spacing:.5px;text-transform:uppercase}
+.wwb{width:min(100%,340px);height:6px;margin:0 auto 12px;background:#3a3b41}
+.wwb u{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--red),var(--red2));text-decoration:none}
+.wwlk .dlfl{opacity:.4;pointer-events:none}
+.wwmsg{min-height:20px;margin:8px 0;text-align:center;color:var(--mut);font:700 14px Barlow,Heebo,Arial,sans-serif}
 </style></head><body>
 <div id="prog"></div>
 <section id="hero"><div class="hp one"><canvas id="c1" width="1920" height="1080"></canvas></div><div class="hc" id="hc"><h1>UFC <span>Fighter</span> Roster</h1><p class="sub" style="color:#ddd">Scroll to bring the fighters to life</p><span class="hint">Scroll ↓</span></div></section>
@@ -726,6 +741,7 @@ dialog{max-height:calc(100dvh - 28px - env(safe-area-inset-top,0px) - env(safe-a
 <div id="pgp_recent" hidden><div class="pgc" id="pgr"></div></div></div>
 <div id="pgH" class="pgs" hidden role="dialog" aria-label="Shop"><div class="pgh"><button class="pgbk" onclick="closePage()">‹ Back</button><h2>Shop</h2></div><div class="pgc" id="pgh"></div></div>
 <div id="pgQ" class="pgs" hidden role="dialog" aria-label="Guess the fighter"><div class="pgh"><button class="pgbk" onclick="closePage()">‹ Back</button><h2>Guess the fighter</h2></div><div class="pgc" id="pgqs"></div></div>
+<div id="pgW" class="pgs" hidden role="dialog" aria-label="Who's Who"><div class="pgh"><button class="pgbk" onclick="closePage()">‹ Back</button><h2>Who's Who</h2></div><div class="pgc" id="pgws"></div></div>
 <div id="pgD" class="pgs" hidden role="dialog" aria-label="Trivia duel"><div class="pgh"><button class="pgbk" onclick="closePage()">‹ Back</button><h2>Trivia duel</h2></div><div class="pgc" id="pgds"></div></div>
 <div id="pgC" class="pgs" hidden role="dialog" aria-label="Daily case"><div class="pgh"><button class="pgbk" onclick="closePage()">‹ Back</button><h2>Daily case</h2></div><div class="pgc" id="pgcs"></div></div>
 <div id="pgG" class="pgs" hidden role="dialog" aria-label="GOAT list"><div class="pgh"><button class="pgbk" onclick="closePage()">‹ Back</button><h2>GOAT list</h2></div><div class="pgc" id="pgg"></div></div>
@@ -930,8 +946,8 @@ const betPt=(p,r,main,k,u)=>{const l=lost(p,r,k,u);return l?`<b class="pt neg">�
 const LOCKH=5,lockAt=()=>EV.lock-LOCKH*3600e3,locked=()=>Date.now()>=lockAt();
 const realK=k=>/^e\d+-/.test(k)||(EV.fights||[]).some(x=>x.id===k);
 const SK=id=>window.stk?window.stk(id):"";
-const GBON={},GBONUS=100,CASEC={},DUELC={},BOOSTF={};let FPUSE=null;
-const coins=id=>{const b=(GBON[id]?GBONUS:0)+(CASEC[id]||0)+(DUELC[id]||0);if((PICKS[id]||{}).hidden)return(PICKS[id].sc||0)+b;const f=(PICKS[id]||{}).fights||{};return b+Object.keys(f).reduce((s,k)=>s+pts(f[k],res(k),mainOf(k),k,id)-lost(f[k],res(k),k,id),0)};
+const GBON={},GBONUS=100,CASEC={},DUELC={},WHOC={},BOOSTF={};let FPUSE=null;
+const coins=id=>{const b=(GBON[id]?GBONUS:0)+(CASEC[id]||0)+(DUELC[id]||0)+(WHOC[id]||0);if((PICKS[id]||{}).hidden)return(PICKS[id].sc||0)+b;const f=(PICKS[id]||{}).fights||{};return b+Object.keys(f).reduce((s,k)=>s+pts(f[k],res(k),mainOf(k),k,id)-lost(f[k],res(k),k,id),0)};
 function board(){return Object.keys(PICKS).map(id=>({id,c:coins(id),n:(PICKS[id]||{}).hidden?(PICKS[id].n||0):Object.keys((PICKS[id]||{}).fights||{}).filter(realK).length})).sort((a,b)=>b.c-a.c||b.n-a.n)}
 function filt(){const fm=fmap(),out={};Object.keys(PRAW).forEach(id=>{const p=PRAW[id]||{};if(id===ME||!p.fights){out[id]=p;return}const f={};Object.keys(p.fights).forEach(k=>{if(res(k)||(fm[k]&&fm[k].w))f[k]=p.fights[k]});out[id]=Object.assign({},p,{fights:f})});PICKS=out}
 function ren(){try{filt()}catch(e){PICKS=PRAW}try{rmn()}catch(e){}try{pgRef()}catch(e){}
@@ -1032,9 +1048,10 @@ function evBlock(title,sub,fs,nested,nof){const B=evBoard(fs),nmOf=id=>esc(NAMES
 const curFs=()=>(EV.fights||[]).map(f=>({id:f.id,a:f.a,b:f.b,main:!!f.main}));
 const pastFs=e=>(e.fights||[]).map(f=>({id:f.id,a:f.w,b:f.l,main:!!f.main,w:f.w,m:f.m,r:f.r,nc:f.nc}));
 let PS="board";
-const pgEl=k=>document.getElementById(k==="picks"?"pgP":k==="goat"?"pgG":k==="shop"?"pgH":k==="case"?"pgC":k==="duel"?"pgD":k==="guess"?"pgQ":"pgS"),anyPage=()=>["pgP","pgS","pgG","pgH","pgC","pgD","pgQ"].some(i=>{const e=document.getElementById(i);return e&&!e.hidden});
+const pgEl=k=>document.getElementById(k==="picks"?"pgP":k==="goat"?"pgG":k==="shop"?"pgH":k==="case"?"pgC":k==="duel"?"pgD":k==="guess"?"pgQ":k==="who"?"pgW":"pgS"),anyPage=()=>["pgP","pgS","pgG","pgH","pgC","pgD","pgQ","pgW"].some(i=>{const e=document.getElementById(i);return e&&!e.hidden});
 function drawPage(){const P=document.getElementById("pgP"),S=document.getElementById("pgS"),G=document.getElementById("pgG");
  if(G&&!G.hidden)document.getElementById("pgg").innerHTML=goatHtml();
+ {const Wd=document.getElementById("pgW");if(Wd&&!Wd.hidden&&window.whoShow&&!document.getElementById("wwq"))window.whoShow()}
  {const Qd=document.getElementById("pgQ");if(Qd&&!Qd.hidden&&window.guessShow&&!document.getElementById("gsq"))window.guessShow()}
  {const Dd=document.getElementById("pgD");if(Dd&&!Dd.hidden&&window.duelShow)window.duelShow()}
  {const C=document.getElementById("pgC");if(C&&!C.hidden&&window.caseShow)window.caseShow()}
@@ -1053,12 +1070,12 @@ function pgTab(k,dir){const old=PS;PS=k;drawPage();const s=document.getElementBy
 (function(){const s=document.getElementById("pgS");if(!s)return;let x0=0,y0=0,t0=0,ok=false;
 s.addEventListener("touchstart",e=>{const t=e.touches[0];x0=t.clientX;y0=t.clientY;t0=Date.now();ok=e.touches.length===1&&!e.target.closest("input,textarea,button.pgbk")},{passive:true});
 s.addEventListener("touchend",e=>{if(!ok)return;ok=false;const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.5||Date.now()-t0>700)return;const i=PGO.indexOf(PS),n=i+((window.LANGHE?dx>0:dx<0)?1:-1);if(n<0||n>=PGO.length)return;pgTab(PGO[n],dx<0?1:-1)},{passive:true})})();
-function openPage(k){const pg=k==="picks"?"picks":k==="goat"?"goat":k==="shop"?"shop":k==="case"?"case":k==="duel"?"duel":k==="guess"?"guess":"score";if(pg==="score"&&k!=="score")PS=k==="recent"?"recent":k==="last"?"last":"board";
- const was=anyPage(),tgt=pgEl(pg),oth=["picks","score","goat","shop","case","duel","guess"].filter(x=>x!==pg).map(pgEl);if(!tgt)return;oth.forEach(e=>e.hidden=true);tgt.hidden=false;if(!was)lockS();
- const h="#"+(pg==="picks"?"picks":pg==="goat"?"goat":pg==="shop"?"shop":pg==="case"?"case":pg==="duel"?"duel":pg==="guess"?"guess":"scoreboard");try{if(location.hash!==h){was?history.replaceState({pg:1},"",h):history.pushState({pg:1},"",h)}}catch(e){}
+function openPage(k){const pg=k==="picks"?"picks":k==="goat"?"goat":k==="shop"?"shop":k==="case"?"case":k==="duel"?"duel":k==="guess"?"guess":k==="who"?"who":"score";if(pg==="score"&&k!=="score")PS=k==="recent"?"recent":k==="last"?"last":"board";
+ const was=anyPage(),tgt=pgEl(pg),oth=["picks","score","goat","shop","case","duel","guess","who"].filter(x=>x!==pg).map(pgEl);if(!tgt)return;oth.forEach(e=>e.hidden=true);tgt.hidden=false;if(!was)lockS();
+ const h="#"+(pg==="picks"?"picks":pg==="goat"?"goat":pg==="shop"?"shop":pg==="case"?"case":pg==="duel"?"duel":pg==="guess"?"guess":pg==="who"?"who":"scoreboard");try{if(location.hash!==h){was?history.replaceState({pg:1},"",h):history.pushState({pg:1},"",h)}}catch(e){}
  drawPage();tgt.scrollTop=0}
-function closePage(pop){if(!anyPage())return;["pgP","pgS","pgG","pgH","pgC","pgD","pgQ"].forEach(i=>{document.getElementById(i).hidden=true});unlockS();if(!pop&&history.state&&history.state.pg){try{history.back()}catch(e){}}}
-addEventListener("popstate",()=>{if(anyPage()&&!/^#(picks|scoreboard|goat|shop|case|duel|guess)$/.test(location.hash))closePage(true)});
+function closePage(pop){if(!anyPage())return;["pgP","pgS","pgG","pgH","pgC","pgD","pgQ","pgW"].forEach(i=>{document.getElementById(i).hidden=true});unlockS();if(!pop&&history.state&&history.state.pg){try{history.back()}catch(e){}}}
+addEventListener("popstate",()=>{if(anyPage()&&!/^#(picks|scoreboard|goat|shop|case|duel|guess|who)$/.test(location.hash))closePage(true)});
 function hnav(){const el=document.getElementById("hn");if(!el)return;const mine=(PICKS[ME]||{}).fights||{},t=(EV.fights||[]).length,n=(EV.fights||[]).filter(f=>mine[f.id]).length,B=board(),rank=B.findIndex(x=>x.id===ME)+1;
  el.innerHTML=`<button class="hcard" onclick="openPage('picks')"><i>🥊</i><span><b>This week's picks</b><small>${esc(EV.name||"")} · ${ME&&DB?n+" of "+t+" picked · ":""}${locked()?"picks locked":"picks lock "+new Date(lockAt()).toLocaleString(LOC(),{weekday:"short",hour:"2-digit",minute:"2-digit"})}</small></span><em>›</em></button><button class="hcard" onclick="openPage('score')"><i>🏆</i><span><b>Scoreboard, last week &amp; past events</b><small>${ME&&DB&&rank?"You're #"+rank+" · "+coins(ME)+" coins":"See who's winning"}</small></span><em>›</em></button><button class="hcard" onclick="openPage('goat')"><i>🐐</i><span><b>GOAT list</b><small>Your top 20 fighters of all time</small></span><em>›</em></button><button class="hcard" onclick="openPage('shop')"><i>🛍️</i><span><b>Shop</b><small>Emojis, color themes & stickers</small></span><em>›</em></button>${window.caseCard?window.caseCard():""}${window.duelCard?window.duelCard():""}${window.guessCard?window.guessCard():""}`}
 let SWO=false;
@@ -1175,7 +1192,7 @@ async function pollEvents(){LASTPOLL=Date.now();try{const j=await getEvents(true
 function schedulePoll(){clearTimeout(POLL);const n=Date.now(),live=n>EV.lock-2*3600e3&&n<EV.lock+10*3600e3;POLL=setTimeout(()=>{if(document.hidden){schedulePoll();return}pollEvents()},live?45000:600000)}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-LASTPOLL>30000&&READY)pollEvents()});
 (async()=>{await loadEvents();try{if(!window.claude){await sbInit()}else{U=await claude.use("user");DB=await claude.use("db");if(U){ME=await U.id();OWNER=await U.isOwner()}}if(DB&&ME){DB.collection("picks").onSnapshot(s=>{PRAW={};s.docs.forEach(d=>PRAW[d.id]=d.data());ren();names()},()=>{});DB.doc("results/"+EV.id).onSnapshot(s=>{RES=s.exists?((s.data()||{}).fights||{}):{};ren()},()=>{})}}catch(e){}READY=true;ren();names()})();
-setTimeout(()=>{READY=true;ren()},10000);setTimeout(()=>{if(/^#(picks|scoreboard|duel|guess)$/.test(location.hash)&&!anyPage())openPage(location.hash==="#picks"?"picks":location.hash==="#duel"?"duel":location.hash==="#guess"?"guess":"score")},400);ren();renLast();
+setTimeout(()=>{READY=true;ren()},10000);setTimeout(()=>{if(/^#(picks|scoreboard|duel|guess|who)$/.test(location.hash)&&!anyPage())openPage(location.hash==="#picks"?"picks":location.hash==="#duel"?"duel":location.hash==="#guess"?"guess":location.hash==="#who"?"who":"score")},400);ren();renLast();
 show("Flyweight");UI=true;
 
 /* ===== GOAT list: 20 spots per player ===== */
@@ -1295,7 +1312,7 @@ async function pushToggle(){const s=await pushState();
 /* load after login */
 (function w(n){try{if(ME){goatLoad();return}}catch(e){}if(n<40)setTimeout(()=>w(n+1),400)})(0);
 </script>
-<script src="shop.js"></script><script src="bets.js"></script><script src="case.js"></script><script src="duel.js"></script><script src="guess.js"></script><script src="menu.js"></script><script src="coinbar.js"></script><script>/* close buttons: fire on touchend so a tiny finger drift (or the swipe-to-close handlers) can't swallow the tap */
+<script src="shop.js"></script><script src="bets.js"></script><script src="case.js"></script><script src="duel.js"></script><script src="guess.js"></script><script src="who.js"></script><script src="menu.js"></script><script src="coinbar.js"></script><script>/* close buttons: fire on touchend so a tiny finger drift (or the swipe-to-close handlers) can't swallow the tap */
 (function(){let ts=null;
 document.addEventListener("touchstart",e=>{const b=e.target.closest&&e.target.closest(".top button,.pgbk,#zx,.smx");ts=b&&e.touches.length===1?{b,x:e.touches[0].clientX,y:e.touches[0].clientY,t:Date.now()}:null},{passive:true,capture:true});
 document.addEventListener("touchend",e=>{if(!ts)return;const t=e.changedTouches[0],m=ts;ts=null;if(Math.hypot(t.clientX-m.x,t.clientY-m.y)>14||Date.now()-m.t>600)return;if(e.cancelable)e.preventDefault();m.b.click()},{capture:true})})();

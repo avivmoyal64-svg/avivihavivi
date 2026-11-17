@@ -24,6 +24,7 @@ const T = {
     note: (k: string, who: string, id: string) => k === "accepted" ? ({ title: who + " accepted your challenge ⚔️", body: "Open the site to play your 10 questions.", tag: "duelnote-" + id, url: "/#duel" }) : k === "ready" ? ({ title: who + " picked your fighter", body: "Your questions are ready. Play now!", tag: "duelnote-" + id, url: "/#duel" }) : ({ title: "Your duel is finished", body: who + " finished too. See who won!", tag: "duelnote-" + id, url: "/#duel" }),
     duel: (who: string, id: string, c: number) => ({ title: who + " challenged you ⚔️", body: "1v1 trivia duel: 10 easy questions, the winner gets " + c + " coins.", tag: "duel-" + id, url: "/#duel" }),
     gnote: (k: string, who: string, id: string) => k === "invited" ? ({ title: who + " challenged you 🕵️", body: "Guess the fighter 1v1: pick a fighter for them, then guess theirs.", tag: "guess-" + id, url: "/#guess" }) : k === "accepted" ? ({ title: who + " accepted your challenge 🕵️", body: "Open the site and guess their fighter.", tag: "guess-" + id, url: "/#guess" }) : ({ title: "Your guessing game is finished", body: who + " finished too. See who won!", tag: "guess-" + id, url: "/#guess" }),
+    wnote: (k: string, who: string, id: string) => k === "invited" ? ({ title: who + " challenged you ⚡", body: "Who's Who race: name the blurred fighter first. Best of 5.", tag: "who-" + id, url: "/#who" }) : ({ title: who + " accepted your challenge ⚡", body: "The race is starting. Open the site and join now!", tag: "who-" + id, url: "/#who" }),
   },
   he: {
     open: (n: string) => ({ title: "הבחירות נפתחו", body: n + ": בחרו מנצחים והרוויחו מטבעות." }),
@@ -34,6 +35,7 @@ const T = {
     note: (k: string, who: string, id: string) => k === "accepted" ? ({ title: who + " אישר/ה את האתגר שלכם ⚔️", body: "היכנסו לאתר כדי לשחק את 10 השאלות.", tag: "duelnote-" + id, url: "/#duel" }) : k === "ready" ? ({ title: who + " בחר/ה לוחם עבורכם", body: "השאלות שלכם מוכנות. שחקו עכשיו!", tag: "duelnote-" + id, url: "/#duel" }) : ({ title: "הדו-קרב שלכם הסתיים", body: who + " סיים/ה גם. בואו לראות מי ניצח!", tag: "duelnote-" + id, url: "/#duel" }),
     duel: (who: string, id: string, c: number) => ({ title: who + " אתגר/ה אתכם ⚔️", body: "דו-קרב טריוויה 1 על 1: 10 שאלות קלות, המנצח מקבל " + c + " מטבעות.", tag: "duel-" + id, url: "/#duel" }),
     gnote: (k: string, who: string, id: string) => k === "invited" ? ({ title: who + " אתגר/ה אתכם 🕵️", body: "נחש את הלוחם 1 על 1: בחרו לוחם עבורו/ה ונחשו את שלו/ה.", tag: "guess-" + id, url: "/#guess" }) : k === "accepted" ? ({ title: who + " אישר/ה את האתגר שלכם 🕵️", body: "היכנסו לאתר ונחשו את הלוחם שלו/ה.", tag: "guess-" + id, url: "/#guess" }) : ({ title: "משחק הניחושים שלכם הסתיים", body: who + " סיים/ה גם. בואו לראות מי ניצח!", tag: "guess-" + id, url: "/#guess" }),
+    wnote: (k: string, who: string, id: string) => k === "invited" ? ({ title: who + " אתגר/ה אתכם ⚡", body: "מרוץ מי זה: זהו קודם את הלוחם המטושטש. הטוב מ-5.", tag: "who-" + id, url: "/#who" }) : ({ title: who + " אישר/ה את האתגר שלכם ⚡", body: "המרוץ מתחיל. היכנסו לאתר והצטרפו עכשיו!", tag: "who-" + id, url: "/#who" }),
   },
 };
 
@@ -93,14 +95,15 @@ Deno.serve(async (req) => {
       const ur = await fetch(SB_URL + "/auth/v1/user", { headers: { apikey: SB_KEY, Authorization: au } });
       if (!ur.ok) return jr({ error: "not logged in" }, 401);
       const me = (await ur.json()).id;
-      const gm = (await get("guess_games?id=eq." + encodeURIComponent(gn) + "&select=id,a,b,status,notified"))[0];
+      const isW = url.searchParams.get("gt") === "who";
+      const gm = (await get((isW ? "who_games" : "guess_games") + "?id=eq." + encodeURIComponent(gn) + "&select=id,a,b,status,notified"))[0];
       if (!gm || (gm.a !== me && gm.b !== me)) return jr({ skipped: true });
-      if ((gk === "invited" && !(me === gm.a && gm.status === "invited" && !gm.notified)) || (gk === "accepted" && !(me === gm.b && gm.status === "active")) || (gk === "done" && gm.status !== "done")) return jr({ skipped: true });
-      if (gk === "invited") await fetch(SB_URL + "/rest/v1/guess_games?id=eq." + encodeURIComponent(gn), { method: "PATCH", headers: dbH, body: JSON.stringify({ notified: true }) });
+      if ((gk === "done" && isW) || (gk === "invited" && !(me === gm.a && gm.status === "invited" && !gm.notified)) || (gk === "accepted" && !(me === gm.b && gm.status === "active")) || (gk === "done" && gm.status !== "done")) return jr({ skipped: true });
+      if (gk === "invited") await fetch(SB_URL + "/rest/v1/" + (isW ? "who_games" : "guess_games") + "?id=eq." + encodeURIComponent(gn), { method: "PATCH", headers: dbH, body: JSON.stringify({ notified: true }) });
       const other = me === gm.a ? gm.b : gm.a;
       const subs0 = await get("push_subs?select=endpoint,user_id,p256dh,auth,lang&user_id=eq." + other);
       const who = (url.searchParams.get("name") || "Someone").replace(/[\r\n<>]/g, "").slice(0, 24) || "Someone";
-      const n = await send(subs0, (s: any) => (s.lang === "he" ? T.he : T.en).gnote(gk, who, gn), dead);
+      const n = await send(subs0, (s: any) => (s.lang === "he" ? T.he : T.en)[isW ? "wnote" : "gnote"](gk, who, gn), dead);
       if (dead.length) await fetch(SB_URL + "/rest/v1/push_subs?endpoint=in.(" + dead.map(encodeURIComponent).join(",") + ")", { method: "DELETE", headers: dbH });
       return jr({ sent: n });
     } catch (e) { return jr({ error: "failed" }, 500); }

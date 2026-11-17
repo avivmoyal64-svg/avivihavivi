@@ -2,7 +2,7 @@
 // Offline: the app shell and scripts are saved (network first, so updates still arrive instantly), fighter/event data
 // (public site_data rows) is saved after each load, and photos / fonts / libraries are saved as you look at them.
 // Private data (picks, coins, profiles) and the password page are never saved.
-const V = "ufc-v1", SHELL = ["/", "/index.html", "/he.js", "/shop.js", "/bets.js", "/case.js", "/duel.js", "/guess.js", "/menu.js", "/coinbar.js", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png", "/apple-touch-icon.png", "/terms.html", "/privacy.html", "/copyright.html", "/contact.html", "/legal.css"];
+const V = "ufc-v1", SHELL = ["/", "/index.html", "/he.js", "/shop.js", "/bets.js", "/case.js", "/duel.js", "/guess.js", "/who.js", "/menu.js", "/coinbar.js", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png", "/apple-touch-icon.png", "/terms.html", "/privacy.html", "/copyright.html", "/contact.html", "/legal.css"];
 const SUPA = "hauxmxemyvgbgkbholln.supabase.co";
 // only store real pages, never the password gate (it is sent with Cache-Control: no-store)
 const good = r => r && r.status === 200 && !/no-store/i.test(r.headers.get("cache-control") || "");

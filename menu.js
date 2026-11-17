@@ -2,7 +2,7 @@
 (function () {
 "use strict";
 const $ = id => document.getElementById(id);
-const ITEMS = [["home", "🏠", "Home"], ["picks", "🥊", "This week's picks"], ["score", "🏆", "Scoreboard"], ["goat", "🐐", "GOAT list"], ["shop", "🛍️", "Shop"], ["case", "🎁", "Daily case"], ["duel", "⚔️", "Trivia duel"], ["guess", "🕵️", "Guess the fighter"]];
+const ITEMS = [["home", "🏠", "Home"], ["picks", "🥊", "This week's picks"], ["score", "🏆", "Scoreboard"], ["goat", "🐐", "GOAT list"], ["shop", "🛍️", "Shop"], ["case", "🎁", "Daily case"], ["duel", "⚔️", "Trivia duel"], ["guess", "🕵️", "Guess the fighter"], ["who", "⚡", "Who's Who race"]];
 let TAB = "menu", Q = "", built = false;
 const isOpen = () => { const d = $("smd"); return !!(d && d.classList.contains("on")); };
 
