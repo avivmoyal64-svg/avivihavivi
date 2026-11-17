@@ -73,13 +73,14 @@ end $$;
 
 create or replace function public.case_status() returns jsonb
 language plpgsql stable security definer set search_path = public as $$
-declare uid uuid := auth.uid(); d date := (now() at time zone 'Asia/Jerusalem')::date; o record; t record;
+declare uid uuid := auth.uid(); d date := (now() at time zone 'Asia/Jerusalem')::date; o record; t record; has_o boolean;
 begin
   if uid is null then raise exception 'not logged in'; end if;
   select * into o from public.case_opens where user_id = uid and day = d;
+  has_o := found;   -- (FOUND would be overwritten by the next select)
   select * into t from public.user_tokens where user_id = uid;
   return jsonb_build_object(
-    'opened', (found and o.prize <> 'spin'),
+    'opened', (has_o and o.prize <> 'spin'),
     'prize', o.prize, 'item', o.item, 'amount', coalesce(o.amount, 0),
     'free_picks', coalesce(t.free_picks, 0), 'boosts', coalesce(t.boosts, 0),
     'peeks', coalesce(t.peeks, 0), 'duel_boosts', coalesce(t.duel_boosts, 0),

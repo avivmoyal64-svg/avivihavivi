@@ -400,7 +400,11 @@ var X={
  "Pick a fighter to show big on your profile and choose your colour.":"בחרו לוחם שיוצג בגדול בפרופיל ובחרו צבע.",
  "Remove banner":"הסרת הבאנר",
  "🖼️ Win a":"🖼️ זכו ב",
- "in the daily case to show a fighter and your own colour on your profile.":"בקופסה היומית כדי להציג לוחם וצבע משלכם בפרופיל."
+ "in the daily case to show a fighter and your own colour on your profile.":"בקופסה היומית כדי להציג לוחם וצבע משלכם בפרופיל.",
+ "Home":"בית",
+ "Users":"משתמשים",
+ "Search a user":"חפשו משתמש",
+ "No users found.":"לא נמצאו משתמשים."
 };
 
 /* ---------- dates ---------- */
