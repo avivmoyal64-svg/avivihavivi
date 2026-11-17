@@ -1,6 +1,6 @@
 -- New case prizes (peek token, duel boost, profile banner), cheaper themes, profile banner customisation.
 -- Run AFTER supabase-boost.sql (and supabase-duel2.sql / supabase-duel3.sql). Safe to run more than once.
--- New case odds: 1% free pick | 1% coin boost | 2% 500 coins | 8% 250 | 10% 100 coins | 10% peek token | 10% duel boost
+-- New case odds: 1% 500 coins (gold) | 1% coin boost (gold) | 2% free pick (red) | 8% 250 | 10% 100 coins | 10% peek token | 10% duel boost
 --   12% profile banner | 8% theme | 5% sticker | 10% 25 coins | 10% another spin | 13% nothing   (reaction emojis are gone)
 
 -- themes now cost 50 coins; the profile banner is a new item (won in the case, not for sale)
@@ -94,9 +94,9 @@ begin
   if uid is null then raise exception 'not logged in'; end if;
   select prize into ex from public.case_opens where user_id = uid and day = d;
   if ex is not null and ex <> 'spin' then raise exception 'already opened today'; end if;
-  if r < 1 then pr := 'pick';
+  if r < 1 then pr := 'coins'; amt := 500;
   elsif r < 2 then pr := 'boost';
-  elsif r < 4 then pr := 'coins'; amt := 500;
+  elsif r < 4 then pr := 'pick';
   elsif r < 12 then pr := 'coins'; amt := 250;
   elsif r < 22 then pr := 'coins'; amt := 100;
   elsif r < 32 then pr := 'peek';

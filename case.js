@@ -6,9 +6,9 @@ const TW = 112;                       /* tile width in px (kept in sync with the
 const RC = { gold: "#ffcc33", red: "#ff3b3b", pink: "#f253b8", purple: "#9b5cff", blue: "#3d8bff", grey: "#8b8d97" };
 /* prizes: r = rarity colour, odds = the real chance in % (the server does the draw) */
 const PR = {
-  pick:    { r: "gold",   i: "🎟️", t: "Free pick",           odds: 1 },
+  pick:    { r: "red",    i: "🎟️", t: "Free pick",           odds: 2 },
   boost:   { r: "gold",   i: "⚡", t: "Coin boost",          odds: 1 },
-  c500:    { r: "red",    i: "COIN", t: "500 coins",           odds: 2 },
+  c500:    { r: "gold",   i: "COIN", t: "500 coins",           odds: 1 },
   c250:    { r: "pink",   i: "COIN", t: "250 coins",           odds: 8 },
   c100:    { r: "purple", i: "COIN", t: "100 coins",           odds: 10 },
   peek:    { r: "purple", i: "🔍", t: "Peek token",          odds: 10 },
@@ -21,7 +21,7 @@ const PR = {
   none:    { r: "grey",   i: "😴", t: "Try again tomorrow",  odds: 13 }
 };
 /* what the reel SHOWS is skewed toward the good colours so it looks like a better chance than it is */
-const POOL = { gold: ["pick", "boost"], red: ["c500"], pink: ["c250"], purple: ["c100", "peek", "duel", "theme", "sticker"], blue: ["banner", "spin"], grey: ["c25", "none"] };
+const POOL = { gold: ["c500", "boost"], red: ["pick"], pink: ["c250"], purple: ["c100", "peek", "duel", "theme", "sticker"], blue: ["banner", "spin"], grey: ["c25", "none"] };
 const VIS = [["gold", 6], ["red", 10], ["pink", 17], ["purple", 20], ["blue", 22], ["grey", 25]];
 const pickR = () => { let x = Math.random() * 100; for (const [r, w] of VIS) { if ((x -= w) < 0) return r; } return "grey"; };
 const rnd = a => a[Math.floor(Math.random() * a.length)];
@@ -119,7 +119,7 @@ function stripKeys(final, item) {
   const rr = PR[final].r;
   if (rr !== "gold" && rr !== "red" && Math.random() < 0.8) {          /* 80%: stop right next to a very good prize */
     near = true; const s = Math.random() < 0.5 ? 1 : -1;
-    keys[W + s] = Math.random() < 0.4 ? rnd(["pick", "boost"]) : "c500";
+    keys[W + s] = Math.random() < 0.4 ? rnd(["c500", "boost"]) : "pick";
     f = s > 0 ? 0.9 + Math.random() * 0.07 : 0.03 + Math.random() * 0.07;
   } else { [W - 1, W + 1].forEach(i => { if (PR[keys[i]].r === "gold" || PR[keys[i]].r === "red") keys[i] = randNon(); }); }
   keys[W] = final;
