@@ -71,6 +71,7 @@ async function act(kind, name) {
     if (r.error) throw r.error;
     if (kind === "try") { if (!r.data.hit && !r.data.res) { WR.push(name); MSG = "Not " + name + ". A new clue opened."; } else if (!r.data.hit) WR.push(name); }
     await loadView(); await load();
+    if (MV && MV.status === "done") gnote(M, "done");
   } catch (e) { MSG = "Could not save that. Try again."; }
   BUSY = false; window.guessShow();
 }
@@ -94,6 +95,12 @@ function picked(n) {
 }
 
 /* ---------- 1v1 actions ---------- */
+async function gnote(id, kind) {
+  try {
+    const s = (await SB.auth.getSession()).data.session; if (!s || !id) return;
+    await fetch(SUPA_URL + "/functions/v1/send-push?guessnote=" + encodeURIComponent(id) + "&kind=" + kind + "&name=" + encodeURIComponent(String(NAMES[ME] || "").slice(0, 24)), { method: "POST", headers: { Authorization: "Bearer " + s.access_token, apikey: SUPA_KEY } });
+  } catch (e) {}
+}
 const ERR = e => { const t = String((e && e.message) || e); return /wait a few/i.test(t) ? "Wait a few seconds before sending another invite, or cancel the one you sent." : /already open/i.test(t) ? "You already have an open game with this player." : /too many/i.test(t) ? "You sent too many challenges today. Try again tomorrow." : "Something went wrong. Try again."; };
 async function sendChallenge(n) {
   if (BUSY) return; const g = window.guessFacts(n); if (!g) { MSG = "Could not build clues for that fighter. Try another one."; return window.guessShow(); }
@@ -101,6 +108,7 @@ async function sendChallenge(n) {
   try {
     const r = await SB.rpc("guess_create", { p_to: CH.to, p_name: g.name, p_clues: g.facts });
     if (r.error) throw r.error;
+    gnote(r.data, "invited");
     MSG = "Challenge sent to " + nm(CH.to) + ". They get the clues for " + g.name + " once they accept."; CH = null; Q = "";
   } catch (e) { MSG = ERR(e); CH = null; }
   BUSY = false; await load(); window.guessShow();
@@ -111,6 +119,7 @@ async function acceptWith(n) {
   try {
     const r = await SB.rpc("guess_accept", { p_game: gid, p_name: g.name, p_clues: g.facts });
     if (r.error) throw r.error;
+    gnote(gid, "accepted");
     CH = null; Q = ""; WR = []; M = gid; S = null; await loadView();
   } catch (e) { MSG = ERR(e); CH = null; }
   BUSY = false; await load(); window.guessShow();

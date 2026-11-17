@@ -127,3 +127,5 @@ end $$;
 
 revoke all on function public.guess_create(uuid, text, jsonb), public.guess_accept(uuid, text, jsonb), public.guess_decline(uuid), public.guess_view(uuid), public.guess_step(uuid, text, text) from public, anon;
 grant execute on function public.guess_create(uuid, text, jsonb), public.guess_accept(uuid, text, jsonb), public.guess_decline(uuid), public.guess_view(uuid), public.guess_step(uuid, text, text) to authenticated;
+
+alter table public.guess_games add column if not exists notified boolean not null default false;

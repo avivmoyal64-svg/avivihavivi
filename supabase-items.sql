@@ -181,3 +181,6 @@ end $$;
 
 revoke all on function public.set_banner(text, text), public.peek_fight(text), public.case_status(), public.open_case(), public.trivia_submit(uuid, int[], int) from public, anon;
 grant execute on function public.set_banner(text, text), public.peek_fight(text), public.case_status(), public.open_case(), public.trivia_submit(uuid, int[], int) to authenticated;
+
+-- stickers all cost 50 coins
+update public.shop_catalog set price = 50 where kind = 'sticker';
