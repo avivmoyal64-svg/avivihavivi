@@ -554,7 +554,11 @@ var X={
 "Time's up. They matched more":"נגמר הזמן. הם חיברו יותר",
 "Time's up. A tie, nobody scores":"נגמר הזמן. תיקו, אף אחד לא מקבל נקודה",
 "Flag Rush · first to 3 · 5 coins":"מרוץ דגלים · הראשון ל-3 · 5 מטבעות",
-"Flag Rush · join now":"מרוץ דגלים · הצטרפו עכשיו"
+"Flag Rush · join now":"מרוץ דגלים · הצטרפו עכשיו",
+"This fight's estimated start has already passed, so there is nothing to wake you for.":"ההתחלה המשוערת של הקרב הזה כבר עברה, אז אין מה להעיר אתכם.",
+"Alarm file downloaded. Open it to add the alarm to your calendar (20 minutes before, or at the start for the first fight). Start time is an estimate.":"קובץ ההתראה ירד. פתחו אותו כדי להוסיף את ההתראה ליומן (20 דקות לפני, או בתחילת הקרב הראשון). זמן ההתחלה הוא הערכה.",
+"📅 Add to calendar instead":"📅 הוסיפו ליומן במקום",
+"The Shortcuts app did not open. Create the shortcut named exactly <b>UFC Alarm</b> (steps below), or add the alarm to your calendar instead.":"אפליקציית הקיצורים לא נפתחה. צרו קיצור בשם <b>UFC Alarm</b> בדיוק (השלבים למטה), או הוסיפו את ההתראה ליומן."
 };
 
 /* ---------- dates ---------- */
