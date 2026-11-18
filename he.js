@@ -514,7 +514,28 @@ var X={
 "Party games · vote on a game together":"משחקי מסיבה · מצביעים יחד על משחק",
 "invited you to a party 🎉":"הזמין/ה אתכם למסיבה 🎉",
 "Play it straight, or steal from one player. Stealing only works if they play it straight.":"שחקו ישר או גנבו משחקן אחד. גניבה עובדת רק אם הוא משחק ישר.",
-"Insider":"פנימי"
+"Insider":"פנימי",
+"Who Beat Who":"מי ניצח את מי",
+"Two fighters appear. Tap the one that has a win over the other, faster than your opponent. 10 seconds a round. First to 5 round wins. A wrong tap locks you out for 2 seconds.":"שני לוחמים מופיעים. לחצו על זה שיש לו ניצחון על השני, מהר יותר מהיריב. 10 שניות לסיבוב. הראשון ל-5 סיבובים. לחיצה שגויה נועלת אתכם ל-2 שניות.",
+"Challenged you · 🥊 Who Beat Who":"אתגר/ה אתכם · 🥊 מי ניצח את מי",
+"Waiting for them to accept · 🥊 Who Beat Who":"ממתינים לאישור שלו/ה · 🥊 מי ניצח את מי",
+"Challenge a player":"אתגרו שחקן",
+"They get a notification. The game starts when they accept.":"הם מקבלים התראה. המשחק מתחיל כשהם מאשרים.",
+"Who has a win over the other?":"למי יש ניצחון על השני?",
+"Wrong! Locked for 2 seconds.":"לא נכון! נעול ל-2 שניות.",
+"The game was cancelled":"המשחק בוטל",
+"You won!":"ניצחתם!",
+"You lost":"הפסדתם",
+"Challenged you 🥊":"אתגר/ה אתכם 🥊",
+"challenged you 🥊":"אתגר/ה אתכם 🥊",
+"accepted your challenge 🥊":"אישר/ה את האתגר שלכם 🥊",
+"Who Beat Who · first to 5":"מי ניצח את מי · הראשון ל-5",
+"Who Beat Who · join now":"מי ניצח את מי · הצטרפו עכשיו",
+"Quit":"יציאה",
+"You got it first! 🎉":"קיבלתם את זה ראשונים! 🎉",
+"They got it first":"הם קיבלו את זה ראשונים",
+"Nobody got it in time":"אף אחד לא הספיק",
+"Game in progress":"משחק מתנהל"
 };
 
 /* ---------- dates ---------- */
@@ -533,6 +554,8 @@ function dateFix(s){
 function ord(n){return n}
 var CT={"USA":"ארצות הברית","Brazil":"ברזיל","Russia":"רוסיה","England":"אנגליה","Australia":"אוסטרליה","Japan":"יפן","Canada":"קנדה","France":"צרפת","Mexico":"מקסיקו","Ireland":"אירלנד","Poland":"פולין","Kazakhstan":"קזחסטן","Georgia":"גאורגיה","Ecuador":"אקוודור","Argentina":"ארגנטינה","New Zealand":"ניו זילנד","Nigeria":"ניגריה","Cuba":"קובה","Sweden":"שוודיה","South Africa":"דרום אפריקה","Czech Republic":"צ'כיה","Netherlands":"הולנד","Cameroon":"קמרון","Austria":"אוסטריה","Serbia":"סרביה","Croatia":"קרואטיה","Ukraine":"אוקראינה","Uzbekistan":"אוזבקיסטן","Dominican Republic":"הרפובליקה הדומיניקנית","Portugal":"פורטוגל","Moldova":"מולדובה","Morocco":"מרוקו","Armenia":"ארמניה","China":"סין","Myanmar":"מיאנמר","Thailand":"תאילנד","Korea":"קוריאה"};
 var P=[
+ [/^(.+) beat (.+)$/,function(m){return m[1]+" ניצח/ה את "+m[2]}],
+ [/^Round (\d)$/,function(m){return "סיבוב "+m[1]}],
  [/^(\d) of 2 picked\. They get an invite and a notification\.$/,function(m){return "$1 מתוך 2 נבחרו. הם מקבלים הזמנה והתראה."}],
  [/^(\d) of 3 voted$/,function(m){return "$1 מתוך 3 הצביעו"}],
  [/^(\d+) votes?( · .*)?$/,function(m){return "$1 קולות"+(m[2]||"")}],

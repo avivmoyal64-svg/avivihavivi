@@ -2,7 +2,7 @@
 (function () {
 "use strict";
 const $ = id => document.getElementById(id);
-const ITEMS = [["home", "🏠", "Home"], ["picks", "🥊", "This week's picks"], ["score", "🏆", "Scoreboard"], ["goat", "🐐", "GOAT list"], ["shop", "🛍️", "Shop"], ["case", "🎁", "Daily case"], ["duel", "⚔️", "Trivia duel"], ["guess", "🕵️", "Guess the fighter"], ["who", "⚡", "Who's Who race"], ["party", "🎉", "Party games"]];
+const ITEMS = [["home", "🏠", "Home"], ["picks", "🥊", "This week's picks"], ["score", "🏆", "Scoreboard"], ["goat", "🐐", "GOAT list"], ["shop", "🛍️", "Shop"], ["case", "🎁", "Daily case"], ["duel", "⚔️", "Trivia duel"], ["guess", "🕵️", "Guess the fighter"], ["who", "⚡", "Who's Who race"], ["beat", "🥊", "Who Beat Who"], ["party", "🎉", "Party games"]];
 let TAB = "menu", Q = "", built = false;
 const isOpen = () => { const d = $("smd"); return !!(d && d.classList.contains("on")); };
 
@@ -61,6 +61,7 @@ window.smClose = () => { const d = $("smd"), o = $("smo"); if (d) d.classList.re
 window.smGo = k => {
   window.smClose();
   if (k === "home") { try { closePage(); } catch (e) {} try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) { window.scrollTo(0, 0); } return; }
+  if (k === "beat") { try { window.beatOpen(); } catch (e) {} return; }
   if (k === "party") { try { window.partyOpen(); } catch (e) {} return; }
   try { openPage(k); } catch (e) {}
 };
