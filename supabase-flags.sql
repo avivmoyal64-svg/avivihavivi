@@ -194,3 +194,147 @@ grant execute on function public.fm_create(uuid), public.fm_accept(uuid), public
 -- coins: earned_coins gets one more term, 5 per won Flag Rush game:
 --   + coalesce((select 5 * count(*) from public.fm_games where winner = p_uid and status = 'done'), 0)::int
 -- (applied via migration flag_rush_core; full function lives in supabase-who.sql)
+-- Flag Rush v2 (NOT YET APPLIED to the database, migration flag_rush_done_button is pending): matches are only placed, not checked. You press Done when you think all seven are right.
+-- Done with any mistake says only "wrong" (3 second lock). First correct Done wins the round. At time-up the player with more correct placements wins.
+alter table public.fm_games add column if not exists how text;
+alter table public.fm_games alter column ma set default '{}'::jsonb, alter column mb set default '{}'::jsonb;
+update public.fm_games set ma = '{}'::jsonb, mb = '{}'::jsonb where status in ('invited','active');
+drop function if exists public.fm_pick(uuid, text, text);
+
+create or replace function public.fm_finish(g public.fm_games, p_winner uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare na int := g.wa; nb int := g.wb; over boolean;
+begin
+  if p_winner = g.a then na := na + 1; elsif p_winner = g.b then nb := nb + 1; end if;
+  over := na >= 3 or nb >= 3 or g.round >= 5;
+  update public.fm_games set wa = na, wb = nb, round_done = true, rwin = p_winner, how = 'done',
+    next_start = case when over then null else now() + interval '5 seconds' end,
+    status = case when over then 'done' else 'active' end,
+    finished_at = case when over then now() else null end,
+    winner = case when over and na > nb then g.a when over and nb > na then g.b else null end,
+    draw = (over and na = nb)
+  where id = g.id;
+end $$;
+
+create or replace function public.fm_advance(p_game uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare g public.fm_games; rd jsonb; ca int; cb int;
+begin
+  select * into g from public.fm_games where id = p_game for update;
+  if not found or g.status <> 'active' then return; end if;
+  if g.touched < now() - interval '10 minutes' then update public.fm_games set status = 'cancelled', finished_at = now() where id = p_game; return; end if;
+  if not g.round_done and g.rstart is not null and now() >= g.rstart + interval '60 seconds' then
+    select rounds->(g.round - 1) into rd from public.fm_secret where game_id = p_game;
+    select count(*) into ca from jsonb_array_elements(rd->'p') x where g.ma->>(x->>'n') = x->>'c';
+    select count(*) into cb from jsonb_array_elements(rd->'p') x where g.mb->>(x->>'n') = x->>'c';
+    perform public.fm_finish(g, case when ca > cb then g.a when cb > ca then g.b else null end);
+    update public.fm_games set how = 'time' where id = p_game;
+    select * into g from public.fm_games where id = p_game;
+  end if;
+  if g.status = 'active' and g.round_done and g.next_start is not null and now() >= g.next_start then
+    update public.fm_games set round = round + 1, rstart = g.next_start + interval '3 seconds', round_done = false, rwin = null, how = null, ma = '{}'::jsonb, mb = '{}'::jsonb, next_start = null where id = p_game;
+  end if;
+end $$;
+
+create or replace function public.fm_accept(p_game uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare me uuid := auth.uid(); g public.fm_games; rs jsonb := '[]'; used text[] := '{}'; pr jsonb; i int;
+begin
+  select * into g from public.fm_games where id = p_game for update;
+  if not found or me is null or me <> g.b then raise exception 'no such game'; end if;
+  if g.status <> 'invited' then raise exception 'game is not open'; end if;
+  for i in 1..5 loop
+    select jsonb_agg(jsonb_build_object('n', s.n, 'c', s.c)) into pr
+      from (select n, c from (select distinct on (c) n, c from public.fm_pool where n <> all(used) order by c, random()) d order by random() limit 7) s;
+    if pr is null or jsonb_array_length(pr) < 7 then raise exception 'not enough fighters'; end if;
+    used := used || coalesce((select array_agg(x->>'n') from jsonb_array_elements(pr) x), '{}');
+    rs := rs || jsonb_build_array(jsonb_build_object('p', pr,
+      'l', (select jsonb_agg(x->>'n' order by random()) from jsonb_array_elements(pr) x),
+      'r', (select jsonb_agg(x->>'c' order by random()) from jsonb_array_elements(pr) x)));
+  end loop;
+  insert into public.fm_secret(game_id, rounds) values (p_game, rs) on conflict (game_id) do update set rounds = excluded.rounds;
+  update public.fm_games set status = 'active', round = 1, rstart = now() + interval '4 seconds', ma = '{}'::jsonb, mb = '{}'::jsonb, touched = now() where id = p_game;
+end $$;
+
+create or replace function public.fm_view(p_game uuid) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare me uuid := auth.uid(); g public.fm_games; me_a boolean; rd jsonb; mine jsonb; theirs jsonb; l jsonb; r jsonb; mm jsonb; ans jsonb;
+begin
+  select * into g from public.fm_games where id = p_game;
+  if not found or me is null or (me <> g.a and me <> g.b) then raise exception 'no such game'; end if;
+  if g.status = 'active' then update public.fm_games set touched = now() where id = p_game; perform public.fm_advance(p_game); select * into g from public.fm_games where id = p_game; end if;
+  me_a := (me = g.a);
+  mine := case when me_a then g.ma else g.mb end; theirs := case when me_a then g.mb else g.ma end;
+  if g.status in ('active','done') then
+    select rounds->(least(g.round, 5) - 1) into rd from public.fm_secret where game_id = p_game;
+  end if;
+  if g.status = 'active' and not g.round_done and now() >= g.rstart - interval '1 second' then l := rd->'l'; r := rd->'r'; end if;
+  if g.status = 'active' and not g.round_done then
+    select coalesce(jsonb_agg(jsonb_build_object('n', e.k, 'c', e.v)), '[]'::jsonb) into mm from jsonb_each_text(mine) as e(k, v);
+  end if;
+  if g.round_done or g.status = 'done' then ans := rd->'p'; end if;
+  return jsonb_build_object('status', g.status, 'round', g.round, 'me', case when me_a then g.wa else g.wb end, 'opp', case when me_a then g.wb else g.wa end,
+    'now', (extract(epoch from clock_timestamp()) * 1000)::bigint, 'rstart', (extract(epoch from g.rstart) * 1000)::bigint,
+    'next', (extract(epoch from g.next_start) * 1000)::bigint, 'done', g.round_done, 'how', g.how,
+    'rwin', case when g.rwin is null then null when g.rwin = me then 'me' else 'opp' end,
+    'l', l, 'r', r, 'mm', mm, 'mc', (select count(*) from jsonb_object_keys(mine)), 'oc', (select count(*) from jsonb_object_keys(theirs)), 'ans', ans,
+    'lock', (extract(epoch from case when me_a then g.lock_a else g.lock_b end) * 1000)::bigint,
+    'winner', case when g.winner is null then null when g.winner = me then 'me' else 'opp' end, 'draw', g.draw);
+end $$;
+
+-- place (or move, or with a null flag remove) one fighter-to-flag match. Nothing is checked here.
+create or replace function public.fm_set(p_game uuid, p_name text, p_cc text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare me uuid := auth.uid(); g public.fm_games; me_a boolean; rd jsonb; mine jsonb;
+begin
+  select * into g from public.fm_games where id = p_game for update;
+  if not found or me is null or (me <> g.a and me <> g.b) then raise exception 'no such game'; end if;
+  if g.status <> 'active' then return jsonb_build_object('ok', false, 'why', 'over'); end if;
+  perform public.fm_advance(p_game);
+  select * into g from public.fm_games where id = p_game;
+  if g.status <> 'active' or g.round_done or now() < g.rstart then return jsonb_build_object('ok', false, 'why', 'wait'); end if;
+  me_a := (me = g.a);
+  select rounds->(g.round - 1) into rd from public.fm_secret where game_id = p_game;
+  if not exists(select 1 from jsonb_array_elements(rd->'p') x where x->>'n' = p_name) then return jsonb_build_object('ok', false, 'why', 'bad'); end if;
+  mine := (case when me_a then g.ma else g.mb end) - p_name;
+  if p_cc is not null then
+    if not exists(select 1 from jsonb_array_elements_text(rd->'r') x where x = p_cc) then return jsonb_build_object('ok', false, 'why', 'bad'); end if;
+    select coalesce(jsonb_object_agg(e.k, e.v), '{}'::jsonb) into mine from jsonb_each_text(mine) as e(k, v) where e.v <> p_cc;
+    mine := mine || jsonb_build_object(p_name, p_cc);
+  end if;
+  if me_a then update public.fm_games set ma = mine, touched = now() where id = p_game; else update public.fm_games set mb = mine, touched = now() where id = p_game; end if;
+  return jsonb_build_object('ok', true, 'n', (select count(*) from jsonb_object_keys(mine)));
+end $$;
+
+-- "Done": all seven right wins the round. Otherwise the answer is only "wrong" (never which ones), and Done is locked for 3 seconds.
+create or replace function public.fm_done(p_game uuid) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare me uuid := auth.uid(); g public.fm_games; me_a boolean; rd jsonb; mine jsonb; lk timestamptz; n int;
+begin
+  select * into g from public.fm_games where id = p_game for update;
+  if not found or me is null or (me <> g.a and me <> g.b) then raise exception 'no such game'; end if;
+  if g.status <> 'active' then return jsonb_build_object('ok', false, 'why', 'over'); end if;
+  perform public.fm_advance(p_game);
+  select * into g from public.fm_games where id = p_game;
+  if g.status <> 'active' or g.round_done or now() < g.rstart then return jsonb_build_object('ok', false, 'why', 'wait'); end if;
+  me_a := (me = g.a);
+  lk := case when me_a then g.lock_a else g.lock_b end;
+  if lk is not null and lk > now() then return jsonb_build_object('ok', false, 'why', 'locked'); end if;
+  mine := case when me_a then g.ma else g.mb end;
+  if (select count(*) from jsonb_object_keys(mine)) < 7 then return jsonb_build_object('ok', false, 'why', 'few'); end if;
+  select rounds->(g.round - 1) into rd from public.fm_secret where game_id = p_game;
+  select count(*) into n from jsonb_array_elements(rd->'p') x where mine->>(x->>'n') = x->>'c';
+  if n >= 7 then
+    update public.fm_games set touched = now() where id = p_game;
+    select * into g from public.fm_games where id = p_game;
+    perform public.fm_finish(g, me);
+    return jsonb_build_object('ok', true);
+  end if;
+  if me_a then update public.fm_games set lock_a = now() + interval '3 seconds', touched = now() where id = p_game;
+  else update public.fm_games set lock_b = now() + interval '3 seconds', touched = now() where id = p_game; end if;
+  return jsonb_build_object('ok', false, 'why', 'wrong');
+end $$;
+
+revoke all on function public.fm_finish(public.fm_games, uuid), public.fm_advance(uuid) from public, anon, authenticated;
+revoke all on function public.fm_set(uuid, text, text), public.fm_done(uuid) from public, anon;
+grant execute on function public.fm_set(uuid, text, text), public.fm_done(uuid) to authenticated;
