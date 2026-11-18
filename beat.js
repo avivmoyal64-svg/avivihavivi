@@ -8,6 +8,7 @@ const ROUND_MS = 10000;
 let OPEN = false, G = [], OK = false, M = null, V = null, OFF = 0, MSG = "", BUSY = false, KEY = "", LK = 0, FB = "", SEL = null;
 const DISM = {};
 const srv = () => Date.now() + OFF;
+window.BTC = window.BTC || {};
 window.pendBeat = () => G.some(g => g.a === ME && g.status === "invited" && Date.parse(g.created_at) > Date.now() - 864e5);
 const live = g => g.status === "invited" || (g.status === "active" && Date.parse(g.touched || 0) > Date.now() - 10 * 60e3);
 const invitesIn = () => G.filter(g => g.b === ME && g.status === "invited" && Date.parse(g.created_at) > Date.now() - 864e5);
@@ -31,6 +32,7 @@ function ensure() {
 .btcd{display:grid;place-items:center;height:min(52vh,420px);margin:6px 0;background:#2c2d32;border:2px solid #4d4e55;text-align:center;font:italic 900 120px "Barlow Condensed",Arial,sans-serif;color:#fff}
 .btcd small{display:block;font:700 16px Barlow,Heebo,Arial,sans-serif;color:var(--mut);letter-spacing:.6px;text-transform:uppercase}
 .btq{margin:4px 0 10px;text-align:center;font:italic 900 26px/1.05 "Barlow Condensed","Heebo",Arial,sans-serif;text-transform:uppercase;letter-spacing:.8px}
+.btsr{display:block;margin:6px auto 2px;padding:3px 12px;width:max-content;max-width:100%;background:var(--gold);color:#fff;font:italic 900 20px "Barlow Condensed","Heebo",Arial,sans-serif;letter-spacing:1px}
 .btq small{display:block;margin-top:2px;font:15px Barlow,Heebo,Arial,sans-serif;font-style:normal;text-transform:none;letter-spacing:0;color:var(--mut)}
 .btvs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .btc{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;background:#2c2d32;border:2px solid #5a5b63;color:#fff;overflow:hidden;position:relative;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
@@ -91,6 +93,7 @@ async function load() {
     const q = await SB.from("bt_games").select("id,a,b,status,wa,wb,winner,draw,created_at,touched").or("a.eq." + ME + ",b.eq." + ME).order("created_at", { ascending: false }).limit(20);
     if (q.error) throw q.error; G = q.data || []; OK = true;
   } catch (e) { OK = false; G = []; }
+  if (OK) { try { const w = await SB.rpc("bt_wins"); if (!w.error && Array.isArray(w.data)) { Object.keys(window.BTC).forEach(k => delete window.BTC[k]); w.data.forEach(x => { if (x.winner) window.BTC[x.winner] = 5 * Number(x.n || 0); }); } } catch (e) {} }
 }
 async function enter(id) { M = id; V = null; KEY = ""; LK = 0; FB = ""; await pull(); }
 async function pull() {
@@ -127,7 +130,7 @@ function menu() {
   const open = new Set(G.filter(live).map(g => g.a === ME ? g.b : g.a));
   const blocked = BUSY || (window.invitePending && window.invitePending());
   return `${MSG ? `<div class="ptmsg" style="margin:0 0 10px;padding:10px 12px;background:#3a2323;border-inline-start:5px solid var(--red2);font:15px Barlow,Heebo,Arial,sans-serif">${esc(MSG)}</div>` : ""}
-<div class="dlbox" style="margin-top:0"><b>Who Beat Who</b><p>Two fighters appear. Tap the one that has a win over the other, faster than your opponent. 10 seconds a round. First to 5 round wins. A wrong tap locks you out for 2 seconds.</p></div>
+<div class="dlbox" style="margin-top:0"><b>Who Beat Who</b><p>Two fighters appear. Tap the one that has a win over the other, faster than your opponent. 10 seconds a round. First to 5 round wins. A wrong tap locks you out for 2 seconds. Some pairs fought more than once, and then you are told which fight to pick (fight 1, fight 2…). The winner gets 5 coins.</p></div>
 ${inv.map(g => `<div class="dlr conf"><div><b>${esc(nm(g.a))}</b><small>Challenged you · 🥊 Who Beat Who</small></div><button class="fvb go" type="button" data-a="acc" data-id="${g.id}">Accept</button><button class="fvb" type="button" data-a="no" data-id="${g.id}">Decline</button></div>`).join("")}
 ${pl.map(g => `<div class="dlr conf"><div><b>${esc(nm(g.a === ME ? g.b : g.a))}</b><small>Game in progress · <span dir="ltr">${g.a === ME ? g.wa : g.wb} – ${g.a === ME ? g.wb : g.wa}</span></small></div><button class="fvb go" type="button" data-a="join" data-id="${g.id}">Join</button></div>`).join("")}
 ${G.filter(g => g.status === "invited" && g.a === ME && Date.parse(g.created_at) > Date.now() - 864e5).map(g => `<div class="dlr"><div><b>${esc(nm(g.b))}</b><small>Waiting for them to accept · 🥊 Who Beat Who</small></div><button class="fvb" type="button" data-a="no" data-id="${g.id}">Cancel</button></div>`).join("")}
@@ -141,13 +144,13 @@ function view() {
   if (m.ph === "end") {
     if (V.status === "cancelled" || V.status === "declined") return `<div class="dlbox"><b>The game was cancelled</b><p>Nobody is playing any more.</p></div><button class="fvb gsb go" type="button" data-a="back">‹ Back</button>`;
     const win = V.winner === "me", lose = V.winner === "opp";
-    return head + `<div class="dlbox ${win ? "dwin" : lose ? "dlose" : ""}"><b>${V.draw ? "Draw" : win ? "You won!" : "You lost"}</b><p>Final score <span dir="ltr">${V.me} – ${V.opp}</span>${V.w ? ` · last pair: ${esc(V.w)} beat ${esc(V.l)}` : ""}</p></div><button class="fvb gsb go" type="button" data-a="back">‹ Back</button>`;
+    return head + `<div class="dlbox ${win ? "dwin" : lose ? "dlose" : ""}"><b>${V.draw ? "Draw" : win ? "You won! +5 coins" : "You lost"}</b><p>Final score <span dir="ltr">${V.me} – ${V.opp}</span>${V.w ? ` · last pair: ${esc(V.w)} beat ${esc(V.l)}` : ""}</p></div><button class="fvb gsb go" type="button" data-a="back">‹ Back</button>`;
   }
   if (m.ph === "cd") return head + `<div class="btcd"><div><span id="btcdn">3</span><small>Get ready</small></div></div>`;
-  if (m.ph === "live") return head + `<div class="btq">Round ${Math.min(V.round, 9)}<small>Who has a win over the other?</small></div><div class="btvs" id="btvs">${card(V.x, "", 1)}${card(V.y, "", 1)}</div><div class="btbar"><u id="btbar"></u></div><div class="btmsg" id="btmsg" role="status"></div>`;
+  if (m.ph === "live") { const sr = Number(V.tot) > 1; return head + `<div class="btq">Round ${Math.min(V.round, 9)}${sr ? `<span class="btsr">Fight ${V.n} of ${V.tot} between them</span><small>Who won that fight?</small>` : `<small>Who has a win over the other?</small>`}</div><div class="btvs" id="btvs">${card(V.x, "", 1)}${card(V.y, "", 1)}</div><div class="btbar"><u id="btbar"></u></div><div class="btmsg" id="btmsg" role="status"></div>`; }
   const t = V.rwin === "me" ? "You got it first! 🎉" : V.rwin === "opp" ? "They got it first" : "Nobody got it in time";
   const wn = V.w, ln = V.l;
-  return head + `<div class="btq">${esc(wn || "")} beat ${esc(ln || "")}<small>${t}</small></div><div class="btvs">${card(wn, "w")}${card(ln, "l")}</div><div class="btmsg" id="btnx">Next round in …</div>`;
+  return head + `<div class="btq">${esc(wn || "")} beat ${esc(ln || "")}${Number(V.wtot) > 1 ? `<span class="btsr">Fight ${V.wn} of ${V.wtot}</span>` : ""}<small>${t}</small></div><div class="btvs">${card(wn, "w")}${card(ln, "l")}</div><div class="btmsg" id="btnx">Next round in …</div>`;
 }
 function render(force) {
   if (!OPEN) return; ensure();
@@ -215,7 +218,7 @@ function ui() {
   const g = inc || acc, k = (inc ? "i" : "a") + g.id; el.hidden = false;
   if (el.dataset.k === k) return; el.dataset.k = k;
   el.innerHTML = inc
-    ? `<div class="dli"><i class="dlig">🥊</i><div><b><span>${esc(nm(g.a))}</span> <span>challenged you 🥊</span></b><small>Who Beat Who · first to 5</small></div><button type="button" class="dla" data-ba="${g.id}">Accept</button><button type="button" data-bn="${g.id}">Decline</button></div>`
+    ? `<div class="dli"><i class="dlig">🥊</i><div><b><span>${esc(nm(g.a))}</span> <span>challenged you 🥊</span></b><small>Who Beat Who · first to 5 · 5 coins</small></div><button type="button" class="dla" data-ba="${g.id}">Accept</button><button type="button" data-bn="${g.id}">Decline</button></div>`
     : `<div class="dli"><i class="dlig">✅</i><div><b><span>${esc(nm(g.b))}</span> <span>accepted your challenge 🥊</span></b><small>Who Beat Who · join now</small></div><button type="button" class="dla" data-bj="${g.id}">Join</button><button type="button" data-bl="${g.id}">Later</button></div>`;
   const q = s => el.querySelector(s);
   if (q("[data-ba]")) q("[data-ba]").onclick = async () => { const id = g.id; await window.beatOpen(); try { await rpc("bt_accept", { p_game: id }); note(id, "accepted"); await enter(id); } catch (er) { MSG = ERR(er); } await load(); render(true); };

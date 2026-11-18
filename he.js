@@ -535,7 +535,11 @@ var X={
 "You got it first! 🎉":"קיבלתם את זה ראשונים! 🎉",
 "They got it first":"הם קיבלו את זה ראשונים",
 "Nobody got it in time":"אף אחד לא הספיק",
-"Game in progress":"משחק מתנהל"
+"Game in progress":"משחק מתנהל",
+"Two fighters appear. Tap the one that has a win over the other, faster than your opponent. 10 seconds a round. First to 5 round wins. A wrong tap locks you out for 2 seconds. Some pairs fought more than once, and then you are told which fight to pick (fight 1, fight 2…). The winner gets 5 coins.":"שני לוחמים מופיעים. לחצו על זה שיש לו ניצחון על השני, מהר יותר מהיריב. 10 שניות לסיבוב. הראשון ל-5 סיבובים. לחיצה שגויה נועלת אתכם ל-2 שניות. חלק מהזוגות נלחמו יותר מפעם אחת, ואז כתוב איזה קרב לבחור (קרב 1, קרב 2…). המנצח מקבל 5 מטבעות.",
+"You won! +5 coins":"ניצחתם! +5 מטבעות",
+"Who won that fight?":"מי ניצח בקרב הזה?",
+"Who Beat Who · first to 5 · 5 coins":"מי ניצח את מי · הראשון ל-5 · 5 מטבעות"
 };
 
 /* ---------- dates ---------- */
@@ -554,6 +558,8 @@ function dateFix(s){
 function ord(n){return n}
 var CT={"USA":"ארצות הברית","Brazil":"ברזיל","Russia":"רוסיה","England":"אנגליה","Australia":"אוסטרליה","Japan":"יפן","Canada":"קנדה","France":"צרפת","Mexico":"מקסיקו","Ireland":"אירלנד","Poland":"פולין","Kazakhstan":"קזחסטן","Georgia":"גאורגיה","Ecuador":"אקוודור","Argentina":"ארגנטינה","New Zealand":"ניו זילנד","Nigeria":"ניגריה","Cuba":"קובה","Sweden":"שוודיה","South Africa":"דרום אפריקה","Czech Republic":"צ'כיה","Netherlands":"הולנד","Cameroon":"קמרון","Austria":"אוסטריה","Serbia":"סרביה","Croatia":"קרואטיה","Ukraine":"אוקראינה","Uzbekistan":"אוזבקיסטן","Dominican Republic":"הרפובליקה הדומיניקנית","Portugal":"פורטוגל","Moldova":"מולדובה","Morocco":"מרוקו","Armenia":"ארמניה","China":"סין","Myanmar":"מיאנמר","Thailand":"תאילנד","Korea":"קוריאה"};
 var P=[
+ [/^Fight (\d) of (\d) between them$/,function(m){return "קרב "+m[1]+" מתוך "+m[2]+" ביניהם"}],
+ [/^Fight (\d) of (\d)$/,function(m){return "קרב "+m[1]+" מתוך "+m[2]}],
  [/^(.+) beat (.+)$/,function(m){return m[1]+" ניצח/ה את "+m[2]}],
  [/^Round (\d)$/,function(m){return "סיבוב "+m[1]}],
  [/^(\d) of 2 picked\. They get an invite and a notification\.$/,function(m){return "$1 מתוך 2 נבחרו. הם מקבלים הזמנה והתראה."}],

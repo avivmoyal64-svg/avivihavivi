@@ -167,3 +167,7 @@ $$;
 revoke all on function public.bt_finish(public.bt_games, uuid), public.bt_advance(uuid) from public, anon, authenticated;
 revoke all on function public.bt_create(uuid), public.bt_accept(uuid), public.bt_decline(uuid), public.bt_forfeit(uuid), public.bt_view(uuid), public.bt_pick(uuid, text) from public, anon;
 grant execute on function public.bt_create(uuid), public.bt_accept(uuid), public.bt_decline(uuid), public.bt_forfeit(uuid), public.bt_view(uuid), public.bt_pick(uuid, text) to authenticated;
+
+-- rematch series + coins (applied via migration beat_coins_and_series): bt_pool.n / bt_pool.tot = "fight n of tot" (primary key w,l,n);
+-- bt_accept picks distinct pairs; bt_view returns n/tot (live) and wn/wtot (after the round); bt_wins() feeds the coin display;
+-- earned_coins adds 5 per won Who Beat Who game (see supabase-who.sql for the full function).

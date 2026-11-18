@@ -157,3 +157,15 @@ insert into public.bt_pool(w,l) values
 ('Anthony Pettis','Benson Henderson'),
 ('Nate Diaz','Anthony Pettis')
 on conflict do nothing;
+
+-- rematch series (w beat l in fight n of tot)
+insert into public.bt_pool(w,l,n,tot) values
+('Matt Hughes','Georges St-Pierre',1,3),('Georges St-Pierre','Matt Hughes',2,3),('Georges St-Pierre','Matt Hughes',3,3),
+('Matt Serra','Georges St-Pierre',1,2),('Georges St-Pierre','Matt Serra',2,2),('Johny Hendricks','Robbie Lawler',1,2),('Robbie Lawler','Johny Hendricks',2,2),
+('Junior dos Santos','Cain Velasquez',1,3),('Cain Velasquez','Junior dos Santos',2,3),('Cain Velasquez','Junior dos Santos',3,3),
+('Stipe Miocic','Daniel Cormier',1,2),('Daniel Cormier','Stipe Miocic',2,2),('Stipe Miocic','Francis Ngannou',1,2),('Francis Ngannou','Stipe Miocic',2,2),
+('Frank Mir','Brock Lesnar',1,2),('Brock Lesnar','Frank Mir',2,2),('Dan Henderson','Michael Bisping',1,2),('Michael Bisping','Dan Henderson',2,2),
+('Randy Couture','Chuck Liddell',1,3),('Chuck Liddell','Randy Couture',2,3),('Chuck Liddell','Randy Couture',3,3),
+('Nate Diaz','Conor McGregor',1,2),('Conor McGregor','Nate Diaz',2,2),('Conor McGregor','Dustin Poirier',1,3),('Dustin Poirier','Conor McGregor',2,3),('Dustin Poirier','Conor McGregor',3,3),
+('Alex Pereira','Israel Adesanya',1,2),('Israel Adesanya','Alex Pereira',2,2)
+on conflict do nothing;
