@@ -27,6 +27,7 @@ async function shopLoad() {
     const [c, o, p, w] = await Promise.all([
       SB.from("shop_catalog").select("item,price"), SB.from("shop_owned").select("item"),
       SB.from("shop_profile").select("*"), SB.rpc("shop_wallet")]);
+    try { const sp = await SB.rpc("shop_spent"); if (!sp.error && Array.isArray(sp.data)) { window.SPENT = {}; sp.data.forEach(x => { window.SPENT[x.user_id] = Number(x.spent) || 0; }); } } catch (e) {}
     if (c.error || !c.data || !c.data.length) return;
     SHOP.ok = true; SHOP.price = {}; c.data.forEach(x => { SHOP.price[x.item] = x.price; });
     SHOP.owned = new Set((o.data || []).map(x => x.item));
@@ -105,7 +106,7 @@ window.shopAct = async function (id) {
       if (pr > SHOP.wallet) { alert("Not enough coins."); return; }
       if (!confirm("Buy " + ((it.g || it.i || "") + " " + it.n).trim() + " for " + pr + " coins?")) return;
       const { data, error } = await SB.rpc("shop_buy", { p_item: id }); if (error) { fail(error); return; }
-      SHOP.owned.add(id); SHOP.wallet = typeof data === "number" ? data : SHOP.wallet - pr;
+      SHOP.owned.add(id); window.SPENT = window.SPENT || {}; window.SPENT[ME] = (window.SPENT[ME] || 0) + pr; SHOP.wallet = typeof data === "number" ? data : SHOP.wallet - pr;
       if (kind(id) !== "emoji") await equip(kind(id), id);
       SHOP.msg = "🎉 " + it.n + " is yours!";
       try { ren(); } catch (e) {}
@@ -121,3 +122,6 @@ window.rxStrip = () => "";
 /* ---------- start ---------- */
 (function w(n) { try { if (ME && SB) { shopLoad(); return; } } catch (e) {} if (n < 40) setTimeout(() => w(n + 1), 400); })(0);
 })();
+
+/* keep everybody's spent coins fresh so the leaderboard and the wallet show the same number */
+setInterval(async () => { try { if (!ME || !SB || document.hidden) return; const sp = await SB.rpc("shop_spent"); if (!sp.error && Array.isArray(sp.data)) { const m = {}; sp.data.forEach(x => { m[x.user_id] = Number(x.spent) || 0; }); window.SPENT = m; } } catch (e) {} }, 60000);
