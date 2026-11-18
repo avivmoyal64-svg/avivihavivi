@@ -963,7 +963,7 @@ const LOCKH=5,lockAt=()=>EV.lock-LOCKH*3600e3,locked=()=>Date.now()>=lockAt();
 const realK=k=>/^e\d+-/.test(k)||(EV.fights||[]).some(x=>x.id===k);
 const SK=id=>window.stk?window.stk(id):"";
 const GBON={},GBONUS=100,CASEC={},DUELC={},WHOC={},BOOSTF={};let FPUSE=null;
-const coins=id=>{const b=(GBON[id]?GBONUS:0)+(CASEC[id]||0)+(DUELC[id]||0)+(WHOC[id]||0)+((window.BTC&&window.BTC[id])||0);if((PICKS[id]||{}).hidden)return(PICKS[id].sc||0)+b;const f=(PICKS[id]||{}).fights||{};return b+Object.keys(f).reduce((s,k)=>s+pts(f[k],res(k),mainOf(k),k,id)-lost(f[k],res(k),k,id),0)};
+const coins=id=>{const b=(GBON[id]?GBONUS:0)+(CASEC[id]||0)+(DUELC[id]||0)+(WHOC[id]||0)+((window.BTC&&window.BTC[id])||0)+((window.FLC&&window.FLC[id])||0);if((PICKS[id]||{}).hidden)return(PICKS[id].sc||0)+b;const f=(PICKS[id]||{}).fights||{};return b+Object.keys(f).reduce((s,k)=>s+pts(f[k],res(k),mainOf(k),k,id)-lost(f[k],res(k),k,id),0)};
 function board(){return Object.keys(PICKS).map(id=>({id,c:coins(id),n:(PICKS[id]||{}).hidden?(PICKS[id].n||0):Object.keys((PICKS[id]||{}).fights||{}).filter(realK).length})).sort((a,b)=>b.c-a.c||b.n-a.n)}
 function filt(){const fm=fmap(),out={};Object.keys(PRAW).forEach(id=>{const p=PRAW[id]||{};if(id===ME||!p.fights){out[id]=p;return}const f={};Object.keys(p.fights).forEach(k=>{if(res(k)||(fm[k]&&fm[k].w))f[k]=p.fights[k]});out[id]=Object.assign({},p,{fights:f})});PICKS=out}
 function ren(){try{filt()}catch(e){PICKS=PRAW}try{rmn()}catch(e){}try{pgRef()}catch(e){}
@@ -1328,7 +1328,7 @@ async function pushToggle(){const s=await pushState();
 /* load after login */
 (function w(n){try{if(ME){goatLoad();return}}catch(e){}if(n<40)setTimeout(()=>w(n+1),400)})(0);
 </script>
-<script src="shop.js"></script><script src="bets.js"></script><script src="case.js"></script><script src="duel.js"></script><script src="guess.js"></script><script src="who.js"></script><script src="party.js"></script><script src="beat.js"></script><script src="menu.js"></script><script src="coinbar.js"></script><script>/* close buttons: fire on touchend so a tiny finger drift (or the swipe-to-close handlers) can't swallow the tap */
+<script src="shop.js"></script><script src="bets.js"></script><script src="case.js"></script><script src="duel.js"></script><script src="guess.js"></script><script src="who.js"></script><script src="party.js"></script><script src="beat.js"></script><script src="flags.js"></script><script src="menu.js"></script><script src="coinbar.js"></script><script>/* close buttons: fire on touchend so a tiny finger drift (or the swipe-to-close handlers) can't swallow the tap */
 (function(){let ts=null;
 document.addEventListener("touchstart",e=>{const b=e.target.closest&&e.target.closest(".top button,.pgbk,#zx,.smx");ts=b&&e.touches.length===1?{b,x:e.touches[0].clientX,y:e.touches[0].clientY,t:Date.now()}:null},{passive:true,capture:true});
 document.addEventListener("touchend",e=>{if(!ts)return;const t=e.changedTouches[0],m=ts;ts=null;if(Math.hypot(t.clientX-m.x,t.clientY-m.y)>14||Date.now()-m.t>600)return;if(e.cancelable)e.preventDefault();m.b.click()},{capture:true})})();

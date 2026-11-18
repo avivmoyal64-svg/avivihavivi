@@ -211,7 +211,7 @@ async function note(id, kind) {
 function ui() {
   let el = $("btinv");
   if (!el) { el = document.createElement("div"); el.id = "btinv"; el.setAttribute("role", "alert"); el.hidden = true; document.body.appendChild(el); }
-  const other = ["dlinv", "gqinv", "wwinv", "ptinv"].some(i => { const o = $(i); return o && !o.hidden; });
+  const other = ["dlinv", "gqinv", "wwinv", "ptinv", "flinv"].some(i => { const o = $(i); return o && !o.hidden; });
   const inc = !OK || !ME || OPEN || other ? null : invitesIn().find(g => !DISM[g.id]);
   const acc = inc || !OK || !ME || OPEN || other ? null : playable().find(g => g.a === ME && !DISM[g.id] && Date.parse(g.touched || 0) > Date.now() - 2 * 60e3);
   if (!inc && !acc) { el.hidden = true; el.innerHTML = ""; el.dataset.k = ""; return; }
@@ -228,5 +228,5 @@ function ui() {
 }
 setInterval(() => { try { ui(); } catch (e) {} }, 900);
 setInterval(async () => { try { if (ME && !document.hidden && !OPEN && (G.some(live) || !G.length)) await load(); } catch (e) {} }, 5000);
-setTimeout(() => { try { if (typeof ME !== "undefined" && ME) { load(); if (location.hash === "#beat") window.beatOpen(); } } catch (e) {} }, 4500);
+setTimeout(() => { try { if (typeof ME !== "undefined" && ME) { load(); if (location.hash === "#beat" && !OPEN) window.beatOpen(); } } catch (e) {} }, 4500);
 })();

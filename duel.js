@@ -16,7 +16,7 @@ const DISM = {};
 window.PENDMSG = "You already sent an invite that is still waiting. You can send another one when it is accepted, declined or cancelled.";
 const recent = g => Date.parse(g.created_at) > Date.now() - 864e5;
 window.pendDuel = () => G.some(g => g.a === ME && g.status === "invited" && recent(g));
-window.invitePending = () => !!((window.pendDuel && window.pendDuel()) || (window.pendGuess && window.pendGuess()) || (window.pendWho && window.pendWho()) || (window.pendBeat && window.pendBeat()));
+window.invitePending = () => !!((window.pendDuel && window.pendDuel()) || (window.pendGuess && window.pendGuess()) || (window.pendWho && window.pendWho()) || (window.pendBeat && window.pendBeat()) || (window.pendFlag && window.pendFlag()));
 
 const rnd = a => a[Math.floor(Math.random() * a.length)];
 const shuf = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };

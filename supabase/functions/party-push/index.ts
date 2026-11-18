@@ -1,5 +1,5 @@
 // @ts-nocheck
-// Notifications for party games (?partynote=ROOM) and Who Beat Who (?beatnote=GAME&kind=invited|accepted). Needs the caller's login token.
+// Notifications for party games (?partynote=ROOM), Who Beat Who (?beatnote=GAME&kind=invited|accepted) and Flag Rush (?flagnote=GAME&kind=...). Needs the caller's login token.
 // Uses the same VAPID secrets as send-push. Deployed with verify_jwt off (it checks the token itself).
 import webpush from "npm:web-push@3.6.7";
 
@@ -11,10 +11,12 @@ const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers
 const jr = (o: unknown, st = 200) => new Response(JSON.stringify(o), { status: st, headers: { "content-type": "application/json", ...CORS } });
 const T = {
   en: {
+    flag: (k: string, who: string, id: string) => k === "invited" ? ({ title: who + " challenged you 🏁", body: "Flag Rush: match 7 fighters to their flags before they do. First to 3 rounds.", tag: "flag-" + id, url: "/#flags" }) : ({ title: who + " accepted your challenge 🏁", body: "Flag Rush: the game is starting. Join now.", tag: "flag-" + id, url: "/#flags" }),
     party: (who: string, id: string) => ({ title: who + " invited you to a party 🎉", body: "Party games: join and vote on Hot Seat Heist or Weigh-In Whisper.", tag: "party-" + id, url: "/#party" }),
     beat: (k: string, who: string, id: string) => k === "invited" ? ({ title: who + " challenged you 🥊", body: "Who Beat Who: tap the fighter with the win, faster than they do. First to 5.", tag: "beat-" + id, url: "/#beat" }) : ({ title: who + " accepted your challenge 🥊", body: "Who Beat Who: the game is starting. Join now.", tag: "beat-" + id, url: "/#beat" }),
   },
   he: {
+    flag: (k: string, who: string, id: string) => k === "invited" ? ({ title: who + " אתגר/ה אתכם 🏁", body: "מרוץ דגלים: חברו 7 לוחמים לדגלים שלהם לפני שהם עושים את זה. הראשון ל-3 סיבובים.", tag: "flag-" + id, url: "/#flags" }) : ({ title: who + " אישר/ה את האתגר שלכם 🏁", body: "מרוץ דגלים: המשחק מתחיל. הצטרפו עכשיו.", tag: "flag-" + id, url: "/#flags" }),
     party: (who: string, id: string) => ({ title: who + " הזמין/ה אתכם למסיבה 🎉", body: "משחקי מסיבה: הצטרפו והצביעו על Hot Seat Heist או Weigh-In Whisper.", tag: "party-" + id, url: "/#party" }),
     beat: (k: string, who: string, id: string) => k === "invited" ? ({ title: who + " אתגר/ה אתכם 🥊", body: "מי ניצח את מי: לחצו על הלוחם שניצח, מהר ממנו/ממנה. הראשון ל-5.", tag: "beat-" + id, url: "/#beat" }) : ({ title: who + " אישר/ה את האתגר שלכם 🥊", body: "מי ניצח את מי: המשחק מתחיל. הצטרפו עכשיו.", tag: "beat-" + id, url: "/#beat" }),
   },
@@ -32,8 +34,8 @@ async function push(userIds: string[], make: (s: any) => any) {
 }
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
-  const url = new URL(req.url), pid = url.searchParams.get("partynote"), bid = url.searchParams.get("beatnote"), kind = url.searchParams.get("kind") || "";
-  const id = pid || bid;
+  const url = new URL(req.url), pid = url.searchParams.get("partynote"), bid = url.searchParams.get("beatnote"), fid = url.searchParams.get("flagnote"), kind = url.searchParams.get("kind") || "";
+  const id = pid || bid || fid;
   if (!id || !/^[0-9a-f-]{36}$/i.test(id)) return jr({ skipped: true });
   try {
     const ur = await fetch(SB_URL + "/auth/v1/user", { headers: { apikey: SB_KEY, Authorization: req.headers.get("authorization") || "" } });
@@ -48,11 +50,12 @@ Deno.serve(async (req) => {
       return jr({ sent: await push(mem.map((m: any) => m.uid), (s: any) => (s.lang === "he" ? T.he : T.en).party(who, id)) });
     }
     if (!(["invited", "accepted"].includes(kind))) return jr({ skipped: true });
-    const gm = (await get("bt_games?id=eq." + id + "&select=id,a,b,status,notified"))[0];
+    const tbl = fid ? "fm_games" : "bt_games", tk = fid ? "flag" : "beat";
+    const gm = (await get(tbl + "?id=eq." + id + "&select=id,a,b,status,notified"))[0];
     if (!gm || (gm.a !== me && gm.b !== me)) return jr({ skipped: true });
     if ((kind === "invited" && !(me === gm.a && gm.status === "invited" && !gm.notified)) || (kind === "accepted" && !(me === gm.b && gm.status === "active"))) return jr({ skipped: true });
-    if (kind === "invited") await fetch(SB_URL + "/rest/v1/bt_games?id=eq." + id, { method: "PATCH", headers: dbH, body: JSON.stringify({ notified: true }) });
+    if (kind === "invited") await fetch(SB_URL + "/rest/v1/" + tbl + "?id=eq." + id, { method: "PATCH", headers: dbH, body: JSON.stringify({ notified: true }) });
     const other = me === gm.a ? gm.b : gm.a;
-    return jr({ sent: await push([other], (s: any) => (s.lang === "he" ? T.he : T.en).beat(kind, who, id)) });
+    return jr({ sent: await push([other], (s: any) => (s.lang === "he" ? T.he : T.en)[tk](kind, who, id)) });
   } catch (e) { return jr({ error: "failed" }, 500); }
 });

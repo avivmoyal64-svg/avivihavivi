@@ -539,7 +539,22 @@ var X={
 "Two fighters appear. Tap the one that has a win over the other, faster than your opponent. 10 seconds a round. First to 5 round wins. A wrong tap locks you out for 2 seconds. Some pairs fought more than once, and then you are told which fight to pick (fight 1, fight 2…). The winner gets 5 coins.":"שני לוחמים מופיעים. לחצו על זה שיש לו ניצחון על השני, מהר יותר מהיריב. 10 שניות לסיבוב. הראשון ל-5 סיבובים. לחיצה שגויה נועלת אתכם ל-2 שניות. חלק מהזוגות נלחמו יותר מפעם אחת, ואז כתוב איזה קרב לבחור (קרב 1, קרב 2…). המנצח מקבל 5 מטבעות.",
 "You won! +5 coins":"ניצחתם! +5 מטבעות",
 "Who won that fight?":"מי ניצח בקרב הזה?",
-"Who Beat Who · first to 5 · 5 coins":"מי ניצח את מי · הראשון ל-5 · 5 מטבעות"
+"Who Beat Who · first to 5 · 5 coins":"מי ניצח את מי · הראשון ל-5 · 5 מטבעות",
+"Flag Rush":"מרוץ דגלים",
+"Seven fighters on the left, seven flags on the right. Tap a fighter, then the flag of the country he or she fights for. The first to match all seven wins the round. 60 seconds a round. First to 3 round wins. A wrong match locks you out for 2 seconds. The winner gets 5 coins.":"שבעה לוחמים משמאל, שבעה דגלים מימין. לחצו על לוחם ואז על הדגל של המדינה שהוא או היא מייצגים. הראשון שמחבר את כל השבעה מנצח בסיבוב. 60 שניות לסיבוב. הראשון ל-3 סיבובים מנצח. חיבור שגוי נועל אתכם ל-2 שניות. המנצח מקבל 5 מטבעות.",
+"Challenged you · 🏁 Flag Rush":"אתגר/ה אתכם · 🏁 מרוץ דגלים",
+"Waiting for them to accept · 🏁 Flag Rush":"ממתינים לאישור שלו/ה · 🏁 מרוץ דגלים",
+"Tap a fighter, then their flag":"לחצו על לוחם ואז על הדגל שלו",
+"Wrong match! Locked for 2 seconds.":"חיבור שגוי! נעולים ל-2 שניות.",
+"Locked… wait a moment.":"נעול… חכו רגע.",
+"Could not send that. Try again.":"לא הצלחנו לשלוח. נסו שוב.",
+"You matched all seven first! 🎉":"חיברתם את כל השבעה ראשונים! 🎉",
+"They matched all seven first":"הם חיברו את כל השבעה ראשונים",
+"Time's up. You matched more 🎉":"נגמר הזמן. חיברתם יותר 🎉",
+"Time's up. They matched more":"נגמר הזמן. הם חיברו יותר",
+"Time's up. A tie, nobody scores":"נגמר הזמן. תיקו, אף אחד לא מקבל נקודה",
+"Flag Rush · first to 3 · 5 coins":"מרוץ דגלים · הראשון ל-3 · 5 מטבעות",
+"Flag Rush · join now":"מרוץ דגלים · הצטרפו עכשיו"
 };
 
 /* ---------- dates ---------- */

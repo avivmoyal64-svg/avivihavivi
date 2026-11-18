@@ -333,5 +333,5 @@ function inviteUi() {
 }
 setInterval(() => { try { inviteUi(); } catch (e) {} }, 1000);
 setInterval(() => { try { if (ME && !document.hidden && !OPEN) mine(); } catch (e) {} }, 6000);
-setTimeout(() => { try { if (typeof ME !== "undefined" && ME) { mine(); if (location.hash === "#party") window.partyOpen(); } } catch (e) {} }, 4000);
+setTimeout(() => { try { if (typeof ME !== "undefined" && ME) { mine(); if (location.hash === "#party" && !OPEN) window.partyOpen(); } } catch (e) {} }, 4000);
 })();
