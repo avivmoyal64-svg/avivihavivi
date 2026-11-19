@@ -1334,7 +1334,7 @@ async function pushToggle(){const s=await pushState();
 /* load after login */
 (function w(n){try{if(ME){goatLoad();return}}catch(e){}if(n<40)setTimeout(()=>w(n+1),400)})(0);
 </script>
-<script src="shop.js"></script><script src="bets.js"></script><script src="case.js"></script><script src="duel.js"></script><script src="guess.js"></script><script src="who.js"></script><script src="party.js"></script><script src="beat.js"></script><script src="flags.js"></script><script src="menu.js"></script><script src="coinbar.js"></script><script>/* close buttons: fire on touchend so a tiny finger drift (or the swipe-to-close handlers) can't swallow the tap */
+<script src="shop.js"></script><script src="bets.js"></script><script src="case.js"></script><script src="duel.js"></script><script src="guess.js"></script><script src="who.js"></script><script src="party2.js"></script><script src="party.js"></script><script src="beat.js"></script><script src="flags.js"></script><script src="menu.js"></script><script src="coinbar.js"></script><script>/* close buttons: fire on touchend so a tiny finger drift (or the swipe-to-close handlers) can't swallow the tap */
 (function(){let ts=null;
 document.addEventListener("touchstart",e=>{const b=e.target.closest&&e.target.closest(".top button,.pgbk,#zx,.smx");ts=b&&e.touches.length===1?{b,x:e.touches[0].clientX,y:e.touches[0].clientY,t:Date.now()}:null},{passive:true,capture:true});
 document.addEventListener("touchend",e=>{if(!ts)return;const t=e.changedTouches[0],m=ts;ts=null;if(Math.hypot(t.clientX-m.x,t.clientY-m.y)>14||Date.now()-m.t>600)return;if(e.cancelable)e.preventDefault();m.b.click()},{capture:true})})();

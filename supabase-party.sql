@@ -1,5 +1,5 @@
--- Party games: a room for 3 players, a live vote on the game, a room chat, and two games
--- (Hot Seat Heist and Weigh-In Whisper). Everything is decided on the server; each player only gets what they may see. Safe to re-run.
+-- Party games: a room for 3 players and a live vote on the game. Games: Hot Seat Heist, Weigh-In Whisper, Odd Fighter Out, Pie in the Face Press Conference, Rubber Gloves and Dirty Corner.
+-- Everything is decided on the server; each player only gets what they may see. The newer games live in supabase-party-x.sql. The room chat table and party_say still exist but the screen no longer shows a chat. Safe to re-run.
 -- Fighter pool: see supabase-party-pool.sql (name + record, generated from the site's fighter list).
 create table if not exists public.party_pool(name text primary key, wins int not null, losses int not null, draws int not null, wc text not null);
 create table if not exists public.party_rooms (
@@ -73,14 +73,16 @@ begin
   if r.status = 'voting' then
     select count(*) into cnt from public.party_members where room = p_room and state = 'joined' and vote is not null;
     if cnt >= 3 or n >= coalesce(r.vote_end, 0) then
-      with t as (select g2, count(m.vote) c from unnest(array['heist','whisper']) g2 left join public.party_members m on m.room = p_room and m.vote = g2 group by g2)
+      with t as (select g2, count(m.vote) c from unnest(array['heist','whisper','oddout','pie','gloves','dirty']) g2 left join public.party_members m on m.room = p_room and m.vote = g2 group by g2)
       select array_agg(g2) into tied from t where c = (select max(c) from t);
       w := tied[1 + floor(random() * array_length(tied, 1))::int];
       if w = 'whisper' then
-        gj := jsonb_build_object('game', 'whisper', 'phase', 'intro', 'ends', n + 7000, 'round', 0, 'order', (select jsonb_agg(x) from (select u2 as x from unnest(mem) u2 order by random()) q), 'used', '[]'::jsonb, 'score', jsonb_build_object(mem[1]::text, 0, mem[2]::text, 0, mem[3]::text, 0));
-      else
-        gj := jsonb_build_object('game', 'heist', 'phase', 'intro', 'ends', n + 7000, 'round', 0, 'cat', null, 'choice', '{}'::jsonb, 'last', null, 'score', jsonb_build_object(mem[1]::text, 0, mem[2]::text, 0, mem[3]::text, 0),
+        gj := jsonb_build_object('game', 'whisper', 'phase', 'intro', 'ends', n + 4000, 'round', 0, 'order', (select jsonb_agg(x) from (select u2 as x from unnest(mem) u2 order by random()) q), 'used', '[]'::jsonb, 'score', jsonb_build_object(mem[1]::text, 0, mem[2]::text, 0, mem[3]::text, 0));
+      elsif w = 'heist' then
+        gj := jsonb_build_object('game', 'heist', 'phase', 'intro', 'ends', n + 4000, 'round', 0, 'cat', null, 'choice', '{}'::jsonb, 'last', null, 'score', jsonb_build_object(mem[1]::text, 0, mem[2]::text, 0, mem[3]::text, 0),
           'hand', (select jsonb_object_agg(mem[rn::int]::text, nm2) from (select name nm2, row_number() over (order by random()) rn from (select name from public.party_pool order by random() limit 3) p) h));
+      else
+        gj := public.party_x_start(w, mem);
       end if;
       insert into public.party_secret(room, g) values (p_room, gj) on conflict (room) do update set g = excluded.g;
       update public.party_rooms set status = 'playing', game = w, touched = now(), st = jsonb_build_object('picked', w, 'votes', (select coalesce(jsonb_object_agg(uid, vote), '{}'::jsonb) from public.party_members where room = p_room and vote is not null)) where id = p_room;
@@ -92,8 +94,10 @@ begin
   select s.g into gj from public.party_secret s where s.room = p_room;
   if gj is null then return; end if;
   loop
-    exit when n < (gj->>'ends')::bigint and not (gj->>'phase' in ('clue','vote','pick') and public.party_all_done(gj, mem));
-    if gj->>'game' = 'whisper' then
+    exit when n < (gj->>'ends')::bigint and not (gj->>'phase' in ('clue','vote','pick','act') and public.party_all_done(gj, mem));
+    if gj->>'game' in ('oddout','pie','gloves','dirty') then
+      gj := public.party_x_step(gj, mem);
+    elsif gj->>'game' = 'whisper' then
       if gj->>'phase' = 'intro' then gj := public.party_w_round(gj, 1);
       elsif gj->>'phase' = 'clue' then gj := gj || jsonb_build_object('phase', 'vote', 'ends', public.party_ms() + 50000);
       elsif gj->>'phase' = 'vote' then
@@ -105,12 +109,12 @@ begin
           gj := gj || jsonb_build_object('caught', true, 'phase', 'last', 'ends', public.party_ms() + 25000, 'gain', gain);
         else
           gain := jsonb_build_object(imp, 3);
-          gj := gj || jsonb_build_object('caught', false, 'phase', 'reveal', 'ends', public.party_ms() + 10000, 'gain', gain);
+          gj := gj || jsonb_build_object('caught', false, 'phase', 'reveal', 'ends', public.party_ms() + 5000, 'gain', gain);
         end if;
         sc := gj->'score';
         for k in select jsonb_object_keys(gain) loop sc := jsonb_set(sc, array[k], to_jsonb(coalesce((sc->>k)::int, 0) + (gain->>k)::int)); end loop;
         gj := gj || jsonb_build_object('score', sc);
-      elsif gj->>'phase' = 'last' then gj := gj || jsonb_build_object('phase', 'reveal', 'ends', public.party_ms() + 10000);
+      elsif gj->>'phase' = 'last' then gj := gj || jsonb_build_object('phase', 'reveal', 'ends', public.party_ms() + 5000);
       elsif gj->>'phase' = 'reveal' then
         if (gj->>'round')::int >= 3 then gj := gj || jsonb_build_object('phase', 'over', 'ends', 9e15::bigint);
         else gj := public.party_w_round(gj, (gj->>'round')::int + 1); end if;
@@ -130,7 +134,7 @@ begin
           base := base || jsonb_build_object(u::text, 1 + better);
         end loop;
         foreach u in array mem loop
-          if coalesce(ch->>u::text, 'S') = 'S' then gain := gain || jsonb_build_object(u::text, (base->>u::text)::int)
+          if coalesce(ch->>u::text, 'S') = 'S' then gain := gain || jsonb_build_object(u::text, (base->>u::text)::int);
           else gain := gain || jsonb_build_object(u::text, 0); end if;
         end loop;
         foreach tgt in array array[mem[1]::text, mem[2]::text, mem[3]::text] loop
@@ -148,7 +152,7 @@ begin
         sc := gj->'score';
         foreach u in array mem loop sc := jsonb_set(sc, array[u::text], to_jsonb((sc->>u::text)::int + (gain->>u::text)::int)); end loop;
         foreach u in array mem loop if ch->>u::text is null then ch := ch || jsonb_build_object(u::text, 'S'); end if; end loop;
-        gj := gj || jsonb_build_object('phase', 'reveal', 'ends', public.party_ms() + 9000, 'score', sc, 'last', jsonb_build_object('cat', cat, 'vals', vals, 'gain', gain, 'choice', ch, 'base', base));
+        gj := gj || jsonb_build_object('phase', 'reveal', 'ends', public.party_ms() + 5000, 'score', sc, 'last', jsonb_build_object('cat', cat, 'vals', vals, 'gain', gain, 'choice', ch, 'base', base));
       elsif gj->>'phase' = 'reveal' then
         if (gj->>'round')::int >= 5 then gj := gj || jsonb_build_object('phase', 'over', 'ends', 9e15::bigint);
         else gj := public.party_h_round(gj, (gj->>'round')::int + 1); end if;
@@ -163,7 +167,8 @@ end $$;
 create or replace function public.party_all_done(g jsonb, mem uuid[]) returns boolean language plpgsql immutable as $$
 declare u uuid; src jsonb;
 begin
-  if g->>'game' = 'whisper' then src := case g->>'phase' when 'clue' then g->'clues' when 'vote' then g->'votes' else null end;
+  if g->>'game' in ('oddout','pie','gloves','dirty') then src := case g->>'phase' when 'act' then g->'act' when 'vote' then g->'votes' else null end;
+  elsif g->>'game' = 'whisper' then src := case g->>'phase' when 'clue' then g->'clues' when 'vote' then g->'votes' else null end;
   else src := case g->>'phase' when 'pick' then g->'choice' else null end; end if;
   if src is null then return false; end if;
   foreach u in array mem loop if src->>u::text is null then return false; end if; end loop;
@@ -196,7 +201,7 @@ begin
             where x.id <> p_room and x.status in ('voting', 'playing') and x.touched > now() - interval '10 minutes' and m.state = 'joined') then raise exception 'already in a party'; end if;
   update public.party_members set state = 'joined' where room = p_room and uid = auth.uid() and state = 'invited';
   select count(*) into cnt from public.party_members where room = p_room and state = 'joined';
-  if cnt >= 3 then update public.party_rooms set status = 'voting', vote_end = public.party_ms() + 35000, touched = now() where id = p_room; end if;
+  if cnt >= 3 then update public.party_rooms set status = 'voting', vote_end = public.party_ms() + 20000, touched = now() where id = p_room; end if;
 end $$;
 
 create or replace function public.party_decline(p_room uuid) returns void language plpgsql security definer set search_path = public as $$
@@ -221,7 +226,7 @@ end $$;
 create or replace function public.party_vote(p_room uuid, p_game text) returns void language plpgsql security definer set search_path = public as $$
 declare me uuid := auth.uid(); r record;
 begin
-  if p_game not in ('heist', 'whisper') then raise exception 'bad game'; end if;
+  if p_game not in ('heist', 'whisper', 'oddout', 'pie', 'gloves', 'dirty') then raise exception 'bad game'; end if;
   select * into r from public.party_rooms where id = p_room for update;
   if not found or me is null or not exists(select 1 from public.party_members where room = p_room and uid = auth.uid() and state = 'joined') then raise exception 'no such party'; end if;
   if r.status <> 'voting' then raise exception 'voting is over'; end if;
@@ -256,7 +261,9 @@ begin
   select s.g into gj from public.party_secret s where s.room = p_room;
   select array_agg(m.uid order by m.uid) into mem from public.party_members m where room = p_room and state = 'joined';
   ph := gj->>'phase';
-  if gj->>'game' = 'whisper' then
+  if gj->>'game' in ('oddout','pie','gloves','dirty') then
+    gj := public.party_x_act(gj, me, p_do, p_a, mem);
+  elsif gj->>'game' = 'whisper' then
     if p_do = 'clue' and ph = 'clue' then
       w := lower(regexp_replace(coalesce(p_a, ''), '[^[:alpha:]]', '', 'g'));
       if length(w) < 2 or length(w) > 20 then raise exception 'one word, 2 to 20 letters'; end if;
@@ -269,7 +276,7 @@ begin
     elsif p_do = 'lastguess' and ph = 'last' then
       if me::text <> gj->>'imp' or gj->>'lg' is not null then raise exception 'not allowed'; end if;
       nm := lower(btrim(coalesce(p_a, ''))); hit := (nm = lower(gj->>'fighter'));
-      gj := gj || jsonb_build_object('lg', p_a, 'lres', hit, 'phase', 'reveal', 'ends', public.party_ms() + 10000);
+      gj := gj || jsonb_build_object('lg', p_a, 'lres', hit, 'phase', 'reveal', 'ends', public.party_ms() + 5000);
       if hit then sc := gj->'score'; sc := jsonb_set(sc, array[me::text], to_jsonb((sc->>(me::text))::int + 1)); gj := gj || jsonb_build_object('score', sc, 'gain', jsonb_set(gj->'gain', array[me::text], '1')); end if;
     else raise exception 'not now'; end if;
   else
@@ -286,7 +293,7 @@ begin
 end $$;
 
 create or replace function public.party_view(p_room uuid, p_since bigint default 0) returns jsonb language plpgsql security definer set search_path = public as $$
-declare me uuid := auth.uid(); r record; gj jsonb; mems jsonb; chat jsonb; ph text; imp boolean; show text; chat_ok boolean := true; gv jsonb := null;
+declare me uuid := auth.uid(); r record; gj jsonb; mems jsonb; chat jsonb; ph text; imp boolean; show text; chat_ok boolean := true; gv jsonb := null; memarr uuid[];
 begin
   select * into r from public.party_rooms where id = p_room for update;
   if not found or me is null or not exists(select 1 from public.party_members where room = p_room and uid = auth.uid()) then raise exception 'no such party'; end if;
@@ -299,7 +306,10 @@ begin
     select s.g into gj from public.party_secret s where s.room = p_room;
     if gj is not null then
       ph := gj->>'phase';
-      if gj->>'game' = 'whisper' then
+      select array_agg(m.uid order by m.uid) into memarr from public.party_members m where m.room = p_room and m.state = 'joined';
+      if gj->>'game' in ('oddout','pie','gloves','dirty') then
+        gv := public.party_x_view(gj, me, memarr);
+      elsif gj->>'game' = 'whisper' then
         imp := (gj->>'imp' = me::text); show := case when ph = 'intro' then null when imp and ph not in ('reveal', 'over') then null else gj->>'fighter' end;
         chat_ok := ph <> 'clue';
         gv := jsonb_build_object('game', 'whisper', 'phase', ph, 'ends', (gj->>'ends')::bigint, 'round', (gj->>'round')::int, 'order', gj->'order', 'score', gj->'score',
