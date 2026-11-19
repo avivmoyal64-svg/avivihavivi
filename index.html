@@ -989,17 +989,17 @@ function openPick(i){SWO=false;FPUSE=null;CF=EV.fights[i];const m=((PICKS[ME]||{
 const isDone=()=>locked()&&!(CF&&FPUSE===CF.id);
 function setW(k){if(isDone())return;sel.w=[CF.a,CF.b][k];drawPk()}function setM(m){if(isDone())return;sel.m=m;if(m==="DEC")sel.r=0;drawPk()}function setR(r){if(isDone())return;sel.r=sel.r===r?0:r;drawPk()}
 const WK={},wkLoad=()=>{try{Object.assign(WK,JSON.parse(localStorage.getItem("ufcwk")||"{}"))}catch(e){}};wkLoad();
-function fightStart(f){const i=EV.fights.indexOf(f),r=EV.fights.length-1-i;return EV.lock+r*35*60000}
+function fightStart(f){if(f.st)return f.st;const L=EV.fights.filter(x=>!x.st),i=L.indexOf(f),r=L.length-1-i;return EV.lock+r*35*60000}
 const isIOS=()=>/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 function wakeUp(){isIOS()?clockAlarm():wakeMe()}
 function wakeMe(){const f=CF,st=fightStart(f);if(st<=Date.now()){const e=document.querySelector("#pk .pkf .st");if(e)e.textContent="This fight's estimated start has already passed, so there is nothing to wake you for.";return}
  const z=t=>new Date(t).toISOString().replace(/[-:]/g,"").replace(/\.\d+/,""),x=s=>String(s).replace(/([,;\\])/g,"\\$1").replace(/\n/g,"\\n");
- const al=[(EV.fights.indexOf(f)===EV.fights.length-1?0:20)].map(m=>"BEGIN:VALARM\r\nACTION:DISPLAY\r\nDESCRIPTION:"+x(f.a+" vs "+f.b)+(m?" in "+m+" min":" is about to start")+"\r\nTRIGGER:-PT"+m+"M\r\nEND:VALARM").join("\r\n");
+ const al=[(!f.st&&EV.fights.filter(x=>!x.st).indexOf(f)===EV.fights.filter(x=>!x.st).length-1?0:20)].map(m=>"BEGIN:VALARM\r\nACTION:DISPLAY\r\nDESCRIPTION:"+x(f.a+" vs "+f.b)+(m?" in "+m+" min":" is about to start")+"\r\nTRIGGER:-PT"+m+"M\r\nEND:VALARM").join("\r\n");
  const ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//UFC Fighter Roster//EN","BEGIN:VEVENT","UID:"+EV.id+"-"+f.id+"@ufc-roster","DTSTAMP:"+z(Date.now()),"DTSTART:"+z(st),"DTEND:"+z(st+30*60000),"SUMMARY:"+x("⏰ "+EV.name+": "+f.a+" vs "+f.b),"DESCRIPTION:"+x(f.cls+" - "+f.tag+". Start time is an estimate; the walkout can be earlier or later."),al,"END:VEVENT","END:VCALENDAR"].join("\r\n");
  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([ics],{type:"text/calendar"}));a.download=EV.id+"-"+f.id+"-alarm.ics";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
  WK[f.id]=1;try{localStorage.setItem("ufcwk",JSON.stringify(WK))}catch(e){}
  const st2=document.querySelector("#pk .pkf .st");if(st2)st2.textContent="Alarm file downloaded. Open it to add the alarm to your calendar (20 minutes before, or at the start for the first fight). Start time is an estimate."}
-function clockAlarm(){const f=CF,first=EV.fights.indexOf(f)===EV.fights.length-1,lead=first?0:20,t=new Date(fightStart(f)-lead*60000),p=n=>String(n).padStart(2,"0"),s=t.getFullYear()+"-"+p(t.getMonth()+1)+"-"+p(t.getDate())+" "+p(t.getHours())+":"+p(t.getMinutes());
+function clockAlarm(){const f=CF,first=!f.st&&EV.fights.filter(x=>!x.st).indexOf(f)===EV.fights.filter(x=>!x.st).length-1,lead=first?0:20,t=new Date(fightStart(f)-lead*60000),p=n=>String(n).padStart(2,"0"),s=t.getFullYear()+"-"+p(t.getMonth()+1)+"-"+p(t.getDate())+" "+p(t.getHours())+":"+p(t.getMinutes());
  const st2=document.querySelector("#pk .pkf .st");
  if(t.getTime()<=Date.now()){if(st2)st2.textContent="This fight's estimated start has already passed, so there is nothing to wake you for.";return}
  const fb='<br><button class="btn wk" type="button" onclick="wakeMe()" style="margin-top:8px">📅 Add to calendar instead</button>';
