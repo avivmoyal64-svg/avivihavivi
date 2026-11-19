@@ -50,7 +50,7 @@ function ensure() {
 .ptseat.ok{border-color:var(--grn)}.ptseat em{font-style:normal;font:700 14px Barlow,Heebo,Arial,sans-serif;color:var(--mut)}.ptseat.ok em{color:var(--grn)}
 .ptvote{all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;margin:10px 0;padding:18px 16px;background:linear-gradient(160deg,#34353b,#26272b);border:2px solid #5a5b63;text-align:center;color:#fff}
 .ptvote.me{border-color:var(--gold);box-shadow:0 0 22px rgba(var(--rgb),.45)}
-.ptvote i{display:block;font-style:normal;font-size:44px}.ptvote b{display:block;font:italic 900 30px/1.05 "Barlow Condensed","Heebo",Arial,sans-serif;text-transform:uppercase;letter-spacing:.6px}
+.ptvg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ptvg .ptvote{margin:0;padding:14px 6px}.ptvg .ptvote b{font-size:22px}.ptvote i{display:block;font-style:normal;font-size:44px}.ptvote b{display:block;font:italic 900 30px/1.05 "Barlow Condensed","Heebo",Arial,sans-serif;text-transform:uppercase;letter-spacing:.6px}
 .ptvote span{display:block;margin-top:4px;color:#cfcfd6;font:15px/1.35 Barlow,Heebo,Arial,sans-serif}.ptvote em{display:block;margin-top:8px;font:700 15px Barlow,Heebo,Arial,sans-serif;font-style:normal;color:var(--gold)}
 .ptf{position:sticky;top:-14px;z-index:3;display:flex;gap:14px;align-items:center;margin:-14px -14px 12px;padding:12px 14px;background:#26272b;border-bottom:2px solid var(--gold)}
 .ptf>i{flex:none;width:92px;height:116px;background:#3a3b42 center top/cover no-repeat;border:1px solid #6b6c75}
@@ -120,14 +120,20 @@ async function pull() {
     OFF = Number(v.now) - (t0 + Date.now()) / 2; V = v;
   } catch (e) { if (/no such party/i.test(String(e && e.message))) { ROOM = null; V = null; MSG = "This party is not open any more."; await mine(); render(true); } }
 }
-async function poll() { if (!OPEN || document.hidden || !ROOM) return; await pull(); render(false); }
-setInterval(poll, 800);
+async function poll() {
+  if (!OPEN || document.hidden || !ROOM) return;
+  await pull();
+  if (V && V.g && V.g.phase === "live" && window.PARTYX) { try { window.PARTYX.update(V.g, cx()); } catch (e) { console.error(e); } }
+  render(false);
+}
+(function loop() { setTimeout(async () => { try { await poll(); } catch (e) {} loop(); }, V && V.g && V.g.phase === "live" ? 230 : 800); })();
 setInterval(() => { if (OPEN && !ROOM) mine().then(() => { if (OPEN && !ROOM && !SEL.length && !document.activeElement.matches("input")) render(false); }); }, 4000);
 
 /* ---------- views ---------- */
 const keyOf = () => {
   if (!ROOM || !V) return "pick|" + MINE.map(m => m.id + m.me + m.status).join() + "|" + SEL.join() + "|" + MSG;
   const g = V.g || {};
+  if (g.phase === "live") return [V.status, g.game, "live", MSG].join("|");
   return [V.status, V.closed_by, (V.members || []).map(m => m.state + ":" + (m.vote || "")).join(), g.game, g.phase, g.round, g.role, g.fighter, (g.clued || []).join(), (g.voted || []).join(), g.myvote, (g.chosen || []).join(), g.mychoice,
     g.caught, g.lg, g.lres, window.PARTYX && g.seats ? window.PARTYX.key(g) : "", JSON.stringify(g.score || {}), MSG].join("|");
 };
@@ -147,33 +153,32 @@ function board(g, showGain) {
 function final(g) {
   const ids = (V.members || []).map(m => m.uid), sc = g.score || {}, top = Math.max.apply(null, ids.map(id => sc[id] || 0)), wins = ids.filter(id => (sc[id] || 0) === top);
   const mine = wins.includes(ME);
-  return `<div class="ptbig"><i>${mine ? "🏆" : "🥊"}</i><h3>${wins.length > 1 ? "It's a tie" : esc(nm(wins[0])) + " wins"}</h3><p>${mine ? "You won the party game!" : "Good game. Play again?"}</p></div>${board(g, false)}<button class="ptgo" style="width:100%" type="button" data-a="done">Back to party games</button>`;
+  return `<div class="ptbig"><i>${mine ? "🏆" : "🥊"}</i><h3>${wins.length > 1 ? "It's a tie" : esc(nm(wins[0])) + " wins"}</h3><p>${mine ? "You won the party game!" : "Good game. Play again?"}</p></div>${board(g, false)}<div class="pfn" style="text-align:center">Next game vote in <span data-end="${g.ends}">${secs(g.ends)}</span>s</div>`;
 }
 function picker() {
   const inv = MINE.filter(m => m.me === "invited" && m.status === "lobby"), cur = MINE.filter(m => m.me === "joined");
   const ps = Object.keys(NAMES || {}).filter(id => id !== ME && NAMES[id]).sort((a, b) => nm(a).localeCompare(nm(b)));
   return `${MSG ? `<div class="ptmsg">${esc(MSG)}</div>` : ""}
-<div class="ptbig"><i>🎉</i><h3>Party games</h3><p>Invite two players. Once all three are in, vote for one of six games.</p></div>
+<div class="ptbig"><i>🎉</i><h3>Party games</h3><p>Pick two friends to play.</p></div>
 ${cur.map(m => `<div class="dlr conf"><div><b>${esc(nm(m.host))}'s party</b><small>${m.status === "lobby" ? "Waiting for players" : "In progress"}</small></div><button class="fvb go" type="button" data-a="resume" data-id="${m.id}">Open</button></div>`).join("")}
 ${inv.map(m => `<div class="dlr conf"><div><b>${esc(nm(m.host))}</b><small>Invited you to a party 🎉</small></div><button class="fvb go" type="button" data-a="join" data-id="${m.id}">Join</button><button class="fvb" type="button" data-a="no" data-id="${m.id}">Decline</button></div>`).join("")}
-<div class="dlbox"><b>Pick two players</b><p>${SEL.length} of 2 picked. They get an invite and a notification.</p></div>
-${ps.map(id => `<button type="button" class="ptopt${SEL.includes(id) ? " me" : ""}" data-a="sel" data-id="${esc(id)}">${esc(nm(id))}<small>${SEL.includes(id) ? "Picked ✓" : "Tap to pick"}</small></button>`).join("") || '<div class="pfn">No other players yet.</div>'}
+<div class="dlbox"><b>${SEL.length} of 2 picked</b></div>
+${ps.map(id => `<button type="button" class="ptopt${SEL.includes(id) ? " me" : ""}" data-a="sel" data-id="${esc(id)}">${esc(nm(id))}<small>${SEL.includes(id) ? "✓" : ""}</small></button>`).join("") || '<div class="pfn">No other players yet.</div>'}
 <button class="ptgo" style="width:100%;margin-top:12px;padding:18px" type="button" data-a="start" ${SEL.length === 2 && !BUSY && !cur.length ? "" : "disabled"}>Start the party</button>`;
 }
 function lobby() {
   const ms = V.members || [];
-  return `<div class="ptbig"><i>🎉</i><h3>Waiting for players</h3><p>The vote starts when both accept.</p></div>${ms.map(m => seat(m.uid, m.state, m.uid === V.host ? "Host" : "")).join("")}`;
+  return `<div class="ptbig"><i>🎉</i><h3>Waiting…</h3></div>${ms.map(m => seat(m.uid, m.state, m.uid === V.host ? "Host" : "")).join("")}`;
 }
 function voting() {
   const ms = V.members || [], cnt = g => ms.filter(m => m.vote === g).length;
-  return `<div class="ptbig"><i>🗳️</i><h3>Vote for a game</h3><p>Most votes wins. A tie is picked by chance.</p><span class="ptcd" data-end="${V.vote_end}">${secs(V.vote_end)}</span></div>
-${Object.keys(GAMES).map(k => { const g = GAMES[k], me = (ms.find(m => m.uid === ME) || {}).vote === k, voters = ms.filter(m => m.vote === k).map(m => nm(m.uid)).join(", ");
-    return `<button type="button" class="ptvote${me ? " me" : ""}" data-a="vote" data-id="${k}"><i>${g.i}</i><b>${g.t}</b><span>${g.s}</span><em>${cnt(k)} ${cnt(k) === 1 ? "vote" : "votes"}${voters ? " · " + esc(voters) : ""}</em></button>`; }).join("")}
-<div class="pfn">${ms.filter(m => m.vote).length} of 3 voted</div>`;
+  return `<div class="ptbig" style="padding:12px"><h3 style="margin:0">Pick a game</h3><span class="ptcd" style="font-size:44px" data-end="${V.vote_end}">${secs(V.vote_end)}</span></div>
+<div class="ptvg">${Object.keys(GAMES).map(k => { const g = GAMES[k], me = (ms.find(m => m.uid === ME) || {}).vote === k;
+    return `<button type="button" class="ptvote${me ? " me" : ""}" data-a="vote" data-id="${k}"><i>${g.i}</i><b>${g.t}</b><em>${cnt(k) ? "✔ " + cnt(k) : "·"}</em></button>`; }).join("")}</div>`;
 }
 const RULES = {
-  heist: "Everyone holds a secret fighter. Play it straight to score by rank (3, 2, 1), or steal from someone who plays it straight. 5 rounds.",
-  whisper: "Two Insiders see the same fighter, the Imposter sees nothing. Write one word clues, then vote out the Imposter. 3 rounds."
+  heist: "Score by fighter rank, or steal from a player who plays it straight.",
+  whisper: "Find the Imposter who doesn't know the fighter."
 };
 function intro(g) {
   const G = GAMES[g.game];
@@ -188,15 +193,15 @@ function whisper(g) {
   const ms = (V.members || []).map(m => m.uid);
   if (ph === "clue") {
     const sent = (g.clued || []).includes(ME), mine = (g.clues || {})[ME];
-    return head + `<div class="dlbox"><b>Write one clue word</b><p>${imp ? "You do not know the fighter. Give a vague word that could fit." : "A word about the fighter. Do not use the name. Make it hard enough that the Imposter can't copy you."}</p></div>
-${sent ? `<div class="ptcl"><b>${esc(mine || "")}</b><span>Your clue is in. Waiting for the others…</span></div>` : `<div class="ptin"><input class="gpq" id="ptw" maxlength="20" placeholder="One word" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(WQ)}"><button class="ptgo" type="button" data-a="clue">Send</button></div>`}
+    return head + `<div class="dlbox"><b>One clue word</b><p>${imp ? "Blend in." : "Don't use the name."}</p></div>
+${sent ? `<div class="ptcl"><b>${esc(mine || "")}</b><span>Sent ✓</span></div>` : `<div class="ptin"><input class="gpq" id="ptw" maxlength="20" placeholder="One word" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(WQ)}"><button class="ptgo" type="button" data-a="clue">Send</button></div>`}
 ${ms.map(id => `<div class="ptseat${(g.clued || []).includes(id) ? " ok" : ""}"><div><b>${esc(nm(id))}${id === ME ? " (you)" : ""}</b></div><em>${(g.clued || []).includes(id) ? "Clue in ✓" : "Writing…"}</em></div>`).join("")}${timer(g, 32000)}`;
   }
   if (ph === "vote") {
     const cl = g.clues || {}, vd = g.voted || [];
     return head + `<div class="dlbox"><b>The clues</b></div>${ms.map(id => `<div class="ptcl"><b>${esc(cl[id] || "—")}</b><span>${esc(nm(id))}${id === ME ? " (you)" : ""}</span></div>`).join("")}
-<div class="dlbox"><b>Who is the Imposter?</b><p>Tap the player you think it is.</p></div>
-${others().map(id => `<button type="button" class="ptopt${g.myvote === id ? " me" : ""}" data-a="acc" data-id="${id}">${esc(nm(id))}<small>${g.myvote === id ? "Your vote ✓" : "Tap to accuse"}</small></button>`).join("")}
+<div class="dlbox"><b>Who is the Imposter?</b></div>
+${others().map(id => `<button type="button" class="ptopt${g.myvote === id ? " me" : ""}" data-a="acc" data-id="${id}">${esc(nm(id))}<small>${g.myvote === id ? "✓" : ""}</small></button>`).join("")}
 <div class="pfn" style="text-align:center">${vd.length} of 3 voted</div>${timer(g, 50000)}`;
   }
   if (ph === "last") {
@@ -215,16 +220,16 @@ function heist(g) {
   if (g.phase === "over") return `${final(g)}`;
   if (g.phase === "pick") {
     const ch = (g.chosen || []).includes(ME), mc = g.mychoice, ms = (V.members || []).map(m => m.uid);
-    return head + `${ch ? `<div class="ptmsg" style="border-color:var(--grn);background:#233127">Locked in: ${mc === "S" ? "you play it straight" : "you steal from " + esc(nm(mc))}. Waiting for the others…</div>` : `<div class="dlbox"><b>Your move</b><p>Play it straight, or steal from one player. Stealing only works if they play it straight.</p></div>`}
-<button type="button" class="ptopt s${mc === "S" ? " me" : ""}" data-a="ch" data-id="S" ${ch ? "disabled" : ""}>Play it straight<small>Earn points from your fighter's rank</small></button>
-${others().map(id => `<button type="button" class="ptopt${mc === id ? " me" : ""}" data-a="ch" data-id="${id}" ${ch ? "disabled" : ""}>Steal from ${esc(nm(id))}<small>Take their points if they play it straight</small></button>`).join("")}
+    return head + `${ch ? `<div class="ptmsg" style="border-color:var(--grn);background:#233127">Locked in ✓</div>` : ``}
+<button type="button" class="ptopt s${mc === "S" ? " me" : ""}" data-a="ch" data-id="S" ${ch ? "disabled" : ""}>Play it straight<small>Score by rank</small></button>
+${others().map(id => `<button type="button" class="ptopt${mc === id ? " me" : ""}" data-a="ch" data-id="${id}" ${ch ? "disabled" : ""}>Steal from ${esc(nm(id))}<small>Steal</small></button>`).join("")}
 ${ms.map(id => `<div class="ptseat${(g.chosen || []).includes(id) ? " ok" : ""}"><div><b>${esc(nm(id))}${id === ME ? " (you)" : ""}</b></div><em>${(g.chosen || []).includes(id) ? "Locked ✓" : "Thinking…"}</em></div>`).join("")}${timer(g, 17000)}`;
   }
   const L = g.last || {}, ms = (V.members || []).map(m => m.uid), hand = g.hand || {};
   return head + `<div class="dlbox"><b>Round result</b></div>${ms.map(id => { const c = (L.choice || {})[id]; return `<div class="ptrow${(L.gain || {})[id] > 0 ? " w" : ""}"><div><b>${esc(nm(id))}${id === ME ? " (you)" : ""}</b><small>${esc(hand[id] || "")} · <span dir="ltr">${(L.vals || {})[id]}${cat[1]}</span> · ${c === "S" ? "played straight" : "stole from " + esc(nm(c))}</small></div><strong>+${(L.gain || {})[id] || 0}</strong></div>`; }).join("")}${board(g, false)}
 <div class="pfn" style="text-align:center">${g.round >= 5 ? "Final scores next" : "Next round in"} <span data-end="${g.ends}">${secs(g.ends)}</span>s</div>`;
 }
-function cx() { return { V, ME, nm, esc, srv, secs, intro, final, board, timer, photo: photoOf }; }
+function cx() { return { V, ME, nm, esc, srv, secs, intro, final, board, timer, photo: photoOf, rpc, room: () => ROOM }; }
 function room() {
   if (V.status === "closed") return `<div class="ptbig"><i>👋</i><h3>Party ended</h3><p>${V.closed_by ? esc(nm(V.closed_by)) + (V.closed_by === ME ? " (you)" : "") + " left or declined, so the party was closed." : "The party timed out."}</p></div><button class="ptgo" style="width:100%" type="button" data-a="done">Back to party games</button>`;
   if (V.status === "lobby") return lobby();
