@@ -1102,7 +1102,8 @@ function hnav(){const el=document.getElementById("hn");if(!el)return;const mine=
  el.innerHTML=`<button class="hcard" onclick="openPage('picks')"><i>🥊</i><span><b>This week's picks</b><small>${esc(EV.name||"")} · ${ME&&DB?n+" of "+t+" picked · ":""}${locked()?"picks locked":"picks lock "+new Date(lockAt()).toLocaleString(LOC(),{weekday:"short",hour:"2-digit",minute:"2-digit"})}</small></span><em>›</em></button><button class="hcard" onclick="openPage('score')"><i>🏆</i><span><b>Scoreboard, last week &amp; past events</b><small>${ME&&DB&&rank?"You're #"+rank+" · "+coins(ME)+" coins":"See who's winning"}</small></span><em>›</em></button><button class="hcard" onclick="openPage('goat')"><i>🐐</i><span><b>GOAT list</b><small>Your top 20 fighters of all time</small></span><em>›</em></button><button class="hcard" onclick="openPage('shop')"><i>🛍️</i><span><b>Shop</b><small>Emojis, color themes & stickers</small></span><em>›</em></button>${window.caseCard?window.caseCard():""}${window.duelCard?window.duelCard():""}${window.guessCard?window.guessCard():""}`}
 let SWO=false;
 function togSW(){SWO=!SWO;drawPk()}
-function swHtml(f){const get=n=>{const r=findF(n);return r?D[r[0]][r[1]]:null},A=get(f.a),B=get(f.b);
+const XP={"Santiago Luna":{base:["Greco-Roman Wrestling","BJJ"],s:["Offensive Wrestling","Finishing Ability","Grappling","Reach"],w:["Defensive Wrestling","Defensive BJJ","Gets Hit a Lot"]}};
+function swHtml(f){const get=n=>{const r=findF(n);return r?D[r[0]][r[1]]:XP[n]||null},A=get(f.a),B=get(f.b);
  const chips=(x,c)=>x&&x.length?x.map(z=>`<span class="swt ${c}">${esc(z)}</span>`).join(""):'<span class="swn">—</span>';
  const head=(n,X)=>`<div class="swh">${avZ(n)}<b>${esc(n)}</b></div>`;
  const row=(l,k,c)=>`<div class="swl ${c||""}">${l}</div><div class="swc">${A?chips(A[k],c):'<span class="swn">No profile data yet</span>'}</div><div class="swc">${B?chips(B[k],c):'<span class="swn">No profile data yet</span>'}</div>`;
