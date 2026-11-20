@@ -70,14 +70,27 @@ window.setBanner = async function (f, c) {
 };
 
 const SWATCH = ["#d20a0a", "#ff6a00", "#ffcc33", "#3fbf6a", "#1a9fe0", "#3d5afe", "#9b5cff", "#f253b8", "#e8e8ec"];
-window.pfBannerUI = function (id) {
-  if (id !== ME || !SB) return "";
+function bannerUI() {
   if (!window.hasBanner()) return SHOP.ok ? '<div class="pfn" style="margin-bottom:12px">🖼️ Win a <b>Profile banner</b> in the daily case to show a fighter and your own colour on your profile.</div>' : "";
   const b = window.bannerOf(ME) || { f: "", c: "" };
   return `<div class="pfcz"><h3>Your profile banner</h3><div class="pfn">Pick a fighter to show big on your profile and choose your colour.</div>
   <input class="gpq" id="pfq" type="search" placeholder="Search a fighter" autocomplete="off" oninput="pfbList(this.value)"><div class="dlfl" id="pfl"></div>
   <div class="pfsw">${SWATCH.map(c => `<button type="button" style="background:${c}" class="${b.c === c ? "on" : ""}" aria-label="${c}" onclick="pfbColor('${c}')"></button>`).join("")}<input type="color" value="${/^#[0-9a-f]{6}$/i.test(b.c) ? b.c : "#d20a0a"}" aria-label="Custom colour" onchange="pfbColor(this.value)"></div>
   ${b.f || b.c ? '<button type="button" class="fvb" onclick="pfbClear()">Remove banner</button>' : ""}</div>`;
+}
+function stickerUI() {
+  if (!SHOP.ok) return "";
+  const mine = Object.keys(IT).filter(i => kind(i) === "sticker" && SHOP.price[i] !== undefined && owned(i)), cur = (SHOP.prof[ME] || {}).sticker || "";
+  if (!mine.length) return '<div class="pfn" style="margin-bottom:12px">⭐ Get a <b>sticker</b> in the daily case or the shop to show it next to your name.</div>';
+  return `<div class="pfcz"><h3>Your sticker</h3><div class="pfn">The sticker next to your name. Tap one to use it.</div><div class="pfstk">${mine.map(i => `<button type="button" class="${cur === i ? "on" : ""}" data-i="${i}" onclick="pfsPick(this.dataset.i)"><span class="stk ${i}">${IT[i].i} ${IT[i].n}</span></button>`).join("")}${cur ? '<button type="button" class="none" data-i="" onclick="pfsPick(\'\')">No sticker</button>' : ""}</div></div>`;
+}
+window.pfBannerUI = function (id) {
+  if (id !== ME || !SB) return "";
+  return bannerUI() + stickerUI();
+};
+window.pfsPick = async function (i) {
+  try { if (i) await window.shopAct(i); else await window.shopOff("sticker"); } catch (e) {}
+  try { openProf(ME, 1); } catch (e) {}
 };
 window.pfbList = function (v) {
   const out = $("pfl"); if (!out) return; const k = nz(v || ""), all = [];

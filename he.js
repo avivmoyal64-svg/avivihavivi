@@ -54,7 +54,7 @@ var X={
 "© 2026 UFC Fighter Roster fan site":"© 2026 אתר מעריצים סגל לוחמי UFC",
 "Terms":"תנאי שימוש","Privacy":"פרטיות","Privacy Policy":"מדיניות הפרטיות","Copyright":"זכויות יוצרים","Contact":"יצירת קשר",
 "Open this page while signed in to claude.ai to log in, pick winners and earn coins.":"פתחו את הדף כשאתם מחוברים ל-claude.ai כדי להתחבר, לבחור מנצחים ולהרוויח מטבעות.",
-"Connecting…":"מתחבר…","Settings":"הגדרות","Log out":"התנתקות","Delete account":"מחיקת חשבון","Join the game":"הצטרפו למשחק","Pick winners, earn coins, climb the scoreboard":"בחרו מנצחים, הרוויחו מטבעות וטפסו בלוח התוצאות",
+"Connecting…":"מתחבר…","Settings":"הגדרות","Edit profile":"עריכת פרופיל","Your sticker":"המדבקה שלכם","The sticker next to your name. Tap one to use it.":"המדבקה שליד השם שלכם. הקישו על אחת כדי להשתמש בה.","No sticker":"בלי מדבקה","Log out":"התנתקות","Delete account":"מחיקת חשבון","Join the game":"הצטרפו למשחק","Pick winners, earn coins, climb the scoreboard":"בחרו מנצחים, הרוויחו מטבעות וטפסו בלוח התוצאות",
 "right winner":"מנצח נכון","right method":"שיטה נכונה","right round":"סיבוב נכון","main event":"קרב ראשי","+100 coins":"\u200e+100 מטבעות","+50 coins":"\u200e+50 מטבעות","2x":"פי 2",
 "Log in":"התחברות","Create account":"יצירת חשבון","Email":"אימייל","Display name":"שם תצוגה","Password":"סיסמה","Show":"הצגה","Hide":"הסתרה","6+ characters":"6 תווים לפחות","Shown on the scoreboard":"יוצג בלוח התוצאות",
 "By creating an account you confirm you are 16 or older and agree to the":"בפתיחת חשבון אתם מאשרים שאתם בני 16 ומעלה ומסכימים ל",
