@@ -1022,7 +1022,8 @@ function pkSort(ks){const O={},en=k=>parseInt((String(k).match(/^e(\d+)/)||[])[1
  (ARCH||[]).forEach(e=>add(e.ts||0,e.fights));
  if(LASTX&&!(ARCH||[]).some(e=>e.id===LASTX.id))add(Date.now()-864e5,LASTX.fights);
  if(EV&&EV.fights)add(EV.lock||Date.now(),EV.fights);
- const g=k=>O[k]||{ts:0,o:/-main$/.test(k)?0:999};
+ const T={};Object.keys(O).forEach(k=>{const e=(k.match(/^e\d+/)||[])[0];if(e)T[e]=Math.max(T[e]||0,O[k].ts)});
+ const g=k=>O[k]||{ts:T[(String(k).match(/^e\d+/)||[])[0]]||0,o:500};
  return ks.slice().sort((a,b)=>{const A=g(a),B=g(b);return (B.ts-A.ts)||(en(b)-en(a))||(A.o-B.o)||String(a).localeCompare(String(b))})}
 function openProf(id){try{window.reactLoad&&window.reactLoad()}catch(e){}const P=PICKS[id]||{},mine=id===ME,hid=!!P.hidden,B=board(),rank=B.findIndex(x=>x.id===id)+1,f=P.fights||{};
  const keys=pkSort(Object.keys(f).filter(realK));
