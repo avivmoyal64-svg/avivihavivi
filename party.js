@@ -1,10 +1,10 @@
-/* Party games: a full-screen room for 3 players. Invite two players, vote live on a game, play.
+/* Party games: a full-screen room for 2 or 3 players. Invite one or two players, vote live on a game, play.
    Games: Hot Seat Heist, Weigh-In Whisper, Odd Fighter Out, Pie Press Conference, Rubber Gloves, Dirty Corner (the last four live in party2.js). The server decides everything. Loaded after who.js. */
 (function () {
 "use strict";
 const $ = id => document.getElementById(id);
 const nm = id => (typeof NAMES !== "undefined" && NAMES[id]) || "Player";
-let OPEN = false, ROOM = null, V = null, OFF = 0, MINE = [], SEL = [], MSG = "", BUSY = false, KEY = "", MQ = "", WQ = "";
+let OPEN = false, ROOM = null, V = null, OFF = 0, VNOW = 0, INF = 0, MINE = [], SEL = [], MSG = "", BUSY = false, KEY = "", MQ = "", WQ = "";
 const DISM = {};
 const srv = () => Date.now() + OFF;
 const secs = ms => Math.max(0, Math.ceil((ms - srv()) / 1000));
@@ -14,14 +14,15 @@ const norm = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLow
 const fighters = () => { const a = []; for (const c in D) D[c].forEach(f => a.push(f.n)); return a; };
 const fdata = n => { for (const c in D) { const f = D[c].find(x => x.n === n); if (f) return { f, c }; } return null; };
 const GAMES = {
-  heist: { i: "💰", t: "Hot Seat Heist", s: "Steal points from the other two. Guess who will play it safe." },
+  heist: { i: "💰", t: "Hot Seat Heist", s: "Steal points from the others. Guess who will play it safe." },
   whisper: { i: "🤫", t: "Weigh-In Whisper", s: "One of you is the Imposter and has no idea who the fighter is." }
 };
 { const X = window.PARTYX; if (X) for (const k in X.games) GAMES[k] = X.games[k]; }
+const NEED3 = { whisper: 1, dirty: 1 };
 const CATS = { wins: ["Most wins", ""], fights: ["Most fights", ""], pct: ["Best win rate", "%"], loss: ["Fewest losses", ""] };
 const ERR = e => {
   const t = String((e && e.message) || e);
-  return /already in a party/i.test(t) ? "You are already in a party. Finish or leave it first." : /too many/i.test(t) ? "You started too many parties today. Try again tomorrow." : /pick two/i.test(t) ? "Pick two other players." :
+  return /already in a party/i.test(t) ? "You are already in a party. Finish or leave it first." : /too many/i.test(t) ? "You started too many parties today. Try again tomorrow." : /pick (one or )?two/i.test(t) ? "Pick one or two other players." : /needs 3/i.test(t) ? "That game needs 3 players." :
     /do not use the name/i.test(t) ? "Do not use the fighter's name. Give a different clue." : /one word/i.test(t) ? "Write one word (2 to 20 letters)." : /slow down/i.test(t) ? "Slow down a little." :
     /not open|closed|no such party/i.test(t) ? "This party is not open any more." : "Could not do that. Try again.";
 };
@@ -110,14 +111,31 @@ addEventListener("popstate", () => {
 /* ---------- data ---------- */
 async function mine() { if (!SB || !ME) return; try { MINE = await rpc("party_mine"); } catch (e) { MINE = MINE || []; } }
 async function enter(id) {
-  ROOM = id; V = null; KEY = ""; await pull();
+  ROOM = id; V = null; KEY = ""; VNOW = 0; await pull();
 }
+/* take a fresh view (from a poll or straight from an action); ignore answers that are older than what we have */
+function take(v, t0) {
+  if (!v || !ROOM || v.id !== ROOM) return false;
+  const n = Number(v.now) || 0; if (n && n < VNOW) return false; VNOW = n;
+  OFF = n - (t0 + Date.now()) / 2; V = v; return true;
+}
+/* one request per tap: the server answers with the new view. The screen updates first (optimistic), then corrects itself. */
+async function act(d, a, guess) {
+  if (guess && V && V.g) { try { guess(V.g); } catch (e) {} render(true); }
+  const t0 = Date.now();
+  try {
+    const r = await rpc("party_act", { p_room: ROOM, p_do: d, p_a: a });
+    if (!(r && r.view && take(r.view, t0))) await pull();
+  } catch (er) { flash(ERR(er)); await pull(); }
+  render(true);
+}
+const addMe = (arr) => (arr || []).includes(ME) ? arr : (arr || []).concat(ME);
 async function pull() {
   if (!ROOM) return;
   const t0 = Date.now();
   try {
     const v = await rpc("party_view", { p_room: ROOM, p_since: 0 });
-    OFF = Number(v.now) - (t0 + Date.now()) / 2; V = v;
+    take(v, t0);
   } catch (e) { if (/no such party/i.test(String(e && e.message))) { ROOM = null; V = null; MSG = "This party is not open any more."; await mine(); render(true); } }
 }
 async function poll() {
@@ -126,7 +144,10 @@ async function poll() {
   if (V && V.g && V.g.phase === "live" && window.PARTYX) { try { window.PARTYX.update(V.g, cx()); } catch (e) { console.error(e); } }
   render(false);
 }
-(function loop() { setTimeout(async () => { try { await poll(); } catch (e) {} loop(); }, V && V.g && V.g.phase === "live" ? 230 : 800); })();
+(function loop() {
+  const live = !!(V && V.g && V.g.phase === "live");
+  setTimeout(() => { if (INF < (live ? 2 : 1)) { INF++; poll().catch(() => {}).then(() => { INF--; }); } loop(); }, live ? 170 : 550);
+})();
 setInterval(() => { if (OPEN && !ROOM) mine().then(() => { if (OPEN && !ROOM && !SEL.length && !document.activeElement.matches("input")) render(false); }); }, 4000);
 
 /* ---------- views ---------- */
@@ -159,12 +180,12 @@ function picker() {
   const inv = MINE.filter(m => m.me === "invited" && m.status === "lobby"), cur = MINE.filter(m => m.me === "joined");
   const ps = Object.keys(NAMES || {}).filter(id => id !== ME && NAMES[id]).sort((a, b) => nm(a).localeCompare(nm(b)));
   return `${MSG ? `<div class="ptmsg">${esc(MSG)}</div>` : ""}
-<div class="ptbig"><i>🎉</i><h3>Party games</h3><p>Pick two friends to play.</p></div>
+<div class="ptbig"><i>🎉</i><h3>Party games</h3><p>Pick one or two friends to play.</p></div>
 ${cur.map(m => `<div class="dlr conf"><div><b>${esc(nm(m.host))}'s party</b><small>${m.status === "lobby" ? "Waiting for players" : "In progress"}</small></div><button class="fvb go" type="button" data-a="resume" data-id="${m.id}">Open</button></div>`).join("")}
 ${inv.map(m => `<div class="dlr conf"><div><b>${esc(nm(m.host))}</b><small>Invited you to a party 🎉</small></div><button class="fvb go" type="button" data-a="join" data-id="${m.id}">Join</button><button class="fvb" type="button" data-a="no" data-id="${m.id}">Decline</button></div>`).join("")}
-<div class="dlbox"><b>${SEL.length} of 2 picked</b></div>
+<div class="dlbox"><b>${SEL.length} of 2 picked</b><p>${SEL.length === 1 ? "2-player party. Pick one more for all 6 games." : "With 2 players: 4 games. With 3 players: all 6."}</p></div>
 ${ps.map(id => `<button type="button" class="ptopt${SEL.includes(id) ? " me" : ""}" data-a="sel" data-id="${esc(id)}">${esc(nm(id))}<small>${SEL.includes(id) ? "✓" : ""}</small></button>`).join("") || '<div class="pfn">No other players yet.</div>'}
-<button class="ptgo" style="width:100%;margin-top:12px;padding:18px" type="button" data-a="start" ${SEL.length === 2 && !BUSY && !cur.length ? "" : "disabled"}>Start the party</button>`;
+<button class="ptgo" style="width:100%;margin-top:12px;padding:18px" type="button" data-a="start" ${SEL.length >= 1 && !BUSY && !cur.length ? "" : "disabled"}>Start the party</button>`;
 }
 function lobby() {
   const ms = V.members || [];
@@ -173,8 +194,8 @@ function lobby() {
 function voting() {
   const ms = V.members || [], cnt = g => ms.filter(m => m.vote === g).length;
   return `<div class="ptbig" style="padding:12px"><h3 style="margin:0">Pick a game</h3><span class="ptcd" style="font-size:44px" data-end="${V.vote_end}">${secs(V.vote_end)}</span></div>
-<div class="ptvg">${Object.keys(GAMES).map(k => { const g = GAMES[k], me = (ms.find(m => m.uid === ME) || {}).vote === k;
-    return `<button type="button" class="ptvote${me ? " me" : ""}" data-a="vote" data-id="${k}"><i>${g.i}</i><b>${g.t}</b><em>${cnt(k) ? "✔ " + cnt(k) : "·"}</em></button>`; }).join("")}</div>`;
+<div class="ptvg">${Object.keys(GAMES).map(k => { const g = GAMES[k], me = (ms.find(m => m.uid === ME) || {}).vote === k, off = ms.length < 3 && NEED3[k];
+    return `<button type="button" class="ptvote${me ? " me" : ""}" data-a="vote" data-id="${k}" ${off ? 'disabled style="opacity:.4"' : ""}><i>${g.i}</i><b>${g.t}</b><em>${off ? "3 players" : cnt(k) ? "✔ " + cnt(k) : "·"}</em></button>`; }).join("")}</div>`;
 }
 const RULES = {
   heist: "Score by fighter rank, or steal from a player who plays it straight.",
@@ -202,7 +223,7 @@ ${ms.map(id => `<div class="ptseat${(g.clued || []).includes(id) ? " ok" : ""}">
     return head + `<div class="dlbox"><b>The clues</b></div>${ms.map(id => `<div class="ptcl"><b>${esc(cl[id] || "—")}</b><span>${esc(nm(id))}${id === ME ? " (you)" : ""}</span></div>`).join("")}
 <div class="dlbox"><b>Who is the Imposter?</b></div>
 ${others().map(id => `<button type="button" class="ptopt${g.myvote === id ? " me" : ""}" data-a="acc" data-id="${id}">${esc(nm(id))}<small>${g.myvote === id ? "✓" : ""}</small></button>`).join("")}
-<div class="pfn" style="text-align:center">${vd.length} of 3 voted</div>${timer(g, 50000)}`;
+<div class="pfn" style="text-align:center">${vd.length} of ${ms.length} voted</div>${timer(g, 50000)}`;
   }
   if (ph === "last") {
     if (imp) return head + `<div class="dlbox dlose"><b>You were caught!</b><p>You get one last guess. Name the fighter for 1 point.</p></div><div class="dlr conf dlpn"><input class="gpq" id="ptq" type="search" placeholder="Type a name and tap the fighter" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(MQ)}"><div class="dlfl" id="ptl"></div></div>${timer(g, 25000)}`;
@@ -229,7 +250,7 @@ ${ms.map(id => `<div class="ptseat${(g.chosen || []).includes(id) ? " ok" : ""}"
   return head + `<div class="dlbox"><b>Round result</b></div>${ms.map(id => { const c = (L.choice || {})[id]; return `<div class="ptrow${(L.gain || {})[id] > 0 ? " w" : ""}"><div><b>${esc(nm(id))}${id === ME ? " (you)" : ""}</b><small>${esc(hand[id] || "")} · <span dir="ltr">${(L.vals || {})[id]}${cat[1]}</span> · ${c === "S" ? "played straight" : "stole from " + esc(nm(c))}</small></div><strong>+${(L.gain || {})[id] || 0}</strong></div>`; }).join("")}${board(g, false)}
 <div class="pfn" style="text-align:center">${g.round >= 5 ? "Final scores next" : "Next round in"} <span data-end="${g.ends}">${secs(g.ends)}</span>s</div>`;
 }
-function cx() { return { V, ME, nm, esc, srv, secs, intro, final, board, timer, photo: photoOf, rpc, room: () => ROOM }; }
+function cx() { return { V, ME, nm, esc, srv, secs, intro, final, board, timer, photo: photoOf, rpc, room: () => ROOM, take: (v, t0) => { if (take(v, t0) && V.g && V.g.phase === "live" && window.PARTYX) { try { window.PARTYX.update(V.g, cx()); } catch (e) {} } } }; }
 function room() {
   if (V.status === "closed") return `<div class="ptbig"><i>👋</i><h3>Party ended</h3><p>${V.closed_by ? esc(nm(V.closed_by)) + (V.closed_by === ME ? " (you)" : "") + " left or declined, so the party was closed." : "The party timed out."}</p></div><button class="ptgo" style="width:100%" type="button" data-a="done">Back to party games</button>`;
   if (V.status === "lobby") return lobby();
@@ -275,23 +296,26 @@ async function onClick(e) {
     if (a === "sel") { SEL = SEL.includes(id) ? SEL.filter(x => x !== id) : SEL.length < 2 ? SEL.concat(id) : SEL; MSG = ""; render(true); return; }
     if (a === "start") {
       BUSY = true; MSG = "";
-      try { const rid = await rpc("party_create", { p_b: SEL[0], p_c: SEL[1] }); note(rid); SEL = []; BUSY = false; await enter(rid); } catch (er) { console.error("party", er); MSG = ERR(er); }
+      try { const rid = await rpc("party_create", { p_b: SEL[0], p_c: SEL[1] || null }); note(rid); SEL = []; BUSY = false; await enter(rid); } catch (er) { console.error("party", er); MSG = ERR(er); }
       BUSY = false; render(true); return;
     }
     if (a === "resume") { await enter(id); render(true); return; }
     if (a === "join") { BUSY = true; try { await rpc("party_accept", { p_room: id }); await enter(id); } catch (er) { MSG = ERR(er); await mine(); } BUSY = false; render(true); return; }
     if (a === "no") { try { await rpc("party_decline", { p_room: id }); } catch (er) {} await mine(); render(true); return; }
     if (a === "done") { ROOM = null; V = null; await mine(); render(true); return; }
-    if (a === "vote") { await rpc("party_vote", { p_room: ROOM, p_game: id }); await pull(); render(true); return; }
-    if (a === "clue") { const w = $("ptw"); if (!w) return; WQ = ""; await rpc("party_act", { p_room: ROOM, p_do: "clue", p_a: w.value }); await pull(); render(true); return; }
-    if (a === "acc") { await rpc("party_act", { p_room: ROOM, p_do: "accuse", p_a: id }); await pull(); render(true); return; }
-    if (a === "px") { await rpc("party_act", { p_room: ROOM, p_do: "pick", p_a: id }); await pull(); render(true); return; }
-    if (a === "px2") { await rpc("party_act", { p_room: ROOM, p_do: "accuse", p_a: id }); await pull(); render(true); return; }
-    if (a === "fling") { const m = window.PARTYX && window.PARTYX.aim(); if (!m) { flash("Drag on the ring to aim first."); return; } await rpc("party_act", { p_room: ROOM, p_do: "pick", p_a: m.a.toFixed(3) + "," + m.p.toFixed(2) }); await pull(); render(true); return; }
-    if (a === "ch") { await rpc("party_act", { p_room: ROOM, p_do: "choose", p_a: id }); await pull(); render(true); return; }
+    if (a === "vote") {
+      const m = (V && V.members || []).find(x => x.uid === ME); if (m) { m.vote = id; render(true); }
+      try { await rpc("party_vote", { p_room: ROOM, p_game: id }); } catch (er) { flash(ERR(er)); }
+      await pull(); render(true); return;
+    }
+    if (a === "clue") { const w = $("ptw"); if (!w) return; const word = w.value; WQ = ""; await act("clue", word, g => { g.clued = addMe(g.clued); g.clues = Object.assign({}, g.clues, { [ME]: word.toLowerCase() }); }); return; }
+    if (a === "acc" || a === "px2") { await act("accuse", id, g => { g.myvote = id; g.voted = addMe(g.voted); }); return; }
+    if (a === "px") { await act("pick", id, g => { g.mine = id; g.acted = addMe(g.acted); }); return; }
+    if (a === "fling") { const m = window.PARTYX && window.PARTYX.aim(); if (!m) { flash("Drag on the ring to aim first."); return; } await act("pick", m.a.toFixed(3) + "," + m.p.toFixed(2)); return; }
+    if (a === "ch") { await act("choose", id, g => { g.mychoice = id; g.chosen = addMe(g.chosen); }); return; }
   } catch (er) { flash(ERR(er)); }
 }
-async function lastGuess(n) { try { MQ = ""; await rpc("party_act", { p_room: ROOM, p_do: "lastguess", p_a: n }); await pull(); render(true); } catch (er) { flash(ERR(er)); } }
+async function lastGuess(n) { MQ = ""; await act("lastguess", n); }
 document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target && e.target.id === "ptw") { const b = document.querySelector('#ptb [data-a="clue"]'); if (b) b.click(); } });
 document.addEventListener("input", e => { if (e.target && e.target.id === "ptq") { MQ = e.target.value; fillList(); } });
 async function note(id) {

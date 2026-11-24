@@ -228,13 +228,14 @@ async function guess(name) {
     return;
   }
   try {
-    const r = await SB.rpc("who_guess", { p_game: M, p_name: name });
+    const t0 = Date.now(), r = await SB.rpc("who_guess_v", { p_game: M, p_name: name });
     if (r.error) throw r.error;
     const d = r.data || {};
-    if (d.hit) { MSG = ""; await pull(); window.whoShow(); return; }
+    const fresh = () => { if (d.view && d.view.now) { V = d.view; OFF = Number(V.now) - (t0 + Date.now()) / 2; LK = Math.max(LK, Number(V.lock) || 0); return true; } return false; };
+    if (d.hit) { MSG = ""; if (!fresh()) await pull(); window.whoShow(); return; }
     if (d.why === "wrong") { WR.push(name); LK = srv() + 2000; setMsg("Not " + name + ". Locked for 2 seconds."); }
     else if (d.why === "locked") setMsg("Wait a moment…");
-    else await pull();
+    else if (!fresh()) await pull();
   } catch (e) { setMsg("Could not send that guess. Try again."); }
 }
 function setMsg(t) { const e = $("wwmsg"); if (e) e.textContent = t; }

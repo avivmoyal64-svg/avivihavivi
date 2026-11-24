@@ -277,11 +277,12 @@ function choose(side, v) {
 async function submit(n, c) {
   SEL = null; SEND = true;
   try {
-    const d = await rpc("fm_pick", { p_game: M, p_name: n, p_cc: c });
-    if (d.ok) { FB = ""; await pull(); }
+    const t0 = Date.now(), d = await rpc("fm_pick_v", { p_game: M, p_name: n, p_cc: c });
+    const fresh = () => { if (d.view && d.view.now) { OFF = Number(d.view.now) - (t0 + Date.now()) / 2; V = d.view; LK = Math.max(LK, Number(V.lock) || 0); return true; } return false; };
+    if (d.ok) { FB = ""; if (!fresh()) await pull(); }
     else if (d.why === "wrong") { LK = srv() + 2000; FB = "Wrong match! Locked for 2 seconds."; }
     else if (d.why === "locked") FB = "Locked… wait a moment.";
-    else await pull();
+    else if (!fresh()) await pull();
   } catch (er) { FB = "Could not send that. Try again."; }
   SEND = false; render(true);
 }

@@ -193,11 +193,12 @@ async function pick(name) {
   const m = model(); if (!m || m.ph !== "live") return; const now = srv(); if (now < LK) return;
   const setMsg = t => { const e = $("btmsg"); if (e) e.textContent = t; };
   try {
-    const d = await rpc("bt_pick", { p_game: M, p_name: name });
-    if (d.hit) { await pull(); render(true); return; }
+    const t0 = Date.now(), d = await rpc("bt_pick_v", { p_game: M, p_name: name });
+    const fresh = () => { if (d.view && d.view.now) { OFF = Number(d.view.now) - (t0 + Date.now()) / 2; V = d.view; LK = Math.max(LK, Number(V.lock) || 0); return true; } return false; };
+    if (d.hit) { if (!fresh()) await pull(); render(true); return; }
     if (d.why === "wrong") { LK = srv() + 2000; setMsg("Wrong! Locked for 2 seconds."); const vs = $("btvs"); if (vs) vs.classList.add("btlk"); }
     else if (d.why === "locked") setMsg("Locked… wait a moment.");
-    else await pull();
+    else if (!fresh()) await pull();
   } catch (er) { setMsg("Could not send that. Try again."); }
 }
 async function note(id, kind) {

@@ -46,7 +46,7 @@ function css() {
 @keyframes pxlv{0%,100%{opacity:.35}50%{opacity:.7}}`;
   document.head.appendChild(s);
 }
-const wait = (g, txt) => `<div class="pxsay g">${txt || "Locked in ✓"} <small>(${(g.acted || []).length}/3)</small></div>`;
+const wait = (g, txt) => `<div class="pxsay g">${txt || "Locked in ✓"} <small>(${(g.acted || []).length}/${(g.seats || []).length || 3})</small></div>`;
 
 /* ---------- Odd Fighter Out ---------- */
 const ODDR = {
@@ -156,7 +156,9 @@ function drawParts(c, dt) {
 const stunStars = (c, x, y, t) => { for (let s = 0; s < 3; s++) { const a = t * 6 + s * 2.09; c.font = "16px Arial"; c.textAlign = "center"; c.fillText("⭐", x + Math.cos(a) * 26, y + Math.sin(a) * 7); } };
 
 /* ---------- Pie in the Face Press Conference (live) ---------- */
-const PW = 320, PH = 360, PX3 = [64, 160, 256], HEAD_Y = 172, CK = 1.22;
+const PW = 320, PH = 360, HEAD_Y = 172, CK = 1.22;
+let PX3 = [64, 160, 256];
+const pieSeats = n => { PX3 = n === 2 ? [96, 224] : [64, 160, 256]; };
 function pieBg(g, c) {
   const [o, x] = off(PW, PH), ids = g.seats || [];
   let gr = x.createLinearGradient(0, 0, 0, PH); gr.addColorStop(0, "#4a1424"); gr.addColorStop(.6, "#7a2438"); gr.addColorStop(1, "#2a0f18"); x.fillStyle = gr; x.fillRect(0, 0, PW, PH);
@@ -164,7 +166,7 @@ function pieBg(g, c) {
   [0, 1].forEach(sd => { const gx = sd ? PW - 46 : 0; const cg = x.createLinearGradient(gx, 0, gx + 46, 0); cg.addColorStop(sd ? 1 : 0, "#5c1021"); cg.addColorStop(sd ? 0 : 1, "#b03a55"); x.fillStyle = cg; x.beginPath(); x.moveTo(gx, 0); x.lineTo(gx + 46, 0); x.quadraticCurveTo(gx + (sd ? 22 : 24), 130, gx + 46, 270); x.lineTo(gx, 270); x.fill(); });
   const fl = x.createLinearGradient(0, 250, 0, PH); fl.addColorStop(0, "#6b4a2e"); fl.addColorStop(1, "#2b1c10"); x.fillStyle = fl; x.beginPath(); x.moveTo(0, 262); x.lineTo(PW, 262); x.lineTo(PW, PH); x.lineTo(0, PH); x.fill();
   x.strokeStyle = "rgba(255,220,160,.12)"; x.lineWidth = 1.5; for (let i = -4; i <= 8; i++) { x.beginPath(); x.moveTo(PW / 2 + (i - 2) * 22, 262); x.lineTo(PW / 2 + (i - 2) * 70, PH); x.stroke(); }
-  [60, 160, 260].forEach(sx => { const sg = x.createRadialGradient(sx, 262, 8, sx, 262, 120); sg.addColorStop(0, "rgba(255,246,200,.28)"); sg.addColorStop(1, "rgba(255,246,200,0)"); x.fillStyle = sg; x.beginPath(); x.moveTo(sx - 6, 0); x.lineTo(sx + 6, 0); x.lineTo(sx + 70, 300); x.lineTo(sx - 70, 300); x.fill(); });
+  PX3.forEach(sx => { const sg = x.createRadialGradient(sx, 262, 8, sx, 262, 120); sg.addColorStop(0, "rgba(255,246,200,.28)"); sg.addColorStop(1, "rgba(255,246,200,0)"); x.fillStyle = sg; x.beginPath(); x.moveTo(sx - 6, 0); x.lineTo(sx + 6, 0); x.lineTo(sx + 70, 300); x.lineTo(sx - 70, 300); x.fill(); });
   x.fillStyle = "#111"; rr(x, 76, 10, 168, 26, 6); x.fill(); x.strokeStyle = "#e6b422"; x.lineWidth = 2.5; x.stroke(); text(x, "PRESS CONFERENCE", 160, 29, 14, "#e6b422");
   return o;
 }
@@ -182,6 +184,7 @@ function piePod(g, c) {
   return o;
 }
 function pieInit(g, c) {
+  pieSeats((g.seats || []).length);
   const S = setup("pxs", PW, PH); if (!S) return; const cv = S.cv;
   cv.style.touchAction = "none"; stopTouchScroll(cv);
   Object.assign(L, { S, me: (g.seats || []).indexOf(c.ME), loc: [], pies: {}, myCd: 0, myCdTot: 500, myDuck: null, burst: {}, nl: 0, cr: [0, 0, 0], stun: [0, 0, 0], shake: 0, pop: [], bg: pieBg(g, c), pod: piePod(g, c) });
@@ -190,7 +193,7 @@ function pieInit(g, c) {
   const d = $("pxduck"); if (d) d.onpointerdown = e => { e.preventDefault(); pieDuck(); };
   loop(TOK, pieFrame);
 }
-const act = (c, d, a) => { try { c.rpc("party_act", { p_room: c.room(), p_do: d, p_a: a }).catch(() => {}); } catch (e) {} };
+const act = (c, d, a) => { try { const t0 = Date.now(); c.rpc("party_act", { p_room: c.room(), p_do: d, p_a: a }).then(r => { if (r && r.view && c.take) c.take(r.view, t0); }).catch(() => {}); } catch (e) {} };
 const pieStunned = (k, now) => Math.max(((L.g.inv || {})[k] || 0), L.stun[k] || 0) > now;
 function pieThrow(k) {
   const g = L.g, c = L.c; if (!g || g.phase !== "live" || L.me < 0 || k === L.me) return; const now = c.srv();
@@ -288,9 +291,10 @@ function glSync(g, c) {
   L.Sim = S;
 }
 function glStep(S, ts) {
-  for (let i = 0; i < 3; i++) if (!S.al[i] && ts >= S.rs[i]) { const a = (-90 + i * 120) * Math.PI / 180; S.x[i] = 55 * Math.cos(a); S.y[i] = 55 * Math.sin(a); S.vx[i] = 0; S.vy[i] = 0; S.al[i] = true; L.pop[i] = ts; }
-  for (let i = 0; i < 3; i++) if (S.al[i]) { S.x[i] += S.vx[i]; S.y[i] += S.vy[i]; S.vx[i] *= FR; S.vy[i] *= FR; }
-  for (let i = 0; i < 2; i++) for (let j = i + 1; j < 3; j++) if (S.al[i] && S.al[j]) {
+  const N = S.x.length;
+  for (let i = 0; i < N; i++) if (!S.al[i] && ts >= S.rs[i]) { const a = (-90 + i * 360 / N) * Math.PI / 180; S.x[i] = 55 * Math.cos(a); S.y[i] = 55 * Math.sin(a); S.vx[i] = 0; S.vy[i] = 0; S.al[i] = true; L.pop[i] = ts; }
+  for (let i = 0; i < N; i++) if (S.al[i]) { S.x[i] += S.vx[i]; S.y[i] += S.vy[i]; S.vx[i] *= FR; S.vy[i] *= FR; }
+  for (let i = 0; i < N - 1; i++) for (let j = i + 1; j < N; j++) if (S.al[i] && S.al[j]) {
     let dx = S.x[i] - S.x[j], dy = S.y[i] - S.y[j], d = Math.sqrt(dx * dx + dy * dy);
     if (d < 22) {
       if (d < .001) { dx = 1; dy = 0; d = 1; } const nx = dx / d, ny = dy / d, rv = (S.vx[i] - S.vx[j]) * nx + (S.vy[i] - S.vy[j]) * ny;
@@ -298,7 +302,7 @@ function glStep(S, ts) {
       const ov = (22 - d) / 2; S.x[i] += ov * nx; S.y[i] += ov * ny; S.x[j] -= ov * nx; S.y[j] -= ov * ny;
     }
   }
-  for (let i = 0; i < 3; i++) if (S.al[i] && Math.sqrt(S.x[i] * S.x[i] + S.y[i] * S.y[i]) > RING) { S.al[i] = false; S.rs[i] = ts + 1800; if (!L.seen["f" + ts + i]) { L.seen["f" + ts + i] = 1; L.fall[i] = { x: S.x[i], y: S.y[i], vx: S.vx[i], vy: S.vy[i], t: ts }; L.splash.push([S.x[i], S.y[i], ts]); } }
+  for (let i = 0; i < N; i++) if (S.al[i] && Math.sqrt(S.x[i] * S.x[i] + S.y[i] * S.y[i]) > RING) { S.al[i] = false; S.rs[i] = ts + 1800; if (!L.seen["f" + ts + i]) { L.seen["f" + ts + i] = 1; L.fall[i] = { x: S.x[i], y: S.y[i], vx: S.vx[i], vy: S.vy[i], t: ts }; L.splash.push([S.x[i], S.y[i], ts]); } }
 }
 function glInit(g, c) {
   const S = setup("pxs", GW, GH); if (!S) return; const cv = S.cv;
@@ -331,7 +335,7 @@ function glFrame(dt) {
   x.setTransform(S.k, 0, 0, S.k, 0, 0);
   x.drawImage(L.bg, 0, 0, GW, GH);
   for (let i = 0; i < 9; i++) { const ph = (t * .45 + i * .37) % 1; x.fillStyle = "rgba(255,200,80," + (.7 * (1 - ph)) + ")"; x.beginPath(); x.arc(30 + i * 33 + Math.sin(t + i) * 6, 330 - ph * 120, 2 + (i % 3), 0, TAU); x.fill(); }
-  const order = [0, 1, 2].sort((a, b) => Sm.y[a] - Sm.y[b]);
+  const order = Sm.x.map((_, i) => i).sort((a, b) => Sm.y[a] - Sm.y[b]);
   /* ready ring / aim go under the boxers */
   const drawAim = () => {
     if (L.me < 0 || !Sm.al[L.me]) return; const X = Sm.x[L.me] + Sm.vx[L.me] * fr, Y = Sm.y[L.me] + Sm.vy[L.me] * fr, left = Math.max(0, L.myCd - now), ready = left <= 0, sx = gx(X), sy = gy(Y) + 8;
@@ -355,7 +359,7 @@ function glFrame(dt) {
     text(x, short(c, L.ids[i]) + (i === L.me ? " ★" : ""), sx, sy - 54 * pers, 11, COL[i], "#000");
   });
   /* fallen boxers tumble into the lava, in front of the rim */
-  for (let i = 0; i < 3; i++) if (!Sm.al[i] && L.fall[i]) { const f = L.fall[i], k = Math.min(1, (now - f.t) / 700); if (k >= 1) continue; const X = f.x + f.vx * 12 * k, Y = f.y + f.vy * 12 * k, pers = gp(Y); x.save(); x.globalAlpha = 1 - k * .8; x.translate(gx(X), gy(Y) - 20 * pers + k * 70); x.rotate(k * 7); drawSprite(x, sprite(i, "h"), 0, 0, 17 / 24 * pers * 1.1 * 1.25 * (1 - k * .6)); x.restore(); }
+  for (let i = 0; i < Sm.x.length; i++) if (!Sm.al[i] && L.fall[i]) { const f = L.fall[i], k = Math.min(1, (now - f.t) / 700); if (k >= 1) continue; const X = f.x + f.vx * 12 * k, Y = f.y + f.vy * 12 * k, pers = gp(Y); x.save(); x.globalAlpha = 1 - k * .8; x.translate(gx(X), gy(Y) - 20 * pers + k * 70); x.rotate(k * 7); drawSprite(x, sprite(i, "h"), 0, 0, 17 / 24 * pers * 1.1 * 1.25 * (1 - k * .6)); x.restore(); }
   drawParts(x, dt);
 }
 function glHtml(g, c) { return `<div class="pxhud" id="pxhud">${hud(g, c, 5)}</div><canvas class="px" id="pxs"></canvas><div class="pxcd" id="pxcd"><u id="pxcdu"></u></div>`; }

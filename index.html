@@ -116,6 +116,7 @@ dialog.out::backdrop{opacity:0;transition:opacity .25s}
 
 #hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#23242899,transparent 30%,transparent 50%,#232428 100%),radial-gradient(900px 500px at 50% 110%,rgba(var(--rgb),0.47),transparent 70%)}
 .hc{position:absolute;z-index:2;left:0;right:0;bottom:calc(8svh + env(safe-area-inset-bottom,0px));text-align:center;padding:0 16px}
+html.ovl .hint,html.ovl .tag.g,html.ovl .tag.dc,html.ovl .lv i{animation-play-state:paused!important}
 .hint{display:inline-block;margin-top:18px;color:#fff;font:14px Barlow,Arial,sans-serif;letter-spacing:2px;text-transform:uppercase;animation:bob 1.6s ease-in-out infinite}
 @keyframes bob{50%{transform:translateY(8px)}}
 .pf{display:flex;flex-direction:column;align-items:flex-start;gap:4px}.pl{background:none;border:0;color:var(--gold);font:12px Barlow,Arial,sans-serif;text-decoration:underline;cursor:pointer;padding:0 6px}.pl.off{color:var(--mut);text-decoration:none;cursor:default}
@@ -872,9 +873,21 @@ function drawF(){const f=Math.max(0,Math.min(NF-1,pos)),i=Math.floor(f),fr=f-i;
 const hero=document.getElementById("hero"),hc=document.getElementById("hc"),sp=document.getElementById("sp");
 let HH=1;const mH=()=>{HH=(hero.offsetHeight||innerHeight)+(sp?sp.offsetHeight:0)};mH();addEventListener("resize",mH);addEventListener("load",mH);
 let lastT=0;
-function loop(t){const dt=Math.min(.064,(t-lastT)/1000||.016);lastT=t;const sy=LK?LOCKY:scrollY,p=Math.min(1,Math.max(0,sy/HH)),d=p*(NF-1)-pos;
- if(Math.abs(d)>.002){pos+=d*(1-Math.exp(-dt/.07));drawF();dirty=false}else if(dirty){drawF();dirty=false}
- const q=pos/(NF-1);cvs.style.transform="scale("+(1+.45*q)+")";hc.style.opacity=Math.max(0,1-q*3);requestAnimationFrame(loop)}requestAnimationFrame(loop);
+/* hero scrub: only touch the DOM when something changed, and skip it entirely while a game/page covers the screen */
+let lastQ=-1;const covered=()=>!!document.querySelector("#pty.on,#bt.on,#fl.on,.pgs:not([hidden])");
+let RUN=false;
+function loop(t){const dt=Math.min(.064,(t-lastT)/1000||.016);lastT=t;
+ if(document.hidden||covered()){RUN=false;return}
+ const sy=LK?LOCKY:scrollY,p=Math.min(1,Math.max(0,sy/HH)),d=p*(NF-1)-pos;let busy=false;
+ if(Math.abs(d)>.002){pos+=d*(1-Math.exp(-dt/.07));drawF();dirty=false;busy=true}else if(dirty){drawF();dirty=false}
+ const q=pos/(NF-1);if(Math.abs(q-lastQ)>1e-4){lastQ=q;cvs.style.transform="scale("+(1+.45*q)+")";hc.style.opacity=Math.max(0,1-q*3);busy=true}
+ if(busy||dirty)requestAnimationFrame(loop);else RUN=false}
+/* the loop sleeps when nothing moves; scrolling, resizing or a newly decoded frame wakes it */
+const kick=()=>{if(RUN||document.hidden)return;RUN=true;lastT=performance.now();requestAnimationFrame(loop)};
+addEventListener("scroll",kick,{passive:true});addEventListener("resize",kick);document.addEventListener("visibilitychange",kick);
+setInterval(()=>{if(!RUN&&!covered()){const sy=LK?LOCKY:scrollY,p=Math.min(1,Math.max(0,sy/HH));if(dirty||Math.abs(p*(NF-1)-pos)>.002)kick()}},250);kick();
+/* pause the page's looping CSS animations while a game or page is on top */
+setInterval(()=>{const on=covered();if(document.documentElement.classList.contains("ovl")!==on)document.documentElement.classList.toggle("ovl",on)},400);
 
 function swc(d){const ks=classes.filter(k=>D[k]);show(ks[(ks.indexOf(cur)+d+ks.length)%ks.length])}
 let SC=false,st;
