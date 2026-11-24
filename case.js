@@ -294,7 +294,7 @@ window.fpStop = () => {
       return;
     }
   } catch (e) {}
-  if (n < 40) setTimeout(() => w(n + 1), 400);
+  setTimeout(() => w(n + 1), n < 40 ? 400 : 2000);
 })(0);
 setInterval(() => {
   const e = $("csnx");

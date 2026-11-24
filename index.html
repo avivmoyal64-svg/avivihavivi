@@ -1360,10 +1360,10 @@ async function pushMigrate(){try{if(!pushOK()||Notification.permission!=="grante
  const k=sub.options&&sub.options.applicationServerKey,cur=k?btoa(String.fromCharCode(...new Uint8Array(k))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""):"";if(cur===VAPID_PUB)return;
  await sub.unsubscribe();const reg=await navigator.serviceWorker.ready,ns=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(VAPID_PUB)}),j=ns.toJSON();
  await SB.rpc("push_register",{p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth,p_lang:window.LANGHE?"he":"en"});pushUI()}catch(e){}}
-(function w(n){try{if(ME){pushUI();pushMigrate();return}}catch(e){}if(n<40)setTimeout(()=>w(n+1),400)})(0);
+(function w(n){try{if(ME){pushUI();pushMigrate();return}}catch(e){}setTimeout(()=>w(n+1),n<40?400:2000)})(0);
 
 /* load after login */
-(function w(n){try{if(ME){goatLoad();return}}catch(e){}if(n<40)setTimeout(()=>w(n+1),400)})(0);
+(function w(n){try{if(ME){goatLoad();return}}catch(e){}setTimeout(()=>w(n+1),n<40?400:2000)})(0);
 </script>
 <script src="shop.js"></script><script src="bets.js"></script><script src="case.js"></script><script src="duel.js"></script><script src="guess.js"></script><script src="who.js"></script><script src="party2.js"></script><script src="party.js"></script><script src="beat.js"></script><script src="flags.js"></script><script src="menu.js"></script><script src="coinbar.js"></script><script>/* close buttons: fire on touchend so a tiny finger drift (or the swipe-to-close handlers) can't swallow the tap */
 (function(){let ts=null;

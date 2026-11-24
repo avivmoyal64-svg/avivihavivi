@@ -133,7 +133,7 @@ window.shopOff = async function (k) { try { if (await equip(k, "")) { SHOP.msg =
 window.rxStrip = () => "";
 
 /* ---------- start ---------- */
-(function w(n) { try { if (ME && SB) { shopLoad(); return; } } catch (e) {} if (n < 40) setTimeout(() => w(n + 1), 400); })(0);
+(function w(n) { try { if (ME && SB) { shopLoad(); return; } } catch (e) {} setTimeout(() => w(n + 1), n < 40 ? 400 : 2000); })(0);
 })();
 
 /* keep everybody's spent coins fresh so the leaderboard and the wallet show the same number */

@@ -104,7 +104,7 @@ window.favChoose = async n => {
 legLoad();
 (function w(n) {
   try { if (ME && SB) { betLoad(); SB.channel("bets").on("postgres_changes", { event: "*", schema: "public", table: "bets" }, () => { clearTimeout(T); T = setTimeout(betLoad, 400); }).subscribe(); return; } } catch (e) {}
-  if (n < 40) setTimeout(() => w(n + 1), 400);
+  setTimeout(() => w(n + 1), n < 40 ? 400 : 2000);
 })(0);
 document.addEventListener("visibilitychange", () => { if (!document.hidden && ME) { try { betLoad(); } catch (e) {} } });
 })();

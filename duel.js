@@ -553,7 +553,7 @@ window.closePage = function () { PL = null; OUT = null; CH = null; MSG = ""; ret
 /* ---------- start ---------- */
 (function w(n) {
   try { if (ME && SB) { load(); SB.channel("duel").on("postgres_changes", { event: "*", schema: "public", table: "trivia_games" }, () => { clearTimeout(T); T = setTimeout(load, 500); }).subscribe(); return; } } catch (e) {}
-  if (n < 40) setTimeout(() => w(n + 1), 400);
+  setTimeout(() => w(n + 1), n < 40 ? 400 : 2000);
 })(0);
 setInterval(() => { try { if (ME && OK && !document.hidden && !PL && (G.some(g => g.status === "invited" || g.status === "active") || ($("pgD") && !$("pgD").hidden))) load(); } catch (e) {} }, 6000);
 document.addEventListener("visibilitychange", () => { if (!document.hidden && ME) { try { load(); } catch (e) {} } });
