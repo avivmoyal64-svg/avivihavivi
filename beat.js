@@ -93,7 +93,7 @@ async function load() {
     const q = await SB.from("bt_games").select("id,a,b,status,wa,wb,winner,draw,created_at,touched").or("a.eq." + ME + ",b.eq." + ME).order("created_at", { ascending: false }).limit(20);
     if (q.error) throw q.error; G = q.data || []; OK = true;
   } catch (e) { OK = false; G = []; }
-  if (OK) { try { const w = await SB.rpc("bt_wins"); if (!w.error && Array.isArray(w.data)) { Object.keys(window.BTC).forEach(k => delete window.BTC[k]); w.data.forEach(x => { if (x.winner) window.BTC[x.winner] = 5 * Number(x.n || 0); }); } } catch (e) {} }
+  if (OK) { try { const w = await SB.rpc("bt_wins"); if (!w.error && Array.isArray(w.data)) { const _b = JSON.stringify(window.BTC); Object.keys(window.BTC).forEach(k => delete window.BTC[k]); w.data.forEach(x => { if (x.winner) window.BTC[x.winner] = 5 * Number(x.n || 0); });  if (JSON.stringify(window.BTC) !== _b) { try { ren(); } catch (e) {} }} } catch (e) {} }
 }
 async function enter(id) { M = id; V = null; KEY = ""; LK = 0; FB = ""; await pull(); }
 async function pull() {

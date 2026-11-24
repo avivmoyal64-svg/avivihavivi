@@ -137,4 +137,4 @@ window.rxStrip = () => "";
 })();
 
 /* keep everybody's spent coins fresh so the leaderboard and the wallet show the same number */
-setInterval(async () => { try { if (!ME || !SB || document.hidden) return; const sp = await SB.rpc("shop_spent"); if (!sp.error && Array.isArray(sp.data)) { const m = {}; sp.data.forEach(x => { m[x.user_id] = Number(x.spent) || 0; }); window.SPENT = m; } } catch (e) {} }, 60000);
+setInterval(async () => { try { if (!ME || !SB || document.hidden) return; const sp = await SB.rpc("shop_spent"); if (!sp.error && Array.isArray(sp.data)) { const m = {}; sp.data.forEach(x => { m[x.user_id] = Number(x.spent) || 0; }); const ch = JSON.stringify(m) !== JSON.stringify(window.SPENT || {}); window.SPENT = m; if (ch) { try { ren(); } catch (e) {} } } } catch (e) {} }, 60000);

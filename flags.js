@@ -143,7 +143,7 @@ async function load() {
     const q = await SB.from("fm_games").select("id,a,b,status,wa,wb,winner,draw,created_at,touched").or("a.eq." + ME + ",b.eq." + ME).order("created_at", { ascending: false }).limit(20);
     if (q.error) throw q.error; G = q.data || []; OK = true;
   } catch (e) { OK = false; G = []; }
-  if (OK) { try { const w = await SB.rpc("fm_wins"); if (!w.error && Array.isArray(w.data)) { Object.keys(window.FLC).forEach(k => delete window.FLC[k]); w.data.forEach(x => { if (x.winner) window.FLC[x.winner] = 5 * Number(x.n || 0); }); } } catch (e) {} }
+  if (OK) { try { const w = await SB.rpc("fm_wins"); if (!w.error && Array.isArray(w.data)) { const _b = JSON.stringify(window.FLC); Object.keys(window.FLC).forEach(k => delete window.FLC[k]); w.data.forEach(x => { if (x.winner) window.FLC[x.winner] = 5 * Number(x.n || 0); });  if (JSON.stringify(window.FLC) !== _b) { try { ren(); } catch (e) {} }} } catch (e) {} }
 }
 async function enter(id) { M = id; V = null; KEY = ""; LK = 0; FB = ""; SEL = null; await pull(); }
 async function pull() {

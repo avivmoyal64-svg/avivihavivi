@@ -48,7 +48,7 @@ async function load() {
   if (OK) {
     try {
       const w = await SB.rpc("who_wins");
-      if (!w.error && Array.isArray(w.data)) { Object.keys(WHOC).forEach(k => delete WHOC[k]); w.data.forEach(x => { if (x.winner) WHOC[x.winner] = 5 * Number(x.n || 0); }); }
+      if (!w.error && Array.isArray(w.data)) { const _b = JSON.stringify(WHOC); Object.keys(WHOC).forEach(k => delete WHOC[k]); w.data.forEach(x => { if (x.winner) WHOC[x.winner] = 5 * Number(x.n || 0); });  if (JSON.stringify(WHOC) !== _b) { try { ren(); } catch (e) {} }}
     } catch (e) {}
   }
   const p = $("pgW"); if (p && !p.hidden && !M && !S && !$("wwq")) window.whoShow();
