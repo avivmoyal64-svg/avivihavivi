@@ -928,7 +928,7 @@ function renLast(){const el=document.getElementById("lw");if(!el)return;
 let ARCH=[],SHOW=true,BOARDGO=null,DB=null,U=null,ME=null,OWNER=false,PICKS={},PRAW={},RES={},AUTO={},MAINF={},NAMES={},READY=false,sel={},CF=null;
 
 /* ===== Supabase mode (used when the page is NOT opened inside claude.ai) ===== */
-const SUPA_URL="https://hauxmxemyvgbgkbholln.supabase.co",SUPA_KEY="sb_publishable_doIqm34FPpJah1gWDeQWvQ_O54mnuip";
+const SUPA_URL="https://tttzzoohurwuruhqijrx.supabase.co",SUPA_KEY="sb_publishable_mFCCHVqj-8jMKUkoqo3apQ_ij-ekiQ3";
 let SB=null,SBMSG="";
 const ORIGBOX='Open this page while signed in to claude.ai to log in, pick winners and earn coins.';
 function loginHtml(){if(!SB)return ORIGBOX;return `<div class="lgp"><span>+100 coins<small>right winner</small></span><span>+50 coins<small>right method</small></span><span>+50 coins<small>right round</small></span><span>2x<small>main event</small></span></div><form class="lgf" data-m="in" onsubmit="sbSub(event)"><div class="lgt" role="tablist"><button type="button" class="on" data-t="in" onclick="setLM('in')">Log in</button><button type="button" data-t="up" onclick="setLM('up')">Create account</button></div><label>Email<input id="le" type="email" placeholder="you@example.com" required autocomplete="email"></label><label class="lgn">Display name<input id="ln" type="text" placeholder="Shown on the scoreboard" maxlength="24" autocomplete="nickname"></label><label>Password<span class="lgw"><input id="lp" type="password" placeholder="6+ characters" required minlength="6" autocomplete="current-password"><button type="button" class="lgs" onclick="const i=document.getElementById('lp');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'Show':'Hide'">Show</button></span></label><button class="btn lgb" type="submit">Log in</button><div class="lgc">By creating an account you confirm you are 16 or older and agree to the <a href="terms.html" target="_blank" rel="noopener">Terms</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</div><div id="lm" class="st" role="status">${SBMSG}</div></form>`}
@@ -1331,7 +1331,7 @@ function goatChoose(n){document.getElementById("gp").close();goatSet(GSLOT,n)}
 
 
 /* ===== push notifications ===== */
-const VAPID_PUB="BNZuMaKAsSBGlSAe69-2EehhO3ZGT7UgK9dfAoWVEOiDZWoUfkYNR0uOv6xCYV3St09yhRmb6MZr1uy8Nc2OeXY";
+const VAPID_PUB="BGG13TDJo2y-OJAYr0_zU7GJlTcJxQLhCcQsFugW8PqWQco9UUpnoQauqUyGNz4EHWHKv29DjrleMNVYSCDwQ1E";
 const pushOK=()=>"serviceWorker"in navigator&&"PushManager"in window&&"Notification"in window;
 const b64u=s=>{const p="=".repeat((4-s.length%4)%4),b=(s+p).replace(/-/g,"+").replace(/_/g,"/"),r=atob(b);return Uint8Array.from([...r].map(c=>c.charCodeAt(0)))};
 async function pushSub(){try{const reg=await navigator.serviceWorker.getRegistration();return reg?await reg.pushManager.getSubscription():null}catch(e){return null}}
@@ -1353,7 +1353,12 @@ async function pushToggle(){const s=await pushState();
    if(error)throw error}
  }catch(e){alert("Could not change notifications: "+(e&&e.message?e.message:e))}
  pushUI()}
-(function w(n){try{if(ME){pushUI();return}}catch(e){}if(n<40)setTimeout(()=>w(n+1),400)})(0);
+/* the server moved (Nov 2026) and has new notification keys: quietly move an existing subscription to the new key */
+async function pushMigrate(){try{if(!pushOK()||Notification.permission!=="granted"||!SB||!ME)return;const sub=await pushSub();if(!sub)return;
+ const k=sub.options&&sub.options.applicationServerKey,cur=k?btoa(String.fromCharCode(...new Uint8Array(k))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""):"";if(cur===VAPID_PUB)return;
+ await sub.unsubscribe();const reg=await navigator.serviceWorker.ready,ns=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(VAPID_PUB)}),j=ns.toJSON();
+ await SB.rpc("push_register",{p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth,p_lang:window.LANGHE?"he":"en"});pushUI()}catch(e){}}
+(function w(n){try{if(ME){pushUI();pushMigrate();return}}catch(e){}if(n<40)setTimeout(()=>w(n+1),400)})(0);
 
 /* load after login */
 (function w(n){try{if(ME){goatLoad();return}}catch(e){}if(n<40)setTimeout(()=>w(n+1),400)})(0);

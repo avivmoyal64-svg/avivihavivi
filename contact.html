@@ -7,7 +7,7 @@
 <button type="submit">Send message</button><p id="r" class="mut"></p></form>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
 <script>
-const sb=supabase.createClient("https://hauxmxemyvgbgkbholln.supabase.co","sb_publishable_doIqm34FPpJah1gWDeQWvQ_O54mnuip");
+const sb=supabase.createClient("https://tttzzoohurwuruhqijrx.supabase.co","sb_publishable_mFCCHVqj-8jMKUkoqo3apQ_ij-ekiQ3");
 f.onsubmit=async ev=>{ev.preventDefault();if(h.value)return;const last=+localStorage.getItem("cl")||0;if(Date.now()-last<60000){r.textContent="Please wait a minute before sending another message.";return}
 const{error}=await sb.from("contact_messages").insert({email:e.value.trim()||null,topic:t.value,message:m.value.trim()});
 if(error){r.textContent="Could not send. Please try again later.";return}localStorage.setItem("cl",Date.now());f.reset();r.textContent="Thanks! Your message was sent."};

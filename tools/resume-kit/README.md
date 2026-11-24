@@ -5,7 +5,7 @@ The owner reviews every picture before anything is pushed.
 
 ## Workflow (run after each event)
 
-1. **Find the results.** In Supabase (project `hauxmxemyvgbgkbholln`), read
+1. **Find the results.** In Supabase (project `tttzzoohurwuruhqijrx`), read
    `site_data` key `events`. `value.last` is the event that just finished.
    `value.history` holds every result keyed `e<event>-<a>-vs-<b>` →
    `{w, m: DEC|KO/TKO|SUB|DRAW|NC, r, nc}`.
