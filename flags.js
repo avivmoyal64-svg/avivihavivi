@@ -15,7 +15,7 @@ const live = g => g.status === "invited" || (g.status === "active" && Date.parse
 const invitesIn = () => G.filter(g => g.b === ME && g.status === "invited" && Date.parse(g.created_at) > Date.now() - 864e5);
 const playable = () => G.filter(g => g.status === "active" && Date.parse(g.touched || 0) > Date.now() - 10 * 60e3);
 const rpc = async (fn, a) => { const r = await SB.rpc(fn, a || {}); if (r.error) throw r.error; return r.data; };
-const photoOf = n => { try { for (const c in D) if (D[c].some(f => f.n === n)) return (typeof photoZ === "function" ? photoZ(n) : "") || ""; } catch (e) {} return ""; };
+const photoOf = n => { try { return (typeof photoZ === "function" ? photoZ(n) : "") || ""; } catch (e) {} return ""; };
 const ini = n => String(n).split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join("").toUpperCase();
 const ERR = e => { const t = String((e && e.message) || e); return /pending invite/i.test(t) ? (window.PENDMSG || "You already have an invite waiting.") : /wait a few/i.test(t) ? "Wait a few seconds before sending another invite." : /too many/i.test(t) ? "Too many challenges today. Try again tomorrow." : /already open/i.test(t) ? "You already have a game open with this player." : "Something went wrong. Try again."; };
 

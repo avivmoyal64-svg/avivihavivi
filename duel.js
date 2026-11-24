@@ -326,7 +326,7 @@ function row(g) {
 }
 function playHtml() {
   const q = PL.qs[PL.i], pct = Math.round(PL.i / PL.qs.length * 100);
-  return `<div class="dlq"><div class="dlhd"><span class="dlav">${findF(PL.fighter) ? avZ(PL.fighter) : "<i>⚔️</i>"}</span><div><small>Question</small><b>${PL.i + 1} / ${PL.qs.length}</b></div><button class="fvb" type="button" onclick="duelQuit()">Quit</button></div>
+  return `<div class="dlq"><div class="dlhd"><span class="dlav">${PL.fighter ? avZ(PL.fighter) : "<i>⚔️</i>"}</span><div><small>Question</small><b>${PL.i + 1} / ${PL.qs.length}</b></div><button class="fvb" type="button" onclick="duelQuit()">Quit</button></div>
 <div class="dlbar"><i style="width:${pct}%"></i></div><h3 class="dlqt">${esc(q.q)}</h3><div class="dlo">${q.o.map((o, k) => `<button type="button" onclick="duelAns(${k})">${esc(o)}</button>`).join("")}</div></div>`;
 }
 function outHtml() {
