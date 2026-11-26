@@ -1151,6 +1151,13 @@ function rmn(){const el=document.getElementById("rmn");if(!el)return;
  const when=ms<48*3600e3?`in <b>${h?h+"h ":""}${m}m</b>`:`<b>${new Date(lockAt()).toLocaleString(LOC(),{weekday:"short",hour:"2-digit",minute:"2-digit"})}</b>`;
  el.innerHTML=`<div class="rmn ${hot?"hot":""}" role="button" tabindex="0" onclick="openPage('picks')"><i>⏰</i><span>Picks lock ${when}. You haven't picked <b>${un} fight${un>1?"s":""}</b> yet.</span></div>`}
 setInterval(()=>{try{rmn()}catch(e){}},30000);
+/* Travel: times already use the phone's clock; when the phone's time zone changes, redraw them
+   and tell the server, so daily things (case, challenge limits) reset at local midnight. */
+(function(){const tz=()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){return ""}};let cur=tz();
+ async function tell(){const t=tz();if(!t||typeof SB==="undefined"||!SB||!ME)return;let k="";try{k=localStorage.getItem("ufctz")||""}catch(e){}
+  if(k===t+"|"+ME)return;try{const{error}=await SB.rpc("set_tz",{p_tz:t});if(!error)try{localStorage.setItem("ufctz",t+"|"+ME)}catch(e){}}catch(e){}}
+ function chk(away){const t=tz();if(t&&t!==cur){cur=t;tell().finally(()=>{if(away)location.reload();else{try{ren()}catch(e){}}})}else tell()}
+ addEventListener("visibilitychange",()=>{if(!document.hidden)chk(true)});setInterval(()=>{if(!document.hidden)chk(false)},60000);setTimeout(()=>chk(false),5000)})();
 
 /* ===== fighter updates (rankings, records, age, height, reach) ===== */
 const nk=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
