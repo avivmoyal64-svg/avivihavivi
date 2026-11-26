@@ -243,4 +243,5 @@ async function tick() {
 }
 setInterval(tick, 6000);
 setTimeout(() => { if (typeof ME !== "undefined" && ME) load(); }, 4000);
+addEventListener("gamenudge", e => { if (M && String(e.detail) === String(M)) tick(); });
 })();

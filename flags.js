@@ -155,6 +155,7 @@ async function pull() {
 }
 async function poll() { if (!OPEN || document.hidden || !M || BUSY || SEND) return; await pull(); render(false); }
 setInterval(poll, 600);
+addEventListener("gamenudge", e => { if (M && String(e.detail) === String(M)) poll(); });
 setInterval(() => { if (OPEN && !M && !document.hidden) load().then(() => { if (OPEN && !M) render(false); }); }, 4000);
 
 /* ---------- views ---------- */

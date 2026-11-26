@@ -144,6 +144,7 @@ async function poll() {
   if (V && V.g && V.g.phase === "live" && window.PARTYX) { try { window.PARTYX.update(V.g, cx()); } catch (e) { console.error(e); } }
   render(false);
 }
+addEventListener("gamenudge", e => { if (ROOM && String(e.detail) === String(ROOM) && INF < 2) { INF++; poll().catch(() => {}).then(() => { INF--; }); } });
 (function loop() {
   const live = !!(V && V.g && V.g.phase === "live");
   setTimeout(() => { if (INF < (live ? 2 : 1)) { INF++; poll().catch(() => {}).then(() => { INF--; }); } loop(); }, live ? 170 : 550);

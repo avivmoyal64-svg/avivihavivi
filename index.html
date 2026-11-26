@@ -1158,6 +1158,16 @@ setInterval(()=>{try{rmn()}catch(e){}},30000);
   if(k===t+"|"+ME)return;try{const{error}=await SB.rpc("set_tz",{p_tz:t});if(!error)try{localStorage.setItem("ufctz",t+"|"+ME)}catch(e){}}catch(e){}}
  function chk(away){const t=tz();if(t&&t!==cur){cur=t;tell().finally(()=>{if(away)location.reload();else{try{ren()}catch(e){}}})}else tell()}
  addEventListener("visibilitychange",()=>{if(!document.hidden)chk(true)});setInterval(()=>{if(!document.hidden)chk(false)},60000);setTimeout(()=>chk(false),5000)})();
+/* Live games: after any game move, ping the other player instantly over a realtime channel so
+   their screen refreshes right away instead of waiting for the next poll (big help far from the server). */
+(function(){let ch=null;const ID=a=>a&&(a.p_game||a.p_room);
+ function init(){if(ch||typeof SB==="undefined"||!SB||!SB.channel)return;
+  const raw=SB.rpc.bind(SB);
+  SB.rpc=function(fn,a,o){const p=raw(fn,a,o),id=ID(a);if(!id||/_(view|wins|mine)$/.test(fn))return p;
+   return Promise.resolve(p).then(r=>{if(r&&!r.error&&ch)try{ch.send({type:"broadcast",event:"n",payload:{g:String(id)}})}catch(e){}return r})};
+  ch=SB.channel("gamenudge",{config:{broadcast:{self:false}}});
+  ch.on("broadcast",{event:"n"},m=>{const g=m&&m.payload&&m.payload.g;if(g)dispatchEvent(new CustomEvent("gamenudge",{detail:g}))}).subscribe()}
+ init();const t=setInterval(()=>{init();if(ch)clearInterval(t)},500)})();
 
 /* ===== fighter updates (rankings, records, age, height, reach) ===== */
 const nk=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();

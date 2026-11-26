@@ -271,6 +271,7 @@ async function poll() {
   } catch (e) {}
 }
 setInterval(poll, 700);
+addEventListener("gamenudge", e => { if (M && String(e.detail) === String(M)) poll(); });
 
 /* ---------- entry card, invite pop-up ---------- */
 window.whoCard = () => {
